@@ -1,0 +1,102 @@
+{
+  "project_info": {
+    "project_number": "30319094479",
+    "project_id": "bloom-31efb",
+    "storage_bucket": "bloom-31efb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:30319094479:android:f20b85489b657ebebe65ba",
+        "android_client_info": {
+          "package_name": "com.midas.evimoon"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "30319094479-5jmfhb0rf00l4b9vqreik7drhth1uc03.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.midas.evimoon",
+            "certificate_hash": "6ce6afdc0f06d8c958c1cac7a9080f61113d8777"
+          }
+        },
+        {
+          "client_id": "30319094479-9a320g8d2jnvbltfmijsci0j2h4iujki.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.midas.evimoon",
+            "certificate_hash": "7d0e36cf8334961634473a2822502910458700ba"
+          }
+        },
+        {
+          "client_id": "30319094479-auflntm9t378qku9mlkeg7tcq3a0eei6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.midas.evimoon",
+            "certificate_hash": "b8bbbd166df5541e267dc1e6933bf2dc7d4d2e36"
+          }
+        },
+        {
+          "client_id": "30319094479-c7nt086rgpqcqm6nfei937q04vnsiepu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.midas.evimoon",
+            "certificate_hash": "0ad56878228c0b2c473d83018f518457223f5c9a"
+          }
+        },
+        {
+          "client_id": "30319094479-drmod1ev1448mak22ahu5hm51g0e5ru9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.midas.evimoon",
+            "certificate_hash": "66e124d45df5bd54613c47861244d945275e682a"
+          }
+        },
+        {
+          "client_id": "30319094479-mroj02k4vcl4ovqsjg5ikkt0hb5fgm20.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.midas.evimoon",
+            "certificate_hash": "6edba4473f872722f30251ee7024bd1dc31986e7"
+          }
+        },
+        {
+          "client_id": "30319094479-so25bs4e3qb4kid9br6l1f91vct3c2um.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.midas.evimoon",
+            "certificate_hash": "f5c7585b0552b155d5767fed0146b20583412358"
+          }
+        },
+        {
+          "client_id": "30319094479-s53mrm8k1ctfuvlalk8gffq489hqgpp4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDiDnV0R_J0aw_ZpUWIG-QNjPnPf76UcnA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "30319094479-s53mrm8k1ctfuvlalk8gffq489hqgpp4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "30319094479-5g1robanf1krnhldm5pma5hfq0ehdc5d.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.midas.evimoon"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
