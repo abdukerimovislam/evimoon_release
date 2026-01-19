@@ -1,7 +1,7 @@
 name: evimoon
 description: Private by Design cycle tracker. # Исправил описание на более профессиональное
 publish_to: 'none'
-version: 1.0.0+4
+version: 1.0.0+3
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -27,7 +27,7 @@ dependencies:
   # Функционал
   local_auth: ^2.1.6        # Биометрия
   table_calendar: ^3.1.0
-  flutter_local_notifications: ^17.2.3
+  flutter_local_notifications: ^17.0.0
 
   # PDF и Файлы
   pdf: ^3.10.4
@@ -42,6 +42,9 @@ dependencies:
   animated_flip_counter: ^0.2.5
   cupertino_icons: ^1.0.8
   iconsax: ^0.0.8
+  purchases_flutter: ^9.10.6
+  collection: ^1.18.0
+  flutter_timezone: ^2.0.0
 
 dev_dependencies:
   flutter_test:

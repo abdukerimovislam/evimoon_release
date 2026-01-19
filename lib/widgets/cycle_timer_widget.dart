@@ -4,20 +4,24 @@ import '../l10n/app_localizations.dart';
 import 'package:intl/intl.dart'; // Для дат
 import 'dart:ui'; // Для ImageFilter (Blur)
 import 'dart:math' as math;
+
 import '../models/cycle_model.dart';
 import '../theme/app_theme.dart';
 
-class CycleTimerWidget extends StatefulWidget {
+// 🔥 ИЗМЕНЕНИЕ: Переименовали класс
+class ClassicTimerWidget extends StatefulWidget {
   final CycleData data;
   final bool isCOC;
 
-  const CycleTimerWidget({super.key, required this.data, this.isCOC = false});
+  const ClassicTimerWidget({super.key, required this.data, this.isCOC = false});
 
   @override
-  State<CycleTimerWidget> createState() => CycleTimerWidgetState();
+  State<ClassicTimerWidget> createState() => ClassicTimerWidgetState();
 }
 
-class CycleTimerWidgetState extends State<CycleTimerWidget> with TickerProviderStateMixin {
+// 🔥 ИЗМЕНЕНИЕ: Переименовали State класс
+class ClassicTimerWidgetState extends State<ClassicTimerWidget>
+    with TickerProviderStateMixin {
   late AnimationController _rotateCtrl;
   late AnimationController _pulseCtrl;
   late AnimationController _projectionCtrl;
@@ -27,15 +31,94 @@ class CycleTimerWidgetState extends State<CycleTimerWidget> with TickerProviderS
   bool _isDragging = false;
   bool _isProjectionVisible = false;
 
+  // Флаг для авто-анимации
+  bool _isIntroPlaying = false;
+
   @override
   void initState() {
     super.initState();
-    _rotateCtrl = AnimationController(vsync: this, duration: const Duration(seconds: 40))..repeat();
-    _pulseCtrl = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat(reverse: true);
-    _projectionCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 600), reverseDuration: const Duration(milliseconds: 300));
+    _rotateCtrl =
+    AnimationController(vsync: this, duration: const Duration(seconds: 40))
+      ..repeat();
+    _pulseCtrl =
+    AnimationController(vsync: this, duration: const Duration(seconds: 2))
+      ..repeat(reverse: true);
 
-    // 🔥 ИЗМЕНЕНИЕ 1: Увеличили длительность до 2000мс для максимальной плавности
-    _boostCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 2000));
+    // Контроллер "Астральной проекции"
+    _projectionCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+      reverseDuration: const Duration(milliseconds: 300),
+    );
+
+    _boostCtrl =
+        AnimationController(vsync: this, duration: const Duration(milliseconds: 2000));
+
+    // ЗАПУСК АВТОМАТИЧЕСКОЙ АНИМАЦИИ
+    _runIntroSequence();
+  }
+
+  @override
+  void didUpdateWidget(covariant ClassicTimerWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    final bool modeChanged = oldWidget.isCOC != widget.isCOC;
+
+    final bool dataChanged =
+        oldWidget.data.cycleStartDate != widget.data.cycleStartDate ||
+            oldWidget.data.currentDay != widget.data.currentDay ||
+            oldWidget.data.totalCycleLength != widget.data.totalCycleLength ||
+            oldWidget.data.periodDuration != widget.data.periodDuration ||
+            oldWidget.data.phase != widget.data.phase ||
+            oldWidget.data.daysUntilNextPeriod != widget.data.daysUntilNextPeriod ||
+            oldWidget.data.isFertile != widget.data.isFertile;
+
+    if (modeChanged || dataChanged) {
+      _syncWithNewData(resetSelection: modeChanged || oldWidget.data.cycleStartDate != widget.data.cycleStartDate);
+    }
+  }
+
+  void _syncWithNewData({required bool resetSelection}) {
+    if (!mounted) return;
+
+    _isIntroPlaying = false;
+
+    setState(() {
+      if (resetSelection) {
+        _selectedDay = null;
+      }
+
+      if (_selectedDay != null && _selectedDay! > widget.data.totalCycleLength) {
+        _selectedDay = null;
+      }
+
+      if (_isProjectionVisible) {
+        _isProjectionVisible = false;
+        _projectionCtrl.value = 0;
+      }
+
+      _isDragging = false;
+    });
+  }
+
+  void _runIntroSequence() async {
+    _isIntroPlaying = true;
+
+    await Future.delayed(const Duration(milliseconds: 2000));
+    if (!mounted || !_isIntroPlaying) return;
+
+    if (!_isProjectionVisible) {
+      _toggleProjection(isAuto: true);
+    }
+
+    await Future.delayed(const Duration(milliseconds: 2000));
+    if (!mounted || !_isIntroPlaying) return;
+
+    if (_isProjectionVisible && !_isDragging) {
+      _toggleProjection(isAuto: true);
+    }
+
+    _isIntroPlaying = false;
   }
 
   @override
@@ -48,7 +131,6 @@ class CycleTimerWidgetState extends State<CycleTimerWidget> with TickerProviderS
   }
 
   void spinEffect() {
-    // 🔥 ИЗМЕНЕНИЕ 2: Плавный перезапуск
     _boostCtrl.forward(from: 0).then((_) {
       if (mounted) _boostCtrl.reset();
     });
@@ -57,6 +139,10 @@ class CycleTimerWidgetState extends State<CycleTimerWidget> with TickerProviderS
 
   void _handlePan(Offset localPosition, double size) {
     if (_isProjectionVisible) return;
+
+    if (_isIntroPlaying) {
+      _isIntroPlaying = false;
+    }
 
     final center = Offset(size / 2, size / 2);
     final dx = localPosition.dx - center.dx;
@@ -78,8 +164,13 @@ class CycleTimerWidgetState extends State<CycleTimerWidget> with TickerProviderS
     }
   }
 
-  void _toggleProjection() {
-    HapticFeedback.mediumImpact();
+  void _toggleProjection({bool isAuto = false}) {
+    if (isAuto) {
+      HapticFeedback.lightImpact();
+    } else {
+      HapticFeedback.mediumImpact();
+    }
+
     setState(() {
       _isProjectionVisible = !_isProjectionVisible;
       if (_isProjectionVisible) {
@@ -95,8 +186,14 @@ class CycleTimerWidgetState extends State<CycleTimerWidget> with TickerProviderS
     final l10n = AppLocalizations.of(context)!;
 
     final displayDay = _selectedDay ?? widget.data.currentDay;
-    final phases = _calculatePhases(widget.data.totalCycleLength);
-    final displayPhase = _getPhaseForDay(displayDay, phases);
+
+    CyclePhase displayPhase;
+    if (_selectedDay == null) {
+      displayPhase = widget.data.phase;
+    } else {
+      final phases = _calculatePhases(widget.data.totalCycleLength);
+      displayPhase = _getPhaseForDay(displayDay, phases);
+    }
 
     final displayColor = _getColor(displayPhase, widget.isCOC);
     final displayName = _getName(context, displayPhase, l10n, widget.isCOC);
@@ -108,8 +205,11 @@ class CycleTimerWidgetState extends State<CycleTimerWidget> with TickerProviderS
 
     final insights = _getDailyInsights(displayPhase, l10n, widget.isCOC);
 
+    final phasesForDots = _calculatePhases(widget.data.totalCycleLength);
+
     return SizedBox(
-      width: 340, height: 340,
+      width: 340,
+      height: 340,
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -117,15 +217,15 @@ class CycleTimerWidgetState extends State<CycleTimerWidget> with TickerProviderS
           AnimatedBuilder(
             animation: Listenable.merge([_rotateCtrl, _boostCtrl]),
             builder: (_, __) {
-              // 🔥 ИЗМЕНЕНИЕ 3: Используем easeOutExpo (очень плавное торможение)
-              final double boostCurve = Curves.easeOutExpo.transform(_boostCtrl.value);
-              // 🔥 ИЗМЕНЕНИЕ 4: Делаем 2 оборота (4 * pi), чтобы анимация была насыщенной
+              final double boostCurve =
+              Curves.easeOutExpo.transform(_boostCtrl.value);
               final double boostRotation = boostCurve * 4 * math.pi;
-
-              final double totalRotation = (_rotateCtrl.value * 2 * math.pi) + boostRotation;
+              final double totalRotation =
+                  (_rotateCtrl.value * 2 * math.pi) + boostRotation;
 
               return SizedBox(
-                width: 340, height: 340,
+                width: 340,
+                height: 340,
                 child: CustomPaint(
                   painter: _SpirographPainter(
                     color: displayColor,
@@ -139,20 +239,20 @@ class CycleTimerWidgetState extends State<CycleTimerWidget> with TickerProviderS
           // --- СЛОЙ 2: ТОЧКИ ---
           AnimatedBuilder(
             animation: _pulseCtrl,
-            builder: (_, __) =>
-                SizedBox(
-                  width: 300, height: 300,
-                  child: CustomPaint(
-                    painter: _SmartDotsPainter(
-                      totalDays: widget.data.totalCycleLength,
-                      currentDay: widget.data.currentDay,
-                      selectedDay: _selectedDay,
-                      pulse: _pulseCtrl.value,
-                      phases: phases,
-                      isCOC: widget.isCOC,
-                    ),
-                  ),
+            builder: (_, __) => SizedBox(
+              width: 300,
+              height: 300,
+              child: CustomPaint(
+                painter: _SmartDotsPainter(
+                  totalDays: widget.data.totalCycleLength,
+                  currentDay: widget.data.currentDay,
+                  selectedDay: _selectedDay,
+                  pulse: _pulseCtrl.value,
+                  phases: phasesForDots,
+                  isCOC: widget.isCOC,
                 ),
+              ),
+            ),
           ),
 
           // --- СЛОЙ ЖЕСТОВ ---
@@ -162,20 +262,21 @@ class CycleTimerWidgetState extends State<CycleTimerWidget> with TickerProviderS
               setState(() => _isDragging = true);
               _handlePan(details.localPosition, 340);
             },
-            onPanUpdate: (details) {
-              _handlePan(details.localPosition, 340);
-            },
+            onPanUpdate: (details) => _handlePan(details.localPosition, 340),
             onPanEnd: (details) => setState(() => _isDragging = false),
             child: Container(
-                width: 340, height: 340,
-                decoration: const BoxDecoration(
-                    shape: BoxShape.circle, color: Colors.transparent)
+              width: 340,
+              height: 340,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.transparent,
+              ),
             ),
           ),
 
           // --- СЛОЙ 3: КНОПКА ЦЕНТРАЛЬНАЯ ---
           GestureDetector(
-            onTap: _toggleProjection,
+            onTap: () => _toggleProjection(isAuto: false),
             child: AnimatedBuilder(
               animation: _projectionCtrl,
               builder: (context, child) {
@@ -184,53 +285,78 @@ class CycleTimerWidgetState extends State<CycleTimerWidget> with TickerProviderS
                   child: Transform.scale(
                     scale: 1.0 - (_projectionCtrl.value * 0.1),
                     child: Container(
-                      width: 170, height: 170,
+                      width: 170,
+                      height: 170,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.white.withOpacity(0.94),
                         boxShadow: [
-                          BoxShadow(color: displayColor.withOpacity(0.2),
-                              blurRadius: 25,
-                              spreadRadius: 2),
+                          BoxShadow(
+                            color: displayColor.withOpacity(0.2),
+                            blurRadius: 25,
+                            spreadRadius: 2,
+                          ),
                         ],
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                              _selectedDay == null
-                                  ? l10n.dayTitle.toUpperCase()
-                                  : dateString.toUpperCase(),
-                              style: TextStyle(color: Colors.grey[400],
-                                  fontSize: 10,
-                                  letterSpacing: 2,
-                                  fontWeight: FontWeight.bold)
+                            _selectedDay == null
+                                ? l10n.dayTitle.toUpperCase()
+                                : dateString.toUpperCase(),
+                            style: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 10,
+                              letterSpacing: 2,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           Text(
-                              "$displayDay",
-                              style: TextStyle(fontSize: 72,
-                                  fontWeight: FontWeight.w200,
-                                  color: displayColor,
-                                  height: 1.0)
+                            "$displayDay",
+                            style: TextStyle(
+                              fontSize: 72,
+                              fontWeight: FontWeight.w200,
+                              color: displayColor,
+                              height: 1.0,
+                            ),
                           ),
                           const SizedBox(height: 6),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
                             margin: const EdgeInsets.symmetric(horizontal: 16),
-                            decoration: BoxDecoration(color: displayColor.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: displayColor.withOpacity(0.2))),
+                            decoration: BoxDecoration(
+                              color: displayColor.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: displayColor.withOpacity(0.2),
+                              ),
+                            ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Flexible(
                                   child: Text(
                                     displayName.toUpperCase(),
-                                    style: TextStyle(color: displayColor, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                                    style: TextStyle(
+                                      color: displayColor,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 0.5,
+                                    ),
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 1,
                                   ),
                                 ),
                                 const SizedBox(width: 4),
-                                Icon(Icons.touch_app_rounded, size: 10, color: displayColor.withOpacity(0.5))
+                                Icon(
+                                  Icons.touch_app_rounded,
+                                  size: 10,
+                                  color: displayColor.withOpacity(0.5),
+                                )
                               ],
                             ),
                           ),
@@ -247,47 +373,52 @@ class CycleTimerWidgetState extends State<CycleTimerWidget> with TickerProviderS
           IgnorePointer(
             ignoring: !_isProjectionVisible,
             child: GestureDetector(
-              onTap: _toggleProjection,
+              onTap: () => _toggleProjection(isAuto: false),
               child: AnimatedBuilder(
                 animation: _projectionCtrl,
                 builder: (context, child) {
-                  final curveValue = Curves.easeOutBack.transform(
-                      _projectionCtrl.value);
+                  final curveValue =
+                  Curves.easeOutBack.transform(_projectionCtrl.value);
                   final opacityValue = _projectionCtrl.value;
 
                   if (opacityValue == 0) return const SizedBox();
 
                   return BackdropFilter(
                     filter: ImageFilter.blur(
-                        sigmaX: 5 * opacityValue,
-                        sigmaY: 5 * opacityValue
+                      sigmaX: 5 * opacityValue,
+                      sigmaY: 5 * opacityValue,
                     ),
                     child: Opacity(
                       opacity: opacityValue,
                       child: Transform.scale(
                         scale: 0.5 + (curveValue * 0.5),
                         child: Container(
-                          width: 260, height: 260,
+                          width: 260,
+                          height: 260,
                           decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    Colors.white.withOpacity(0.95),
-                                    Colors.white.withOpacity(0.85),
-                                  ]
-                              ),
-                              boxShadow: [
-                                BoxShadow(color: displayColor.withOpacity(0.3),
-                                    blurRadius: 40,
-                                    spreadRadius: 5,
-                                    offset: const Offset(0, 10)),
-                                const BoxShadow(color: Colors.white,
-                                    blurRadius: 10,
-                                    offset: Offset(-5, -5)),
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Colors.white.withOpacity(0.95),
+                                Colors.white.withOpacity(0.85),
                               ],
-                              border: Border.all(color: Colors.white, width: 2)
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: displayColor.withOpacity(0.3),
+                                blurRadius: 40,
+                                spreadRadius: 5,
+                                offset: const Offset(0, 10),
+                              ),
+                              const BoxShadow(
+                                color: Colors.white,
+                                blurRadius: 10,
+                                offset: Offset(-5, -5),
+                              ),
+                            ],
+                            border: Border.all(color: Colors.white, width: 2),
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(20.0),
@@ -297,66 +428,76 @@ class CycleTimerWidgetState extends State<CycleTimerWidget> with TickerProviderS
                               children: [
                                 Text(
                                   displayName.toUpperCase(),
-                                  style: TextStyle(color: Colors.grey[400],
-                                      fontSize: 10,
-                                      letterSpacing: 2,
-                                      fontWeight: FontWeight.bold),
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 10,
+                                    letterSpacing: 2,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                                 const SizedBox(height: 5),
-
                                 Container(
                                   padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                      color: displayColor.withOpacity(0.1),
-                                      shape: BoxShape.circle
+                                    color: displayColor.withOpacity(0.1),
+                                    shape: BoxShape.circle,
                                   ),
-                                  child: Icon(insights['icon'] as IconData,
-                                      color: displayColor, size: 28),
+                                  child: Icon(
+                                    insights['icon'] as IconData,
+                                    color: displayColor,
+                                    size: 28,
+                                  ),
                                 ),
-
                                 const SizedBox(height: 10),
-
                                 Text(
                                   insights['title'] as String,
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(color: AppColors.textPrimary,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15),
+                                  style: const TextStyle(
+                                    color: AppColors.textPrimary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  ),
                                 ),
                                 const SizedBox(height: 4),
-
                                 Flexible(
                                   child: Text(
                                     insights['subtitle'] as String,
                                     textAlign: TextAlign.center,
                                     maxLines: 3,
                                     overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                        color: AppColors.textSecondary,
-                                        fontSize: 11,
-                                        height: 1.2),
+                                    style: const TextStyle(
+                                      color: AppColors.textSecondary,
+                                      fontSize: 11,
+                                      height: 1.2,
+                                    ),
                                   ),
                                 ),
-
                                 const SizedBox(height: 10),
-
                                 if (!widget.isCOC)
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      _StatCapsule(label: l10n.lblEnergy,
-                                          level: insights['est'] as int,
-                                          color: displayColor),
+                                      _StatCapsule(
+                                        label: l10n.lblEnergy,
+                                        level: insights['est'] as int,
+                                        color: displayColor,
+                                      ),
                                       const SizedBox(width: 6),
-                                      _StatCapsule(label: l10n.lblMood,
-                                          level: insights['prg'] as int,
-                                          color: displayColor),
+                                      _StatCapsule(
+                                        label: l10n.lblMood,
+                                        level: insights['prg'] as int,
+                                        color: displayColor,
+                                      ),
                                     ],
                                   ),
-
                                 const SizedBox(height: 8),
-                                Text(l10n.tapToClose, style: TextStyle(
-                                    color: Colors.grey[300], fontSize: 9)),
+                                Text(
+                                  l10n.tapToClose,
+                                  style: TextStyle(
+                                    color: Colors.grey[300],
+                                    fontSize: 9,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -373,38 +514,72 @@ class CycleTimerWidgetState extends State<CycleTimerWidget> with TickerProviderS
     );
   }
 
-  // --- ДАННЫЕ ИНСАЙТОВ ---
-  Map<String, dynamic> _getDailyInsights(CyclePhase phase,
-      AppLocalizations l10n, bool isCOC) {
+  Map<String, dynamic> _getDailyInsights(
+      CyclePhase phase,
+      AppLocalizations l10n,
+      bool isCOC,
+      ) {
     if (isCOC) {
       if (phase == CyclePhase.menstruation) {
         return {
           'icon': Icons.water_drop_rounded,
           'title': l10n.insightCOCBreakTitle,
           'subtitle': l10n.insightCOCBreakBody,
-          'est': 1, 'prg': 1
+          'est': 1,
+          'prg': 1
         };
       } else {
         return {
           'icon': Icons.shield_rounded,
           'title': l10n.insightCOCActiveTitle,
           'subtitle': l10n.insightCOCActiveBody,
-          'est': 2, 'prg': 2
+          'est': 2,
+          'prg': 2
         };
       }
     }
 
     switch (phase) {
       case CyclePhase.menstruation:
-        return {'icon': Icons.nightlight_round, 'title': l10n.insightMenstruationTitle, 'subtitle': l10n.insightMenstruationSubtitle, 'est': 1, 'prg': 1};
+        return {
+          'icon': Icons.nightlight_round,
+          'title': l10n.insightMenstruationTitle,
+          'subtitle': l10n.insightMenstruationSubtitle,
+          'est': 1,
+          'prg': 1
+        };
       case CyclePhase.follicular:
-        return {'icon': Icons.wb_sunny_rounded, 'title': l10n.insightFollicularTitle, 'subtitle': l10n.insightFollicularSubtitle, 'est': 3, 'prg': 2};
+        return {
+          'icon': Icons.wb_sunny_rounded,
+          'title': l10n.insightFollicularTitle,
+          'subtitle': l10n.insightFollicularSubtitle,
+          'est': 3,
+          'prg': 2
+        };
       case CyclePhase.ovulation:
-        return {'icon': Icons.favorite_rounded, 'title': l10n.insightOvulationTitle, 'subtitle': l10n.insightOvulationSubtitle, 'est': 3, 'prg': 3};
+        return {
+          'icon': Icons.favorite_rounded,
+          'title': l10n.insightOvulationTitle,
+          'subtitle': l10n.insightOvulationSubtitle,
+          'est': 3,
+          'prg': 3
+        };
       case CyclePhase.luteal:
-        return {'icon': Icons.spa_rounded, 'title': l10n.insightLutealTitle, 'subtitle': l10n.insightLutealSubtitle, 'est': 2, 'prg': 2};
+        return {
+          'icon': Icons.spa_rounded,
+          'title': l10n.insightLutealTitle,
+          'subtitle': l10n.insightLutealSubtitle,
+          'est': 2,
+          'prg': 2
+        };
       case CyclePhase.late:
-        return {'icon': Icons.medical_services_rounded, 'title': l10n.insightLateTitle, 'subtitle': l10n.insightLateSubtitle, 'est': 1, 'prg': 1};
+        return {
+          'icon': Icons.medical_services_rounded,
+          'title': l10n.insightLateTitle,
+          'subtitle': l10n.insightLateSubtitle,
+          'est': 1,
+          'prg': 1
+        };
     }
   }
 
@@ -425,7 +600,9 @@ class CycleTimerWidgetState extends State<CycleTimerWidget> with TickerProviderS
 
   Color _getColor(CyclePhase phase, bool isCOC) {
     if (isCOC) {
-      return phase == CyclePhase.menstruation ? Colors.redAccent : Colors.tealAccent.shade400;
+      return phase == CyclePhase.menstruation
+          ? Colors.redAccent
+          : Colors.tealAccent.shade400;
     }
     switch (phase) {
       case CyclePhase.menstruation:
@@ -441,17 +618,28 @@ class CycleTimerWidgetState extends State<CycleTimerWidget> with TickerProviderS
     }
   }
 
-  String _getName(BuildContext context, CyclePhase phase, AppLocalizations l10n,
-      bool isCOC) {
+  String _getName(
+      BuildContext context,
+      CyclePhase phase,
+      AppLocalizations l10n,
+      bool isCOC,
+      ) {
     if (isCOC) {
-      return phase == CyclePhase.menstruation ? l10n.cocBreakPhase : l10n.cocActivePhase;
+      return phase == CyclePhase.menstruation
+          ? l10n.cocBreakPhase
+          : l10n.cocActivePhase;
     }
     switch (phase) {
-      case CyclePhase.menstruation: return l10n.phaseMenstruation;
-      case CyclePhase.follicular: return l10n.phaseFollicular;
-      case CyclePhase.ovulation: return l10n.phaseOvulation;
-      case CyclePhase.luteal: return l10n.phaseLuteal;
-      case CyclePhase.late: return l10n.phaseLate;
+      case CyclePhase.menstruation:
+        return l10n.phaseMenstruation;
+      case CyclePhase.follicular:
+        return l10n.phaseFollicular;
+      case CyclePhase.ovulation:
+        return l10n.phaseOvulation;
+      case CyclePhase.luteal:
+        return l10n.phaseLuteal;
+      case CyclePhase.late:
+        return l10n.phaseLate;
     }
   }
 }
@@ -460,26 +648,45 @@ class _StatCapsule extends StatelessWidget {
   final String label;
   final int level;
   final Color color;
-  const _StatCapsule({required this.label, required this.level, required this.color});
+
+  const _StatCapsule({
+    required this.label,
+    required this.level,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: Row(
         children: [
-          Text(label, style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: color)),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
           const SizedBox(width: 4),
           Row(
-            children: List.generate(3, (index) => Container(
-              margin: const EdgeInsets.only(left: 2),
-              width: 4, height: 4,
-              decoration: BoxDecoration(
+            children: List.generate(
+              3,
+                  (index) => Container(
+                margin: const EdgeInsets.only(left: 2),
+                width: 4,
+                height: 4,
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: index < level ? color : color.withOpacity(0.2)
+                  color: index < level ? color : color.withOpacity(0.2),
+                ),
               ),
-            )),
+            ),
           )
         ],
       ),
@@ -487,28 +694,53 @@ class _StatCapsule extends StatelessWidget {
   }
 }
 
-// --- ХУДОЖНИКИ ---
 class _SpirographPainter extends CustomPainter {
-  final Color color; final double rotation;
+  final Color color;
+  final double rotation;
   _SpirographPainter({required this.color, required this.rotation});
+
   @override
   void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2); final radius = size.width / 2 - 20;
-    double R = radius; double r = radius * 0.4; double d = radius * 0.7;
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2 - 20;
+
+    double R = radius;
+    double r = radius * 0.4;
+    double d = radius * 0.7;
+
     final path = Path();
+
     for (double t = 0; t < 20 * math.pi; t += 0.05) {
-      double x = (R - r) * math.cos(t + rotation) + d * math.cos(((R - r) / r) * t + rotation);
-      double y = (R - r) * math.sin(t + rotation) - d * math.sin(((R - r) / r) * t + rotation);
-      if (t == 0) path.moveTo(center.dx + x, center.dy + y); else path.lineTo(center.dx + x, center.dy + y);
+      double x = (R - r) * math.cos(t + rotation) +
+          d * math.cos(((R - r) / r) * t + rotation);
+      double y = (R - r) * math.sin(t + rotation) -
+          d * math.sin(((R - r) / r) * t + rotation);
+      if (t == 0) {
+        path.moveTo(center.dx + x, center.dy + y);
+      } else {
+        path.lineTo(center.dx + x, center.dy + y);
+      }
     }
-    // Используем strokeWidth 3.0 как в предыдущем файле
-    canvas.drawPath(path, Paint()..color = color.withOpacity(0.3)..style = PaintingStyle.stroke..strokeWidth = 3.0);
+
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = color.withOpacity(0.3)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3.0,
+    );
   }
-  @override bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
 class _SmartDotsPainter extends CustomPainter {
-  final int totalDays; final int currentDay; final int? selectedDay; final double pulse; final List<int> phases;
+  final int totalDays;
+  final int currentDay;
+  final int? selectedDay;
+  final double pulse;
+  final List<int> phases;
   final bool isCOC;
 
   _SmartDotsPainter({
@@ -517,7 +749,7 @@ class _SmartDotsPainter extends CustomPainter {
     required this.selectedDay,
     required this.pulse,
     required this.phases,
-    required this.isCOC
+    required this.isCOC,
   });
 
   @override
@@ -554,7 +786,13 @@ class _SmartDotsPainter extends CustomPainter {
       final y = center.dy + radius * math.sin(angle);
 
       if (isFertile && !isCOC) {
-        canvas.drawCircle(Offset(x, y), 6, Paint()..color = AppColors.ovulation.withOpacity(0.3)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3));
+        canvas.drawCircle(
+          Offset(x, y),
+          6,
+          Paint()
+            ..color = AppColors.ovulation.withOpacity(0.3)
+            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
+        );
       }
 
       if (selectedDay == dayNum) {
@@ -564,7 +802,13 @@ class _SmartDotsPainter extends CustomPainter {
       }
 
       if (currentDay == dayNum && selectedDay == null) {
-        canvas.drawCircle(Offset(x, y), 12 + (pulse * 3), Paint()..color = dotColor.withOpacity(0.4)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8));
+        canvas.drawCircle(
+          Offset(x, y),
+          12 + (pulse * 3),
+          Paint()
+            ..color = dotColor.withOpacity(0.4)
+            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
+        );
         canvas.drawCircle(Offset(x, y), 6, Paint()..color = dotColor);
         canvas.drawCircle(Offset(x, y), 2, Paint()..color = Colors.white);
         continue;
@@ -573,8 +817,14 @@ class _SmartDotsPainter extends CustomPainter {
       bool isPast = dayNum < currentDay;
       final paint = Paint()..color = isPast ? dotColor.withOpacity(0.3) : dotColor;
 
-      canvas.drawCircle(Offset(x, y), (isFertile && !isCOC) ? 5.0 : 4.0, paint);
+      canvas.drawCircle(
+        Offset(x, y),
+        (isFertile && !isCOC) ? 5.0 : 4.0,
+        paint,
+      );
     }
   }
-  @override bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

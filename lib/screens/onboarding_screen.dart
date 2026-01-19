@@ -1,26 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Для HapticFeedback
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 
-// Локализация и Тема
+// L10n & Theme
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 
-// Модели
+// Models
 import '../models/cycle_model.dart';
 
-// Провайдеры и Сервисы
+// Providers & Services
 import '../providers/cycle_provider.dart';
 import '../providers/settings_provider.dart';
-import '../services/notification_service.dart'; // ✅ Важно для запроса прав
+import '../services/notification_service.dart';
 
-// Виджеты
+// Widgets
 import '../widgets/mesh_background.dart';
 import '../widgets/vision_card.dart';
 
-// Экраны
-import '../main.dart'; // ✅ Переход на MainScreen (где есть НавБар)
+// Screens
+import 'main_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -33,7 +32,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  // Временные данные для сохранения
   DateTime _selectedDate = DateTime.now();
   int _selectedLength = 28;
 
@@ -42,38 +40,30 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      // Используем MeshBackground для единого стиля
       body: MeshCycleBackground(
-        phase: CyclePhase.follicular, // Нейтрально-свежая фаза для фона
+        phase: CyclePhase.follicular,
         child: SafeArea(
           child: Column(
             children: [
               const SizedBox(height: 20),
-
-              // MAIN CONTENT (Слайдер шагов)
               Expanded(
                 child: PageView(
                   controller: _pageController,
-                  physics: const NeverScrollableScrollPhysics(), // Блокируем свайп, только кнопки
+                  physics: const NeverScrollableScrollPhysics(),
                   onPageChanged: (idx) => setState(() => _currentPage = idx),
                   children: [
-                    // Step 1: Welcome
                     _buildStep(
                       context,
                       title: l10n.onboardTitle1,
                       body: l10n.onboardBody1,
                       child: _buildWelcomeContent(),
                     ),
-
-                    // Step 2: Date Picker
                     _buildStep(
                       context,
                       title: l10n.onboardTitle2,
                       body: l10n.onboardBody2,
                       child: _buildDateContent(context),
                     ),
-
-                    // Step 3: Cycle Length
                     _buildStep(
                       context,
                       title: l10n.onboardTitle3,
@@ -83,17 +73,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ],
                 ),
               ),
-
-              // BOTTOM NAVIGATION (Точки и кнопка)
-              _buildBottomControls(),
+              _buildBottomControls(l10n),
             ],
           ),
         ),
       ),
     );
   }
-
-  // --- КОНТЕНТ ШАГОВ ---
 
   Widget _buildWelcomeContent() {
     return Center(
@@ -154,12 +140,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           const SizedBox(height: 20),
           Text(
             "$_selectedLength",
-            style: const TextStyle(fontSize: 80, fontWeight: FontWeight.bold, color: AppColors.primary),
+            style: const TextStyle(
+              fontSize: 80,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
+            ),
           ),
           Text(l10n.daysUnit, style: const TextStyle(fontSize: 20, color: AppColors.textSecondary)),
-
           const SizedBox(height: 30),
-
           SliderTheme(
             data: SliderTheme.of(context).copyWith(
               activeTrackColor: AppColors.primary,
@@ -175,8 +163,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               max: 35,
               divisions: 14,
               onChanged: (val) {
-                if (val.toInt() != _selectedLength) {
-                  setState(() => _selectedLength = val.toInt());
+                final next = val.toInt();
+                if (next != _selectedLength) {
+                  setState(() => _selectedLength = next);
                   HapticFeedback.selectionClick();
                 }
               },
@@ -193,9 +182,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  // --- ОБЩАЯ СТРУКТУРА ШАГА ---
-
-  Widget _buildStep(BuildContext context, {required String title, required String body, required Widget child}) {
+  Widget _buildStep(
+      BuildContext context, {
+        required String title,
+        required String body,
+        required Widget child,
+      }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -203,16 +195,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           const Spacer(flex: 1),
           child,
           const Spacer(flex: 2),
-
           Text(
             title,
             textAlign: TextAlign.center,
             style: const TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w900,
-                color: AppColors.textPrimary,
-                height: 1.2,
-                letterSpacing: -0.5
+              fontSize: 28,
+              fontWeight: FontWeight.w900,
+              color: AppColors.textPrimary,
+              height: 1.2,
+              letterSpacing: -0.5,
             ),
           ),
           const SizedBox(height: 16),
@@ -220,9 +211,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             body,
             textAlign: TextAlign.center,
             style: TextStyle(
-                fontSize: 17,
-                color: AppColors.textPrimary.withOpacity(0.7),
-                height: 1.5
+              fontSize: 17,
+              color: AppColors.textPrimary.withOpacity(0.7),
+              height: 1.5,
             ),
           ),
           const Spacer(flex: 1),
@@ -231,9 +222,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  // --- НИЖНЯЯ ПАНЕЛЬ ---
-
-  Widget _buildBottomControls() {
+  Widget _buildBottomControls(AppLocalizations l10n) {
     final bool isLastPage = _currentPage == 2;
 
     return Container(
@@ -241,7 +230,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Индикаторы страниц
           Row(
             children: List.generate(3, (index) {
               return AnimatedContainer(
@@ -256,8 +244,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               );
             }),
           ),
-
-          // Кнопка NEXT / START
           GestureDetector(
             onTap: _nextPage,
             child: AnimatedContainer(
@@ -278,9 +264,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (isLastPage) ...[
-                    const Text(
-                        "Start",
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)
+                    Text(
+                      l10n.btnStart,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                     const SizedBox(width: 8),
                   ],
@@ -309,34 +299,32 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  // 🔥 САМАЯ ВАЖНАЯ ЛОГИКА
   Future<void> _finishOnboarding() async {
     HapticFeedback.mediumImpact();
 
-    // 1. Сохраняем данные цикла (Hive)
-    final cycleProvider = Provider.of<CycleProvider>(context, listen: false);
-    cycleProvider.setPeriodDate(_selectedDate);
-    cycleProvider.setCycleLength(_selectedLength);
+    final cycleProvider = context.read<CycleProvider>();
+    final settingsProvider = context.read<SettingsProvider>();
 
-    // 2. ✅ ЗАПРАШИВАЕМ РАЗРЕШЕНИЯ (Android 13+ / iOS)
+    // ✅ ВАЖНО: await, чтобы не было гонок сохранения
+    await cycleProvider.setSpecificCycleStartDate(_selectedDate);
+    await cycleProvider.setCycleLength(_selectedLength);
+
     try {
       await context.read<NotificationService>().requestPermissions();
     } catch (e) {
       debugPrint("Permission request failed: $e");
     }
 
-    // 3. Отмечаем, что онбординг пройден (Hive)
-    await Provider.of<SettingsProvider>(context, listen: false).completeOnboarding();
+    await settingsProvider.completeOnboarding();
 
-    // 4. Переходим на Главный Экран (MainScreen)
-    if (mounted) {
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          transitionDuration: const Duration(milliseconds: 1000),
-          pageBuilder: (_, __, ___) => const MainScreen(),
-          transitionsBuilder: (_, a, __, c) => FadeTransition(opacity: a, child: c),
-        ),
-      );
-    }
+    if (!mounted) return;
+
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 1000),
+        pageBuilder: (_, __, ___) => const MainScreen(),
+        transitionsBuilder: (_, a, __, c) => FadeTransition(opacity: a, child: c),
+      ),
+    );
   }
 }

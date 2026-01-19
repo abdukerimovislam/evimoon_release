@@ -12,6 +12,7 @@ class SecureStorageService {
   static const _keyNotifications = 'notifications_enabled';
   static const _keyBiometrics = 'biometrics_enabled';
   static const _keyLanguage = 'language_code';
+  static const _keyTTCMode = 'ttc_mode_enabled';
 
   // --- 1. СИСТЕМНЫЕ НАСТРОЙКИ (Нужны для SettingsProvider) ---
 
@@ -19,6 +20,16 @@ class SecureStorageService {
   Future<void> saveNotificationsEnabled(bool enabled) async {
     await _storage.write(key: _keyNotifications, value: enabled.toString());
   }
+
+  Future<void> saveTTCMode(bool enabled) async {
+    await _storage.write(key: _keyTTCMode, value: enabled.toString());
+  }
+
+  Future<bool> getTTCMode() async {
+    final val = await _storage.read(key: _keyTTCMode);
+    return val == 'true';
+  }
+
 
   Future<bool> getNotificationsEnabled() async {
     final val = await _storage.read(key: _keyNotifications);

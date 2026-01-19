@@ -22,7 +22,7 @@ class COCStartDialog extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12), // Размытие
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
           child: Container(
             width: MediaQuery.of(context).size.width * 0.85,
             padding: const EdgeInsets.all(24),
@@ -41,7 +41,7 @@ class COCStartDialog extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Иконка сверху
+                // Иконка
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
@@ -52,7 +52,7 @@ class COCStartDialog extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // Тексты
+                // Текст
                 Text(
                   l10n.dialogCOCStartTitle,
                   textAlign: TextAlign.center,
@@ -66,12 +66,12 @@ class COCStartDialog extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
 
-                // КНОПКА 1: Новая пачка
+                // КНОПКА 1: Fresh Start
                 _ActionCard(
                   title: l10n.optionFreshPack,
                   subtitle: l10n.optionFreshPackSub,
                   icon: Icons.play_circle_fill_rounded,
-                  color: const Color(0xFF00C853), // Green
+                  color: const Color(0xFF00C853),
                   onTap: () {
                     HapticFeedback.mediumImpact();
                     onFreshStart();
@@ -83,12 +83,12 @@ class COCStartDialog extends StatelessWidget {
                   child: Text(l10n.labelOr, style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold)),
                 ),
 
-                // КНОПКА 2: Продолжить
+                // КНОПКА 2: Continue
                 _ActionCard(
                   title: l10n.optionContinuePack,
                   subtitle: l10n.optionContinuePackSub,
                   icon: Icons.calendar_month_rounded,
-                  color: const Color(0xFF2962FF), // Blue
+                  color: const Color(0xFF2962FF),
                   onTap: () {
                     HapticFeedback.mediumImpact();
                     onContinue();
@@ -97,7 +97,7 @@ class COCStartDialog extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
-                // Кнопка Отмена
+                // Отмена
                 TextButton(
                   onPressed: () => Navigator.pop(context),
                   child: Text(l10n.btnCancel, style: const TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold)),

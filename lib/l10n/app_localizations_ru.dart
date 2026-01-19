@@ -121,7 +121,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get moodIrritated => 'Раздражение';
 
   @override
-  String get btnSave => 'Сохранить';
+  String get btnSave => 'СОХРАНИТЬ';
 
   @override
   String get legendPeriod => 'Месячные';
@@ -259,7 +259,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get authNotAvailable => 'Биометрия недоступна на устройстве';
 
   @override
-  String get pdfReportTitle => 'Отчет о здоровье EviMoon';
+  String get pdfReportTitle => 'Медицинский Отчет EviMoon';
 
   @override
   String get pdfCycleHistory => 'История циклов';
@@ -277,7 +277,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pdfCurrent => 'Текущий';
 
   @override
-  String get pdfGenerated => 'Сгенерировано в EviMoon';
+  String get pdfGenerated => 'Дата';
 
   @override
   String get pdfPage => 'Страница';
@@ -343,7 +343,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get dialogEndBody => 'Текущая фаза сменится на фолликулярную.';
 
   @override
-  String get btnConfirm => 'Да, подтвердить';
+  String get btnConfirm => 'Подтвердить';
 
   @override
   String get btnCancel => 'Отмена';
@@ -358,7 +358,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get logMood => 'Настроение';
 
   @override
-  String get logSleep => 'Качество сна';
+  String get logSleep => 'Сон';
 
   @override
   String get logNotes => 'Заметки';
@@ -376,10 +376,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get insightMoodSubtitle => 'Средний уровень настроения';
 
   @override
-  String get insightAvgCycle => 'Ср. цикл';
+  String get insightAvgCycle => 'Длина цикла';
 
   @override
-  String get insightAvgPeriod => 'Ср. месячные';
+  String get insightAvgPeriod => 'Длительность месячных';
 
   @override
   String get phaseShortMens => 'МЕНС';
@@ -552,24 +552,24 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsContraception => 'Контрацепция';
 
   @override
-  String get settingsTrackPill => 'Трекер таблеток (КОК)';
+  String get settingsTrackPill => 'Отслеживать таблетки';
 
   @override
   String get settingsPackType => 'Тип упаковки';
 
   @override
   String settingsPills(Object count) {
-    return '$count шт.';
+    return '$count таблеток';
   }
 
   @override
   String get settingsReminder => 'Напоминание';
 
   @override
-  String get settingsPackSettings => 'Настройки пачки';
+  String get settingsPackSettings => 'Настройки упаковки';
 
   @override
-  String get settingsPlaceboCount => 'Кол-во плацебо';
+  String get settingsPlaceboCount => 'Дни плацебо';
 
   @override
   String get settingsBreakDuration => 'Длительность перерыва';
@@ -593,13 +593,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsExport => 'Скачать PDF отчет';
 
   @override
-  String get settingsReset => 'Сброс и удаление данных';
+  String get settingsReset => 'Сбросить все данные';
 
   @override
-  String get dialogResetTitle => 'Сбросить приложение?';
+  String get dialogResetTitle => 'Сбросить всё?';
 
   @override
-  String get dialogResetBody => 'Это удалит все ваши записи и настройки. Действие нельзя отменить.';
+  String get dialogResetBody => 'Это действие удалит все ваши данные безвозвратно.';
 
   @override
   String get btnDelete => 'Удалить';
@@ -629,10 +629,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get lblNoSymptoms => 'Симптомы не отмечены.';
 
   @override
-  String get notifPillTitle => '💊 Время таблетки';
+  String get notifPillTitle => 'Время принять таблетку!';
 
   @override
-  String get notifPillBody => 'Оставайтесь под защитой! Примите таблетку сейчас.';
+  String get notifPillBody => 'Оставайтесь под защитой.';
 
   @override
   String get logVitals => 'Показатели';
@@ -659,7 +659,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get factorSport => 'Спорт';
 
   @override
-  String get hintNotes => 'Что-то еще произошло?';
+  String get hintNotes => 'Добавить заметку...';
 
   @override
   String get symptomAcne => 'Акне';
@@ -736,7 +736,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get onboardBody3 => 'Сколько дней обычно проходит между менструациями? В среднем это 28 дней.';
 
   @override
-  String get daysUnit => 'Дн.';
+  String get daysUnit => 'дн.';
 
   @override
   String get insightVitals => 'Динамика тела';
@@ -783,22 +783,22 @@ class AppLocalizationsRu extends AppLocalizations {
   String get btnSaveSettings => 'Сохранить настройки';
 
   @override
-  String get dialogCOCStartTitle => 'Трекер Таблеток';
+  String get dialogCOCStartTitle => 'Режим КОК';
 
   @override
-  String get dialogCOCStartSubtitle => 'Вы начинаете новую пачку сегодня или продолжаете текущую?';
+  String get dialogCOCStartSubtitle => 'Как вы хотите начать отслеживание таблеток?';
 
   @override
   String get optionFreshPack => 'Новая пачка';
 
   @override
-  String get optionFreshPackSub => 'Сегодня День 1';
+  String get optionFreshPackSub => 'Я начинаю новую упаковку сегодня';
 
   @override
-  String get optionContinuePack => 'Продолжить пачку';
+  String get optionContinuePack => 'Продолжить текущую';
 
   @override
-  String get optionContinuePackSub => 'Выбрать дату начала';
+  String get optionContinuePackSub => 'Я уже начала пачку ранее';
 
   @override
   String get labelOr => 'ИЛИ';
@@ -807,7 +807,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get dialogCancel => 'Cancel';
 
   @override
-  String get dialogResetConfirm => 'Delete Everything';
+  String get dialogResetConfirm => 'Сбросить';
 
   @override
   String get insightsOverview => 'Обзор';
@@ -1041,8 +1041,552 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsSupport => 'Поддержка и Отзывы';
 
   @override
-  String get emailSubject => 'EviMoon Отзыв (v1.0)';
+  String get emailSubject => 'Отзыв о EviMoon';
 
   @override
-  String get emailBody => 'Опишите проблему или предложение здесь:\n\n\n\n--- Инфо об устройстве ---\n(Пожалуйста, не удаляйте, это поможет исправить баги)\nПлатформа: ';
+  String get emailBody => 'Здравствуйте, команда EviMoon,\n\nУ меня есть вопрос/предложение по приложению на';
+
+  @override
+  String get insightProstaglandinsTitle => 'Работают простагландины';
+
+  @override
+  String get insightProstaglandinsBody => 'Сокращения матки помогают обновлению. Тепло и магний облегчат состояние.';
+
+  @override
+  String get insightWinterPhaseTitle => 'Время восстановления';
+
+  @override
+  String get insightWinterPhaseBody => 'Уровень гормонов минимален. Это нормально — замедлиться и отдохнуть.';
+
+  @override
+  String get insightEstrogenTitle => 'Рост эстрогена';
+
+  @override
+  String get insightEstrogenBody => 'Эстроген повышает серотонин. Отличное время для креатива и планов!';
+
+  @override
+  String get insightMittelschmerzTitle => 'Овуляторный синдром';
+
+  @override
+  String get insightMittelschmerzBody => 'Возможно, вы чувствуете сам момент овуляции. Обычно это быстро проходит.';
+
+  @override
+  String get insightFertilityTitle => 'Сигналы фертильности';
+
+  @override
+  String get insightFertilityBody => 'Природа подталкивает к общению. Сейчас вы особенно притягательны!';
+
+  @override
+  String get insightWaterTitle => 'Задержка воды';
+
+  @override
+  String get insightWaterBody => 'Организм запасает воду перед возможной беременностью. Это скоро пройдет.';
+
+  @override
+  String get insightProgesteroneTitle => 'Спад прогестерона';
+
+  @override
+  String get insightProgesteroneBody => 'Химия мозга меняется перед циклом. Будьте бережны к себе сегодня.';
+
+  @override
+  String get insightSkinTitle => 'Гормональная кожа';
+
+  @override
+  String get insightSkinBody => 'Прогестерон активирует сальные железы. Используйте мягкий уход.';
+
+  @override
+  String get insightMetabolismTitle => 'Тяга к сладкому';
+
+  @override
+  String get insightMetabolismBody => 'Метаболизм ускоряется. Лучше выбрать сложные углеводы вместо сахара.';
+
+  @override
+  String get insightSpottingTitle => 'Замечены выделения';
+
+  @override
+  String get insightSpottingBody => 'Небольшие выделения бывают при овуляции или стрессе.';
+
+  @override
+  String get premiumInsightLabel => 'PREMIUM INSIGHT';
+
+  @override
+  String get calendarForecastTitle => 'КАЛЕНДАРЬ И ПРОГНОЗ';
+
+  @override
+  String get aiForecastHigh => 'Прогноз точен';
+
+  @override
+  String get aiForecastHighSub => 'На основе стабильной истории';
+
+  @override
+  String get aiForecastMedium => 'Средняя точность';
+
+  @override
+  String get aiForecastMediumSub => 'Есть колебания цикла';
+
+  @override
+  String get aiForecastLow => 'Низкая точность';
+
+  @override
+  String get aiForecastLowSub => 'Длина цикла сильно меняется';
+
+  @override
+  String get aiLearning => 'ИИ обучается...';
+
+  @override
+  String get aiLearningSub => 'Отметьте 3 цикла для прогноза';
+
+  @override
+  String get confidenceHighDesc => 'Цикл предсказуем и регулярен.';
+
+  @override
+  String get confidenceMedDesc => 'Прогноз на основе средних данных.';
+
+  @override
+  String get confidenceLowDesc => 'Прогноз может меняться из-за нерегулярности.';
+
+  @override
+  String get confidenceCalcDesc => 'Собираем данные для точности.';
+
+  @override
+  String get confidenceNoData => 'Пока недостаточно истории.';
+
+  @override
+  String get factorDataNeeded => 'Нужно минимум 3 цикла';
+
+  @override
+  String get factorHighVar => 'Высокая нерегулярность';
+
+  @override
+  String get factorSlightVar => 'Небольшая нерегулярность';
+
+  @override
+  String get factorStable => 'Цикл стабилен';
+
+  @override
+  String get factorAnomaly => 'Обнаружена аномалия';
+
+  @override
+  String get aiDialogTitle => 'Анализ прогноза AI';
+
+  @override
+  String aiDialogScore(int score) {
+    return 'Уверенность прогноза цикла: $score%.';
+  }
+
+  @override
+  String get aiDialogExplanation => 'Оценка рассчитана локально на основе истории вашего цикла.';
+
+  @override
+  String get aiDialogFactors => 'Факторы:';
+
+  @override
+  String get btnGotIt => 'Понятно';
+
+  @override
+  String get navHome => 'Сегодня';
+
+  @override
+  String get navSymptoms => 'Симптомы';
+
+  @override
+  String get navCalendar => 'Календарь';
+
+  @override
+  String get navProfile => 'Профиль';
+
+  @override
+  String get msgSavedNoPop => 'Симптомы успешно обновлены';
+
+  @override
+  String get lblFlowAndLove => 'Выделения и Близость';
+
+  @override
+  String get sectionBackup => 'Резервное копирование';
+
+  @override
+  String get btnSaveBackup => 'Сохранить бекап';
+
+  @override
+  String get btnRestoreBackup => 'Восстановить из файла';
+
+  @override
+  String get dialogRestoreTitle => 'Восстановить данные?';
+
+  @override
+  String get dialogRestoreBody => 'Это действие перезапишет ваши текущие данные данными из файла. Вы уверены?';
+
+  @override
+  String get btnRestore => 'Восстановить';
+
+  @override
+  String get msgRestoreSuccess => 'Данные успешно восстановлены!';
+
+  @override
+  String msgEmailError(Object email) {
+    return 'Не удалось открыть почту. Напишите на: $email';
+  }
+
+  @override
+  String get msgExportEmpty => 'Нет данных для экспорта.';
+
+  @override
+  String get msgExportError => 'Не удалось создать PDF';
+
+  @override
+  String get msgBiometricsError => 'Биометрия недоступна на этом устройстве';
+
+  @override
+  String get authBiometricsReason => 'Подтвердите включение биометрии';
+
+  @override
+  String get lblUser => 'Пользователь EviMoon';
+
+  @override
+  String get modeTTC => 'Планирование беременности';
+
+  @override
+  String get modeTTCDesc => 'Фокус на фертильности и овуляции';
+
+  @override
+  String get modeTTCActive => 'Режим планирования включен';
+
+  @override
+  String get dialogTTCConflict => 'Отключить контрацепцию?';
+
+  @override
+  String get dialogTTCConflictBody => 'Чтобы включить режим планирования, необходимо отключить отслеживание таблеток.';
+
+  @override
+  String get btnDisableAndSwitch => 'Отключить и переключить';
+
+  @override
+  String get ttcStatusLow => 'Низкий шанс';
+
+  @override
+  String get ttcStatusHigh => 'Высокая фертильность';
+
+  @override
+  String get ttcStatusPeak => 'Пик фертильности';
+
+  @override
+  String get ttcStatusOvulation => 'День Овуляции';
+
+  @override
+  String ttcDPO(Object days) {
+    return '$days ДПО';
+  }
+
+  @override
+  String get ttcChance => 'Вероятность зачатия';
+
+  @override
+  String get ttcTestWait => 'Рано для теста';
+
+  @override
+  String get ttcTestReady => 'Можно делать тест';
+
+  @override
+  String lblCycleDay(Object day) {
+    return 'День цикла $day';
+  }
+
+  @override
+  String get ttcBtnBBT => 'БТ График';
+
+  @override
+  String get ttcBtnTest => 'ЛГ Тест';
+
+  @override
+  String get ttcBtnSex => 'Близость';
+
+  @override
+  String get ttcLogTitle => 'Отчет за сегодня';
+
+  @override
+  String get ttcSectionBBT => 'Базальная температура';
+
+  @override
+  String get ttcSectionTest => 'Тест на овуляцию (ЛГ)';
+
+  @override
+  String get ttcSectionSex => 'Близость';
+
+  @override
+  String get lblNegative => 'Отриц. (-)';
+
+  @override
+  String get lblPositive => 'Положит. (+)';
+
+  @override
+  String get lblPeak => 'Пик';
+
+  @override
+  String get lblSexYes => 'Да, был!';
+
+  @override
+  String get lblSexNo => 'Не сегодня';
+
+  @override
+  String get ttcTipTitle => 'Совет дня';
+
+  @override
+  String get ttcTipDefault => 'Стресс влияет на овуляцию. Попробуйте 5-минутную медитацию.';
+
+  @override
+  String get dialogHighTempTitle => 'Высокая температура';
+
+  @override
+  String get dialogHighTempBody => 'Температура выше 37.5°C обычно указывает на жар, а не овуляцию.';
+
+  @override
+  String get dialogLowTempTitle => 'Низкая температура';
+
+  @override
+  String get dialogLowTempBody => 'Температура ниже 35.5°C необычно низкая. Это опечатка?';
+
+  @override
+  String get dialogPeriodLHTitle => 'Необычное значение';
+
+  @override
+  String get dialogPeriodLHBody => 'Положительный ЛГ-тест во время менструации — редкость. Возможна ошибка.';
+
+  @override
+  String get btnLogAnyway => 'Все равно записать';
+
+  @override
+  String get insightFertilitySub => 'Как тело сообщает об овуляции';
+
+  @override
+  String get insightLibidoHigh => 'Высокое либидо в фертильное окно';
+
+  @override
+  String get insightPainOvulation => 'Замечена овуляторная боль';
+
+  @override
+  String get insightTempShift => 'Сдвиг температуры после овуляции';
+
+  @override
+  String get lblDetected => 'Обнаружено';
+
+  @override
+  String get transitionTTC => 'Вперед за малышом... ✨';
+
+  @override
+  String get transitionCOC => 'Защита активирована 🛡️';
+
+  @override
+  String get transitionTrack => 'В гармонии с телом 🌿';
+
+  @override
+  String get legendFollicular => 'Фолликул.';
+
+  @override
+  String get legendLuteal => 'Лютеин.';
+
+  @override
+  String get lblBodyMind => 'Тело и Разум';
+
+  @override
+  String get pdfReportSubtitle => 'Гинекологический анамнез и история циклов';
+
+  @override
+  String get pdfPatient => 'Пациент';
+
+  @override
+  String get pdfClinicalSummary => 'Клиническая Сводка';
+
+  @override
+  String get pdfDetailedLogs => 'Детальный Журнал';
+
+  @override
+  String get pdfAvgCycle => 'Ср. Цикл';
+
+  @override
+  String get pdfAvgPeriod => 'Ср. Менструация';
+
+  @override
+  String get pdfPainReported => 'Дни с болью';
+
+  @override
+  String get pdfTableDate => 'Дата';
+
+  @override
+  String get pdfTableCD => 'ДЦ';
+
+  @override
+  String get pdfTableSymptoms => 'Симптомы';
+
+  @override
+  String get pdfTableBBT => 'ББТ';
+
+  @override
+  String get pdfTableNotes => 'Заметки';
+
+  @override
+  String get pdfFlowShort => 'Выд.';
+
+  @override
+  String get unitDays => 'дн.';
+
+  @override
+  String get pdfDisclaimer => 'ОТКАЗ ОТ ОТВЕТСТВЕННОСТИ: Этот отчет сгенерирован приложением на основе данных пользователя. Он не является медицинским диагнозом. Пожалуйста, обратитесь к врачу для интерпретации.';
+
+  @override
+  String get dialogDataInsufficientTitle => 'Недостаточно данных';
+
+  @override
+  String get dialogDataInsufficientBody => 'Для формирования медицинского отчета необходимо минимум 7 дней наблюдений или один полный цикл. Это гарантирует точность клинической картины для вашего врача.';
+
+  @override
+  String get btnOk => 'Понятно';
+
+  @override
+  String get splashTitle => 'EviMoon';
+
+  @override
+  String get notifPhaseFollicularTitle => 'Прилив сил ⚡';
+
+  @override
+  String get notifPhaseFollicularBody => 'Эстроген растет! Твой мозг работает быстрее, а тело готово к нагрузкам.';
+
+  @override
+  String get notifPhaseOvulationTitle => 'Ты неотразима 🌸';
+
+  @override
+  String get notifPhaseOvulationBody => 'Пик фертильности и уверенности в себе. Идеально для важных встреч (или свиданий).';
+
+  @override
+  String get notifPhaseLutealTitle => 'Время заботы 🌙';
+
+  @override
+  String get notifPhaseLutealBody => 'Уровень прогестерона растет. Если чувствуешь усталость — это нормально. Отдохни.';
+
+  @override
+  String get notifPhasePeriodTitle => 'Новый цикл начался 🩸';
+
+  @override
+  String get notifPhasePeriodBody => 'Не забудь отметить начало менструации в календаре.';
+
+  @override
+  String get notifLatePeriodTitle => 'Задержка?';
+
+  @override
+  String get notifLatePeriodBody => 'Цикл длится дольше обычного. Отметь симптомы или сделай тест.';
+
+  @override
+  String get notifLogCheckinTitle => 'Как твое самочувствие?';
+
+  @override
+  String get notifLogCheckinBody => 'Пара секунд на отметку симптомов помогут нам лучше понимать твое тело.';
+
+  @override
+  String get settingsDailyLog => 'Вечерний отчет (20:00)';
+
+  @override
+  String get paywallTitle => 'EviMoon Premium';
+
+  @override
+  String get paywallSubtitle => 'Раскройте полный потенциал своего цикла.';
+
+  @override
+  String get featureTimersTitle => 'Премиум дизайны';
+
+  @override
+  String get featureTimersDesc => 'Уникальные стили таймера';
+
+  @override
+  String get featurePdfTitle => 'Медицинский PDF-отчет';
+
+  @override
+  String get featurePdfDesc => 'История симптомов для врача';
+
+  @override
+  String get featureAiTitle => 'Точность прогноза (AI)';
+
+  @override
+  String get featureAiDesc => 'Оценка уверенности алгоритма';
+
+  @override
+  String get featureTtcTitle => 'Режим планирования';
+
+  @override
+  String get featureTtcDesc => 'Инструменты для зачатия';
+
+  @override
+  String get paywallNoOffers => 'Нет доступных предложений';
+
+  @override
+  String get paywallSelectPlan => 'Выберите план';
+
+  @override
+  String paywallSubscribeFor(String price) {
+    return 'Подписаться за $price';
+  }
+
+  @override
+  String get paywallRestore => 'Восстановить покупки';
+
+  @override
+  String get paywallTerms => 'Условия и Политика';
+
+  @override
+  String get paywallBestValue => 'ВЫГОДНО';
+
+  @override
+  String get msgNoSubscriptions => 'Активные подписки не найдены';
+
+  @override
+  String get proStatusTitle => 'Статус подписки';
+
+  @override
+  String get proStatusActive => 'Premium Активен';
+
+  @override
+  String get proStatusDesc => 'У вас есть полный доступ ко всем функциям.';
+
+  @override
+  String get btnManageSub => 'Управление подпиской';
+
+  @override
+  String get btnManageSubDesc => 'Сменить план или отменить в настройках iOS';
+
+  @override
+  String get msgLinkError => 'Не удалось открыть настройки';
+
+  @override
+  String get tipPeriod => 'Больше отдыхайте, ешьте продукты с железом.';
+
+  @override
+  String get tipOvulation => 'Пик фертильности! Идеальное время.';
+
+  @override
+  String get tipLutealEarly => 'Прогестерон растет. Пейте больше воды.';
+
+  @override
+  String get tipLutealLate => 'Окно имплантации. Избегайте стресса.';
+
+  @override
+  String get tipFollicular => 'Энергия растет. Хорошее время для спорта.';
+
+  @override
+  String get msgLhPeakRecorded => 'LH пик записан! Окно высокой фертильности.';
+
+  @override
+  String get phaseNewMoon => 'Новолуние';
+
+  @override
+  String get phaseWaxingCrescent => 'Растущая Луна';
+
+  @override
+  String get phaseFirstQuarter => 'Первая четверть';
+
+  @override
+  String get phaseFullMoon => 'Полнолуние';
+
+  @override
+  String get phaseWaningGibbous => 'Убывающая Луна';
+
+  @override
+  String get phaseWaningCrescent => 'Старая Луна';
 }

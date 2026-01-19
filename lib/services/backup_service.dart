@@ -13,8 +13,6 @@ import '../models/cycle_model.dart';
 class BackupService {
   final Box _cycleBox;
   final Box _settingsBox;
-  // Если есть коробка для симптомов/велнеса, добавь её сюда
-  // final Box _wellnessBox;
 
   BackupService(this._cycleBox, this._settingsBox);
 
@@ -37,12 +35,11 @@ class BackupService {
         'avg_cycle_len': _settingsBox.get('avg_cycle_len'),
         'avg_period_len': _settingsBox.get('avg_period_len'),
         'current_cycle_start': _settingsBox.get('current_cycle_start'),
-        // Добавь другие важные настройки
       };
 
       // 3. Формируем полный объект
       final Map<String, dynamic> backupData = {
-        'version': 1, // Версия структуры бэкапа (на будущее)
+        'version': 1,
         'timestamp': DateTime.now().toIso8601String(),
         'cycles': cyclesJson,
         'settings': settingsJson,
@@ -58,17 +55,25 @@ class BackupService {
 
       await file.writeAsString(jsonString);
 
-      // 6. Открываем диалог "Поделиться / Сохранить"
-      // Пользователь сам выберет: iCloud, GDrive, Telegram и т.д.
-      final result = await Share.shareXFiles(
+      // 6. 🔥 FIX ДЛЯ IOS/IPAD: Получаем координаты кнопки
+      // Используем context, который передается из Builder в ProfileScreen
+      final box = context.findRenderObject() as RenderBox?;
+      Rect? shareOrigin;
+      if (box != null) {
+        // Берем позицию и размер виджета (кнопки) для sharePositionOrigin
+        shareOrigin = box.localToGlobal(Offset.zero) & box.size;
+      }
+
+      // 7. Открываем диалог с переданными координатами
+      await Share.shareXFiles(
         [XFile(file.path)],
         subject: 'EviMoon Backup',
         text: 'Backup data for EviMoon app created on $dateStr',
+        // 🔥 ВОТ ЭТОЙ СТРОКИ НЕ ХВАТАЛО:
+        sharePositionOrigin: shareOrigin,
       );
 
-      if (result.status == ShareResultStatus.success) {
-        debugPrint("Backup exported successfully");
-      }
+      debugPrint("Backup export dialog opened");
 
     } catch (e) {
       debugPrint("Backup Error: $e");
@@ -89,7 +94,7 @@ class BackupService {
         allowedExtensions: ['json'],
       );
 
-      if (result == null) return false; // Пользователь отменил
+      if (result == null) return false;
 
       final file = File(result.files.single.path!);
       final jsonString = await file.readAsString();
@@ -97,18 +102,13 @@ class BackupService {
       // 2. Парсим JSON
       final Map<String, dynamic> data = jsonDecode(jsonString);
 
-      // Простая валидация
       if (!data.containsKey('cycles') || !data.containsKey('settings')) {
         throw Exception("Invalid backup file format");
       }
 
       // 3. ВОССТАНАВЛИВАЕМ ДАННЫЕ
-
-      // А. Очищаем текущие данные (Опасно, поэтому лучше спросить подтверждение в UI перед вызовом)
       await _cycleBox.clear();
-      // Настройки можно не чистить полностью, а перезаписывать
 
-      // Б. Восстанавливаем циклы
       final List<dynamic> cyclesList = data['cycles'];
       for (var c in cyclesList) {
         final cycleModel = CycleModel(
@@ -118,7 +118,6 @@ class BackupService {
         await _cycleBox.add(cycleModel);
       }
 
-      // В. Восстанавливаем настройки
       final Map<String, dynamic> settingsMap = data['settings'];
       if (settingsMap.containsKey('coc_enabled')) await _settingsBox.put('coc_enabled', settingsMap['coc_enabled']);
       if (settingsMap.containsKey('avg_cycle_len')) await _settingsBox.put('avg_cycle_len', settingsMap['avg_cycle_len']);

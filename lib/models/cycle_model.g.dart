@@ -61,24 +61,27 @@ class SymptomLogAdapter extends TypeAdapter<SymptomLog> {
       flow: fields[1] as FlowIntensity,
       painSymptoms: (fields[2] as List).cast<String>(),
       moodSymptoms: (fields[3] as List).cast<String>(),
-      mood: fields[4] as int,
-      energy: fields[5] as int,
-      sleep: fields[6] as int,
-      skin: fields[7] as int,
-      libido: fields[8] as int,
+      mood: fields[4] == null ? 3 : fields[4] as int,
+      energy: fields[5] == null ? 3 : fields[5] as int,
+      sleep: fields[6] == null ? 3 : fields[6] as int,
+      skin: fields[7] == null ? 3 : fields[7] as int,
+      libido: fields[8] == null ? 3 : fields[8] as int,
       symptoms: (fields[9] as List).cast<String>(),
       notes: fields[10] as String?,
       temperature: fields[11] as double?,
       weight: fields[12] as double?,
       hadSex: fields[13] as bool,
       protectedSex: fields[14] as bool,
+      ovulationTest: fields[15] == null
+          ? OvulationTestResult.none
+          : fields[15] as OvulationTestResult,
     );
   }
 
   @override
   void write(BinaryWriter writer, SymptomLog obj) {
     writer
-      ..writeByte(15)
+      ..writeByte(16)
       ..writeByte(0)
       ..write(obj.date)
       ..writeByte(1)
@@ -108,7 +111,9 @@ class SymptomLogAdapter extends TypeAdapter<SymptomLog> {
       ..writeByte(13)
       ..write(obj.hadSex)
       ..writeByte(14)
-      ..write(obj.protectedSex);
+      ..write(obj.protectedSex)
+      ..writeByte(15)
+      ..write(obj.ovulationTest);
   }
 
   @override
@@ -221,6 +226,55 @@ class FlowIntensityAdapter extends TypeAdapter<FlowIntensity> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is FlowIntensityAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class OvulationTestResultAdapter extends TypeAdapter<OvulationTestResult> {
+  @override
+  final int typeId = 5;
+
+  @override
+  OvulationTestResult read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return OvulationTestResult.none;
+      case 1:
+        return OvulationTestResult.negative;
+      case 2:
+        return OvulationTestResult.positive;
+      case 3:
+        return OvulationTestResult.peak;
+      default:
+        return OvulationTestResult.none;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, OvulationTestResult obj) {
+    switch (obj) {
+      case OvulationTestResult.none:
+        writer.writeByte(0);
+        break;
+      case OvulationTestResult.negative:
+        writer.writeByte(1);
+        break;
+      case OvulationTestResult.positive:
+        writer.writeByte(2);
+        break;
+      case OvulationTestResult.peak:
+        writer.writeByte(3);
+        break;
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is OvulationTestResultAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
