@@ -28,10 +28,12 @@ class CycleProvider with ChangeNotifier {
   int _avgCycleLength = 28;
   int _avgPeriodDuration = 5;
 
-  // ✅ OVERRIDE: пользователь нажал “Закончить месячные”
-  // Сохраняем для текущего цикла: startMs + day
+  // ✅ OVERRIDE: Пользователь нажал “Закончить месячные”
   int? _periodEndCycleStartMs;
   int? _periodEndedAtDay;
+
+  // ✅ OVERRIDE: Подтвержденная овуляция (Тест/БТТ) для ТЕКУЩЕГО цикла
+  DateTime? _ovulationOverride;
 
   bool _isLoaded = false;
 
@@ -44,7 +46,8 @@ class CycleProvider with ChangeNotifier {
   List<CycleModel> get history => List.unmodifiable(_history);
   CycleConfidenceResult? get aiConfidence => _aiConfidence;
 
-  int get cycleLength => _isCOCEnabled ? 28 : _avgCycleLength;
+  // Длина цикла динамическая: если есть override овуляции, цикл подстраивается
+  int get cycleLength => _currentData.totalCycleLength > 0 ? _currentData.totalCycleLength : (_isCOCEnabled ? 28 : _avgCycleLength);
   int get avgPeriodDuration => _avgPeriodDuration;
   int get periodDuration => _avgPeriodDuration;
 
@@ -54,7 +57,15 @@ class CycleProvider with ChangeNotifier {
 
   // --- 🤰 TTC (ПЛАНИРОВАНИЕ) ---
 
-  int get ovulationDay => cycleLength - 14;
+  // День овуляции относительно начала цикла (1-based)
+  int get ovulationDay {
+    if (_isCOCEnabled) return 14;
+    // Если есть override, считаем по нему
+    if (_ovulationOverride != null) {
+      return _ovulationOverride!.difference(_currentData.cycleStartDate).inDays + 1;
+    }
+    return cycleLength - 14;
+  }
 
   int? get currentDPO {
     if (!_isTTCMode || _isCOCEnabled) return null;
@@ -67,11 +78,12 @@ class CycleProvider with ChangeNotifier {
     if (!_isTTCMode || _isCOCEnabled) return FertilityChance.low;
 
     final current = _currentData.currentDay;
+    final ovDay = ovulationDay;
 
-    if (current == ovulationDay || current == ovulationDay - 1) {
+    if (current == ovDay || current == ovDay - 1) {
       return FertilityChance.peak;
     }
-    if (current >= ovulationDay - 5 && current < ovulationDay - 1) {
+    if (current >= ovDay - 5 && current < ovDay - 1) {
       return FertilityChance.high;
     }
     return FertilityChance.low;
@@ -80,7 +92,8 @@ class CycleProvider with ChangeNotifier {
   bool get isFertileWindow {
     if (!_isTTCMode || _isCOCEnabled) return false;
     final current = _currentData.currentDay;
-    return current >= (ovulationDay - 5) && current <= ovulationDay;
+    final ovDay = ovulationDay;
+    return current >= (ovDay - 5) && current <= ovDay;
   }
 
   // --- 🛡️ ЗАЩИТА ОТ ЗАКРЫТЫХ КОРОБОК ---
@@ -96,13 +109,17 @@ class CycleProvider with ChangeNotifier {
   // --- Helpers ---
   DateTime _normalizeDate(DateTime d) => DateTime(d.year, d.month, d.day);
 
-  void _loadPeriodEndOverride() {
+  void _loadOverrides() {
     try {
       _periodEndCycleStartMs = _settingsBox.get('period_end_cycle_start') as int?;
       _periodEndedAtDay = _settingsBox.get('period_end_day') as int?;
+
+      final ovMs = _settingsBox.get('current_ovulation_override') as int?;
+      _ovulationOverride = ovMs != null ? DateTime.fromMillisecondsSinceEpoch(ovMs) : null;
     } catch (_) {
       _periodEndCycleStartMs = null;
       _periodEndedAtDay = null;
+      _ovulationOverride = null;
     }
   }
 
@@ -115,7 +132,14 @@ class CycleProvider with ChangeNotifier {
     } catch (_) {}
   }
 
-  bool _overrideApplies(DateTime cycleStart) {
+  Future<void> _clearOvulationOverride() async {
+    _ovulationOverride = null;
+    try {
+      await _settingsBox.delete('current_ovulation_override');
+    } catch (_) {}
+  }
+
+  bool _periodOverrideApplies(DateTime cycleStart) {
     if (_periodEndCycleStartMs == null || _periodEndedAtDay == null) return false;
     final startMs = _normalizeDate(cycleStart).millisecondsSinceEpoch;
     return _periodEndCycleStartMs == startMs;
@@ -132,7 +156,7 @@ class CycleProvider with ChangeNotifier {
       _avgCycleLength = _settingsBox.get('avg_cycle_len', defaultValue: 28);
       _avgPeriodDuration = _settingsBox.get('avg_period_len', defaultValue: 5);
 
-      _loadPeriodEndOverride();
+      _loadOverrides();
 
       // История
       _history = [];
@@ -171,7 +195,7 @@ class CycleProvider with ChangeNotifier {
 
   void _updateCurrentData(
       DateTime startDate,
-      int cycleLen,
+      int avgLen,
       int periodLen, {
         bool notify = true,
       }) {
@@ -179,22 +203,37 @@ class CycleProvider with ChangeNotifier {
     final normalizedNow = _normalizeDate(now);
     final normalizedStart = _normalizeDate(startDate);
 
-    // если старт в будущем — фиксируем на сегодня
+    // Если старт в будущем — фиксируем на сегодня
     final safeStart = normalizedStart.isAfter(normalizedNow) ? normalizedNow : normalizedStart;
 
     final diff = normalizedNow.difference(safeStart).inDays;
     int currentDay = diff + 1;
     if (currentDay <= 0) currentDay = 1;
 
-    final effectiveCycleLen = _isCOCEnabled ? 28 : cycleLen.clamp(21, 45);
+    // 🔥 РАСЧЕТ ДЛИНЫ ЦИКЛА И ОВУЛЯЦИИ
+    int effectiveCycleLen;
+    DateTime predictedOvulation;
 
-    // ✅ если ушли за длину цикла — нормализуем день (чтобы не ломать UI)
-    // так Late будет отображаться корректно через _calculatePhase(day > length)
-    // но currentDay станет "день в цикле" для предиктов/окна фертильности
-    // Late мы всё равно поймаем фазой и daysUntilNext = 0.
+    if (_isCOCEnabled) {
+      effectiveCycleLen = 28;
+      predictedOvulation = safeStart.add(const Duration(days: 14)); // Условно
+    } else if (_ovulationOverride != null) {
+      // А. Если овуляция подтверждена пользователем
+      predictedOvulation = _normalizeDate(_ovulationOverride!);
+      // Если овуляция была на X день, то весь цикл будет X + 14 (лютеиновая фаза)
+      final daysToOvulation = predictedOvulation.difference(safeStart).inDays;
+      effectiveCycleLen = daysToOvulation + 14;
+    } else {
+      // Б. Стандартный календарный метод
+      effectiveCycleLen = avgLen.clamp(21, 45);
+      predictedOvulation = safeStart.add(Duration(days: effectiveCycleLen - 14));
+    }
+
+    // Нормализация дня для UI кольца (чтобы не вылетал прогресс > 1.0)
     int dayForWindow = currentDay;
     if (dayForWindow > effectiveCycleLen && effectiveCycleLen > 0) {
-      dayForWindow = ((dayForWindow - 1) % effectiveCycleLen) + 1;
+      // Мы в "Late" фазе, но для расчетов окна оставляем как есть,
+      // или можно циклично отображать (но для TTC важно знать реальный день)
     }
 
     final phase = _calculatePhase(
@@ -203,12 +242,17 @@ class CycleProvider with ChangeNotifier {
       period: periodLen,
       isCOC: _isCOCEnabled,
       cycleStart: safeStart,
+      ovulationDate: predictedOvulation,
     );
 
-    final int ovDay = effectiveCycleLen - 14;
-    final bool isFertile = !_isCOCEnabled && (dayForWindow >= (ovDay - 5) && dayForWindow <= ovDay);
+    // Окно фертильности (для UI)
+    final ovDayIndex = predictedOvulation.difference(safeStart).inDays + 1;
+    final bool isFertile = !_isCOCEnabled && (currentDay >= (ovDayIndex - 5) && currentDay <= ovDayIndex);
 
-    int daysUntilNext = effectiveCycleLen - dayForWindow;
+    // Дни до следующих месячных
+    final nextPeriodDate = predictedOvulation.add(const Duration(days: 14));
+    int daysUntilNext = nextPeriodDate.difference(normalizedNow).inDays;
+
     if (phase == CyclePhase.late) daysUntilNext = 0;
     if (daysUntilNext < 0) daysUntilNext = 0;
 
@@ -232,6 +276,7 @@ class CycleProvider with ChangeNotifier {
     required int period,
     required bool isCOC,
     required DateTime cycleStart,
+    required DateTime ovulationDate,
   }) {
     if (isCOC) {
       if (day <= 21) return CyclePhase.follicular;
@@ -239,29 +284,44 @@ class CycleProvider with ChangeNotifier {
       return CyclePhase.late;
     }
 
-    // ✅ OVERRIDE: если “закончено” в этом цикле, то начиная с day >= endedAtDay
-    // мы НЕ показываем menstruation, даже если day <= period
-    final bool endedForThisCycle = _overrideApplies(cycleStart);
+    // Проверка на Override конца месячных
+    final bool endedForThisCycle = _periodOverrideApplies(cycleStart);
     final int? endedAtDay = endedForThisCycle ? _periodEndedAtDay : null;
 
     if (period > 0 && day <= period) {
       if (endedAtDay != null && day >= endedAtDay) {
-        // пропускаем menstruation
+        // Месячные принудительно закончены -> Фолликулярная
+        return CyclePhase.follicular;
       } else {
         return CyclePhase.menstruation;
       }
     }
 
-    final ovDay = length - 14;
-    if (day >= ovDay - 5 && day <= ovDay + 1) return CyclePhase.ovulation;
+    final ovDayIndex = ovulationDate.difference(cycleStart).inDays + 1;
 
-    if (day < ovDay - 5) return CyclePhase.follicular;
+    if (day >= ovDayIndex - 5 && day <= ovDayIndex + 1) return CyclePhase.ovulation;
+    if (day < ovDayIndex - 5) return CyclePhase.follicular;
     if (day > length) return CyclePhase.late;
 
     return CyclePhase.luteal;
   }
 
   // --- 🎮 Действия пользователя ---
+
+  // 🔥 Вызывается из UI, когда тест ЛГ положительный
+  Future<void> confirmOvulation(DateTime date) async {
+    await _ensureBoxOpen();
+
+    // Валидация: Овуляция не может быть до начала цикла
+    if (date.isBefore(_currentData.cycleStartDate)) return;
+
+    _ovulationOverride = _normalizeDate(date);
+    await _settingsBox.put('current_ovulation_override', _ovulationOverride!.millisecondsSinceEpoch);
+
+    // Обновляем данные (теперь цикл пересчитается от этой даты)
+    _updateCurrentData(_currentData.cycleStartDate, _avgCycleLength, _avgPeriodDuration);
+    await _rescheduleNotifications();
+  }
 
   Future<void> setTTCMode(bool enabled) async {
     await _ensureBoxOpen();
@@ -279,7 +339,7 @@ class CycleProvider with ChangeNotifier {
   Future<void> startNewCycle() async {
     await _ensureBoxOpen();
 
-    // ✅ Новый цикл = месячные снова начались, override “закончено” сбрасываем
+    // Новый цикл = сбрасываем override текущего цикла
     await _clearPeriodEndOverride();
 
     final now = DateTime.now();
@@ -288,7 +348,7 @@ class CycleProvider with ChangeNotifier {
 
     if (normalizedStart.isAfter(normalizedNow)) return;
 
-    // если уже сегодня — просто обновляем старт
+    // Если уже сегодня — просто обновляем старт
     if (normalizedNow.isAtSameMomentAs(normalizedStart)) {
       await setSpecificCycleStartDate(normalizedNow);
       return;
@@ -297,12 +357,13 @@ class CycleProvider with ChangeNotifier {
     final prevEnd = normalizedNow.subtract(const Duration(days: 1));
     final length = prevEnd.difference(normalizedStart).inDays + 1;
 
-    // сохраняем историю только если похоже на валидный цикл
+    // Сохраняем историю
     if (length >= 11 && length <= 120 && !_isCOCEnabled) {
       final historyItem = CycleModel(
         startDate: normalizedStart,
         endDate: prevEnd,
         length: length,
+        ovulationOverrideDate: _ovulationOverride, // 🔥 Сохраняем подтвержденную овуляцию в историю
       );
 
       await _cycleBox.add(historyItem);
@@ -313,6 +374,9 @@ class CycleProvider with ChangeNotifier {
       _recalculateAverages();
       _calculateAIConfidence();
     }
+
+    // Сбрасываем override овуляции для НОВОГО цикла
+    await _clearOvulationOverride();
 
     await setSpecificCycleStartDate(normalizedNow);
   }
@@ -328,7 +392,6 @@ class CycleProvider with ChangeNotifier {
     if (newDuration < 1) newDuration = 1;
     if (newDuration > 14) newDuration = 14;
 
-    // ✅ сохраняем “закончено сегодня” (чтобы UI сразу сменил фазу)
     final startMs = start.millisecondsSinceEpoch;
     _periodEndCycleStartMs = startMs;
     _periodEndedAtDay = _currentData.currentDay;
@@ -338,7 +401,6 @@ class CycleProvider with ChangeNotifier {
 
     await setAveragePeriodDuration(newDuration);
 
-    // форс-обновление (на всякий)
     _updateCurrentData(_currentData.cycleStartDate, _avgCycleLength, _avgPeriodDuration);
   }
 
@@ -346,8 +408,8 @@ class CycleProvider with ChangeNotifier {
     await _ensureBoxOpen();
     final normalizedDate = _normalizeDate(date);
 
-    // ✅ смена старта = новая логика -> сбрасываем override
     await _clearPeriodEndOverride();
+    await _clearOvulationOverride(); // Новый старт = новый расчет
 
     if (_avgPeriodDuration < 2) {
       _avgPeriodDuration = 5;
@@ -375,6 +437,7 @@ class CycleProvider with ChangeNotifier {
       }
 
       await _clearPeriodEndOverride();
+      await _clearOvulationOverride();
 
       if (currentPillNumber > 1) {
         final daysToSubtract = currentPillNumber - 1;
@@ -394,24 +457,18 @@ class CycleProvider with ChangeNotifier {
 
   Future<void> setAveragePeriodDuration(int days) async {
     await _ensureBoxOpen();
-
     days = days.clamp(1, 14);
-
     await _settingsBox.put('avg_period_len', days);
     _avgPeriodDuration = days;
-
     _updateCurrentData(_currentData.cycleStartDate, _avgCycleLength, days);
     await _rescheduleNotifications();
   }
 
   Future<void> setCycleLength(int length) async {
     await _ensureBoxOpen();
-
     length = length.clamp(21, 45);
-
     await _settingsBox.put('avg_cycle_len', length);
     _avgCycleLength = length;
-
     _updateCurrentData(_currentData.cycleStartDate, length, _avgPeriodDuration);
     await _rescheduleNotifications();
   }
@@ -452,7 +509,6 @@ class CycleProvider with ChangeNotifier {
       return;
     }
     try {
-      // newest first already; ensure we pass the same ordering
       _aiConfidence = CycleAIEngine.calculateConfidence(_history);
     } catch (e) {
       debugPrint("AI Engine error: $e");
@@ -476,12 +532,21 @@ class CycleProvider with ChangeNotifier {
         final len = _cycleLenFromModel(h);
         if (len <= 0) return null;
 
+        // Если в истории есть подтвержденная овуляция, используем её
+        DateTime ovDate;
+        if (h.ovulationOverrideDate != null) {
+          ovDate = h.ovulationOverrideDate!;
+        } else {
+          ovDate = hs.add(Duration(days: len - 14));
+        }
+
         return _calculatePhase(
           day: day,
           length: len,
           period: _avgPeriodDuration,
           isCOC: false,
           cycleStart: hs,
+          ovulationDate: ovDate,
         );
       }
     }
@@ -490,8 +555,18 @@ class CycleProvider with ChangeNotifier {
     final start = _normalizeDate(_currentData.cycleStartDate);
     if (!normalized.isBefore(start)) {
       final daysDiff = normalized.difference(start).inDays;
-      final len = cycleLength;
+      final len = cycleLength; // Это свойство уже учитывает override
       final dayInCycle = (daysDiff % len) + 1;
+
+      // Рассчитываем овуляцию для этого будущего/текущего дня
+      // Если это текущий цикл - берем текущий override
+      // Если будущий - берем стандартный расчет
+      DateTime ovDate;
+      if (_ovulationOverride != null) {
+        ovDate = _ovulationOverride!;
+      } else {
+        ovDate = start.add(Duration(days: len - 14));
+      }
 
       return _calculatePhase(
         day: dayInCycle,
@@ -499,6 +574,7 @@ class CycleProvider with ChangeNotifier {
         period: _avgPeriodDuration,
         isCOC: _isCOCEnabled,
         cycleStart: start,
+        ovulationDate: ovDate,
       );
     }
 
@@ -568,7 +644,8 @@ class CycleProvider with ChangeNotifier {
       final tFoll = _getLabelsSafe('follicular', lang);
       await _scheduleIfFuture(201, day7, tFoll['t']!, tFoll['b']!, payload: "screen_calendar");
 
-      final ovDay = len - 14;
+      // Овуляция (учитываем override)
+      final ovDay = ovulationDay;
       if (ovDay > 1) {
         final ovDate = lastStart.add(Duration(days: ovDay - 1));
         final tOv = _getLabelsSafe('ovulation', lang);
@@ -628,7 +705,6 @@ class CycleProvider with ChangeNotifier {
     }
   }
 
-  // ✅ ВАЖНО: раньше это было void и теряло await → гонки/записи не успевали
   Future<void> setPeriodDate(DateTime date) async => setSpecificCycleStartDate(date);
 
   Future<void> reload() async => _init();

@@ -20,19 +20,22 @@ class CycleModelAdapter extends TypeAdapter<CycleModel> {
       startDate: fields[0] as DateTime,
       endDate: fields[1] as DateTime?,
       length: fields[2] as int?,
+      ovulationOverrideDate: fields[3] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, CycleModel obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.startDate)
       ..writeByte(1)
       ..write(obj.endDate)
       ..writeByte(2)
-      ..write(obj.length);
+      ..write(obj.length)
+      ..writeByte(3)
+      ..write(obj.ovulationOverrideDate);
   }
 
   @override
@@ -75,13 +78,16 @@ class SymptomLogAdapter extends TypeAdapter<SymptomLog> {
       ovulationTest: fields[15] == null
           ? OvulationTestResult.none
           : fields[15] as OvulationTestResult,
+      mucus: fields[16] == null
+          ? CervicalMucusType.none
+          : fields[16] as CervicalMucusType,
     );
   }
 
   @override
   void write(BinaryWriter writer, SymptomLog obj) {
     writer
-      ..writeByte(16)
+      ..writeByte(17)
       ..writeByte(0)
       ..write(obj.date)
       ..writeByte(1)
@@ -113,7 +119,9 @@ class SymptomLogAdapter extends TypeAdapter<SymptomLog> {
       ..writeByte(14)
       ..write(obj.protectedSex)
       ..writeByte(15)
-      ..write(obj.ovulationTest);
+      ..write(obj.ovulationTest)
+      ..writeByte(16)
+      ..write(obj.mucus);
   }
 
   @override
@@ -275,6 +283,65 @@ class OvulationTestResultAdapter extends TypeAdapter<OvulationTestResult> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is OvulationTestResultAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class CervicalMucusTypeAdapter extends TypeAdapter<CervicalMucusType> {
+  @override
+  final int typeId = 6;
+
+  @override
+  CervicalMucusType read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return CervicalMucusType.none;
+      case 1:
+        return CervicalMucusType.dry;
+      case 2:
+        return CervicalMucusType.sticky;
+      case 3:
+        return CervicalMucusType.creamy;
+      case 4:
+        return CervicalMucusType.watery;
+      case 5:
+        return CervicalMucusType.eggWhite;
+      default:
+        return CervicalMucusType.none;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, CervicalMucusType obj) {
+    switch (obj) {
+      case CervicalMucusType.none:
+        writer.writeByte(0);
+        break;
+      case CervicalMucusType.dry:
+        writer.writeByte(1);
+        break;
+      case CervicalMucusType.sticky:
+        writer.writeByte(2);
+        break;
+      case CervicalMucusType.creamy:
+        writer.writeByte(3);
+        break;
+      case CervicalMucusType.watery:
+        writer.writeByte(4);
+        break;
+      case CervicalMucusType.eggWhite:
+        writer.writeByte(5);
+        break;
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CervicalMucusTypeAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

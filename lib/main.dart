@@ -29,57 +29,65 @@ import 'services/subscription_service.dart';
 // Screens
 import 'screens/splash_screen.dart';
 import 'screens/main_screen.dart';
-import 'screens/profile/profile_screen.dart'; // ✅ правильный путь
+import 'screens/profile/profile_screen.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
+  // 1. Биндинг
   WidgetsFlutterBinding.ensureInitialized();
 
+  // 2. Инициализация критических сервисов (до Hive)
   await SubscriptionService.init();
+  final storageService = SecureStorageService(); // Инициализирует secure storage
 
-  await Hive.initFlutter();
-
-  if (!Hive.isAdapterRegistered(0)) Hive.registerAdapter(CycleModelAdapter());
-  if (!Hive.isAdapterRegistered(1)) Hive.registerAdapter(SymptomLogAdapter());
-  if (!Hive.isAdapterRegistered(2)) Hive.registerAdapter(PersonalModelAdapter());
-  if (!Hive.isAdapterRegistered(3)) Hive.registerAdapter(FlowIntensityAdapter());
-  if (!Hive.isAdapterRegistered(4)) Hive.registerAdapter(CyclePhaseAdapter());
-  if (!Hive.isAdapterRegistered(5)) Hive.registerAdapter(OvulationTestResultAdapter());
-
-  final settingsBox = await Hive.openBox('settings');
-  final cycleBox = await Hive.openBox('cycles');
-  final wellnessBox = await Hive.openBox('symptom_logs');
-  final cocBox = await Hive.openBox('coc_settings');
-
+  // 3. Настройка UI (Система)
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
     systemNavigationBarColor: Colors.transparent,
   ));
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-
-  SystemChrome.setPreferredOrientations([
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  final storageService = SecureStorageService();
+  // 4. Инициализация Hive
+  await Hive.initFlutter();
 
+  // 🔥 РЕГИСТРАЦИЯ АДАПТЕРОВ (СТРОГО ДО ОТКРЫТИЯ БОКСОВ)
+  // Используем try-catch, чтобы не упасть, если адаптер уже есть (на всякий случай)
+  try {
+    if (!Hive.isAdapterRegistered(0)) Hive.registerAdapter(CycleModelAdapter());
+    if (!Hive.isAdapterRegistered(1)) Hive.registerAdapter(SymptomLogAdapter());
+    if (!Hive.isAdapterRegistered(2)) Hive.registerAdapter(PersonalModelAdapter());
+    if (!Hive.isAdapterRegistered(3)) Hive.registerAdapter(FlowIntensityAdapter());
+    if (!Hive.isAdapterRegistered(4)) Hive.registerAdapter(CyclePhaseAdapter());
+    if (!Hive.isAdapterRegistered(5)) Hive.registerAdapter(OvulationTestResultAdapter());
+    if (!Hive.isAdapterRegistered(6)) Hive.registerAdapter(CervicalMucusTypeAdapter());
+  } catch (e) {
+    debugPrint("⚠️ Hive Adapter Registration Warning: $e");
+  }
+
+  // 5. Открытие боксов
+  // Боксы открываем последовательно, чтобы избежать блокировок
+  final settingsBox = await Hive.openBox('settings');
+  final cycleBox = await Hive.openBox('cycles');
+  final wellnessBox = await Hive.openBox('symptom_logs');
+  final cocBox = await Hive.openBox('coc_settings');
+
+  // 6. Уведомления
   final notificationService = NotificationService();
   await notificationService.init(
     onNotificationTap: (payload) {
       debugPrint("🚀 Notification Payload: $payload");
-
-      Future.delayed(const Duration(milliseconds: 350), () {
+      // Отложенная навигация, чтобы дождаться построения UI
+      Future.delayed(const Duration(milliseconds: 500), () {
         if (payload == NotificationService.payloadCOC) {
           navigatorKey.currentState?.pushNamed('/profile');
-          return;
-        }
-        if (payload == NotificationService.payloadCalendar) {
-          // Если есть отдельный экран календаря — замени на свой route.
+        } else if (payload == NotificationService.payloadCalendar) {
           navigatorKey.currentState?.pushNamed('/calendar');
-          return;
         }
       });
     },
@@ -119,6 +127,8 @@ class EviMoonAppRoot extends StatelessWidget {
       providers: [
         Provider<SecureStorageService>.value(value: storageService),
         Provider<NotificationService>.value(value: notificationService),
+
+        // SettingsProvider грузит язык, поэтому он первый
         ChangeNotifierProvider(
           create: (_) => SettingsProvider(settingsBox, storageService, notificationService),
         ),
@@ -147,6 +157,7 @@ class EviMoonApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
 
+    // Устанавливаем локаль для форматирования дат
     try {
       Intl.defaultLocale = settings.locale.languageCode;
     } catch (e) {
@@ -157,17 +168,12 @@ class EviMoonApp extends StatelessWidget {
       title: 'EviMoon',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
+
+      // Локализация
       locale: settings.locale,
-      navigatorKey: navigatorKey,
-      routes: {
-        '/profile': (context) => const Scaffold(
-          body: SafeArea(child: ProfileScreen()),
-        ),
-        '/calendar': (context) => const MainScreen(), // ✅ безопасный fallback
-      },
       supportedLocales: const [
-        Locale('en'),
-        Locale('ru'),
+        Locale('en'), // Английский
+        Locale('ru'), // Русский
       ],
       localizationsDelegates: const [
         AppLocalizations.delegate,
@@ -175,6 +181,14 @@ class EviMoonApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+
+      navigatorKey: navigatorKey,
+      routes: {
+        '/profile': (context) => const Scaffold(
+          body: SafeArea(child: ProfileScreen()),
+        ),
+        '/calendar': (context) => const MainScreen(),
+      },
       home: const AuthGuard(child: SplashScreen()),
     );
   }
@@ -198,6 +212,7 @@ class _AuthGuardState extends State<AuthGuard> {
   }
 
   Future<void> _checkAuth() async {
+    // Даем Flutter время отрисовать первый кадр
     await Future.delayed(Duration.zero);
 
     if (!mounted) return;

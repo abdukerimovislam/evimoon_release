@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import '../theme/app_theme.dart'; // Убедись, что путь к теме верный
+import '../theme/app_theme.dart';
 
 part 'cycle_model.g.dart';
 
@@ -14,25 +14,17 @@ enum CyclePhase {
   @HiveField(4) late
 }
 
-// 🔥 НОВОЕ: Расширение для получения цвета фазы без хардкода в UI
 extension CyclePhaseColor on CyclePhase {
   Color get color {
     switch (this) {
-      case CyclePhase.menstruation:
-        return AppColors.menstruation;
-      case CyclePhase.follicular:
-        return AppColors.follicular;
-      case CyclePhase.ovulation:
-        return AppColors.ovulation;
-      case CyclePhase.luteal:
-        return AppColors.luteal;
-      case CyclePhase.late:
-      default:
-        return AppColors.textSecondary; // Или Colors.grey
+      case CyclePhase.menstruation: return AppColors.menstruation;
+      case CyclePhase.follicular: return AppColors.follicular;
+      case CyclePhase.ovulation: return AppColors.ovulation;
+      case CyclePhase.luteal: return AppColors.luteal;
+      case CyclePhase.late: default: return AppColors.textSecondary;
     }
   }
 
-  // Опционально: название ключа для локализации
   String get l10nKey {
     switch (this) {
       case CyclePhase.menstruation: return "legendPeriod";
@@ -53,7 +45,7 @@ enum FlowIntensity {
   @HiveField(3) heavy
 }
 
-// 3. ENUM: РЕЗУЛЬТАТ ТЕСТА НА ОВУЛЯЦИЮ
+// 3. РЕЗУЛЬТАТ ТЕСТА НА ОВУЛЯЦИЮ
 @HiveType(typeId: 5)
 enum OvulationTestResult {
   @HiveField(0) none,      // Не делала
@@ -62,7 +54,18 @@ enum OvulationTestResult {
   @HiveField(3) peak       // Пик ЛГ
 }
 
-// 4. ГЛАВНАЯ МОДЕЛЬ ИСТОРИИ ЦИКЛОВ
+// 4. ТИПЫ ЦЕРВИКАЛЬНОЙ СЛИЗИ (MUCUS)
+@HiveType(typeId: 6)
+enum CervicalMucusType {
+  @HiveField(0) none,
+  @HiveField(1) dry,      // Сухо
+  @HiveField(2) sticky,   // Липкая
+  @HiveField(3) creamy,   // Кремообразная
+  @HiveField(4) watery,   // Водянистая
+  @HiveField(5) eggWhite  // Яичный белок
+}
+
+// 5. ГЛАВНАЯ МОДЕЛЬ ИСТОРИИ ЦИКЛОВ
 @HiveType(typeId: 0)
 class CycleModel extends HiveObject {
   @HiveField(0)
@@ -74,10 +77,34 @@ class CycleModel extends HiveObject {
   @HiveField(2)
   final int? length;
 
-  CycleModel({required this.startDate, this.endDate, this.length});
+  // 🔥 НОВОЕ ПОЛЕ: Ручное/Подтвержденное переопределение овуляции
+  @HiveField(3)
+  final DateTime? ovulationOverrideDate;
+
+  CycleModel({
+    required this.startDate,
+    this.endDate,
+    this.length,
+    this.ovulationOverrideDate,
+  });
+
+  // Хелпер для копирования
+  CycleModel copyWith({
+    DateTime? startDate,
+    DateTime? endDate,
+    int? length,
+    DateTime? ovulationOverrideDate,
+  }) {
+    return CycleModel(
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      length: length ?? this.length,
+      ovulationOverrideDate: ovulationOverrideDate ?? this.ovulationOverrideDate,
+    );
+  }
 }
 
-// 5. Модель для UI
+// 6. Модель для UI
 class CycleData {
   final CyclePhase phase;
   final int currentDay;
@@ -110,7 +137,7 @@ class CycleData {
   );
 }
 
-// 6. ЛОГИ СИМПТОМОВ
+// 7. ЛОГИ СИМПТОМОВ
 @HiveType(typeId: 1)
 class SymptomLog extends HiveObject {
   @HiveField(0)
@@ -123,7 +150,7 @@ class SymptomLog extends HiveObject {
   final List<String> painSymptoms;
 
   @HiveField(3)
-  final List<String> moodSymptoms; // Устаревшее поле, но лучше оставить, чтобы Hive не ругался
+  final List<String> moodSymptoms;
 
   @HiveField(4, defaultValue: 3)
   final int mood;
@@ -161,6 +188,10 @@ class SymptomLog extends HiveObject {
   @HiveField(15, defaultValue: OvulationTestResult.none)
   final OvulationTestResult ovulationTest;
 
+  // Поле для выделений
+  @HiveField(16, defaultValue: CervicalMucusType.none)
+  final CervicalMucusType mucus;
+
   SymptomLog({
     required this.date,
     this.flow = FlowIntensity.none,
@@ -178,6 +209,7 @@ class SymptomLog extends HiveObject {
     this.hadSex = false,
     this.protectedSex = false,
     this.ovulationTest = OvulationTestResult.none,
+    this.mucus = CervicalMucusType.none,
   });
 
   SymptomLog copyWith({
@@ -197,6 +229,7 @@ class SymptomLog extends HiveObject {
     bool? hadSex,
     bool? protectedSex,
     OvulationTestResult? ovulationTest,
+    CervicalMucusType? mucus,
   }) {
     return SymptomLog(
       date: date ?? this.date,
@@ -215,6 +248,7 @@ class SymptomLog extends HiveObject {
       hadSex: hadSex ?? this.hadSex,
       protectedSex: protectedSex ?? this.protectedSex,
       ovulationTest: ovulationTest ?? this.ovulationTest,
+      mucus: mucus ?? this.mucus,
     );
   }
 }

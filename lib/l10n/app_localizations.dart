@@ -314,7 +314,7 @@ abstract class AppLocalizations {
   /// No description provided for @btnSave.
   ///
   /// In en, this message translates to:
-  /// **'SAVE'**
+  /// **'Save'**
   String get btnSave;
 
   /// No description provided for @legendPeriod.
@@ -3166,6 +3166,240 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Waning Crescent'**
   String get phaseWaningCrescent;
+
+  /// No description provided for @ttcChanceHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High Chance'**
+  String get ttcChanceHigh;
+
+  /// No description provided for @ttcChancePeak.
+  ///
+  /// In en, this message translates to:
+  /// **'Peak Fertility'**
+  String get ttcChancePeak;
+
+  /// No description provided for @ttcChanceLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low Chance'**
+  String get ttcChanceLow;
+
+  /// No description provided for @ttcCycleDay.
+  ///
+  /// In en, this message translates to:
+  /// **'CYCLE DAY {day}'**
+  String ttcCycleDay(int day);
+
+  /// No description provided for @lblTest.
+  ///
+  /// In en, this message translates to:
+  /// **'LH Test'**
+  String get lblTest;
+
+  /// No description provided for @lblSex.
+  ///
+  /// In en, this message translates to:
+  /// **'Intimacy'**
+  String get lblSex;
+
+  /// No description provided for @lblMucus.
+  ///
+  /// In en, this message translates to:
+  /// **'Mucus'**
+  String get lblMucus;
+
+  /// No description provided for @valMeasured.
+  ///
+  /// In en, this message translates to:
+  /// **'{temp}°'**
+  String valMeasured(double temp);
+
+  /// No description provided for @valPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Positive'**
+  String get valPositive;
+
+  /// No description provided for @valPeak.
+  ///
+  /// In en, this message translates to:
+  /// **'Peak'**
+  String get valPeak;
+
+  /// No description provided for @valNegative.
+  ///
+  /// In en, this message translates to:
+  /// **'Negative'**
+  String get valNegative;
+
+  /// No description provided for @valSexYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged'**
+  String get valSexYes;
+
+  /// No description provided for @valMucusLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged'**
+  String get valMucusLogged;
+
+  /// No description provided for @titleInputBBT.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Temperature'**
+  String get titleInputBBT;
+
+  /// No description provided for @titleInputTest.
+  ///
+  /// In en, this message translates to:
+  /// **'LH Test Result'**
+  String get titleInputTest;
+
+  /// No description provided for @titleInputSex.
+  ///
+  /// In en, this message translates to:
+  /// **'Intimacy details'**
+  String get titleInputSex;
+
+  /// No description provided for @titleInputMucus.
+  ///
+  /// In en, this message translates to:
+  /// **'Cervical Mucus'**
+  String get titleInputMucus;
+
+  /// No description provided for @chipNegative.
+  ///
+  /// In en, this message translates to:
+  /// **'Negative'**
+  String get chipNegative;
+
+  /// No description provided for @chipPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Positive'**
+  String get chipPositive;
+
+  /// No description provided for @chipPeak.
+  ///
+  /// In en, this message translates to:
+  /// **'Peak'**
+  String get chipPeak;
+
+  /// No description provided for @labelSexNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get labelSexNo;
+
+  /// No description provided for @labelSexYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get labelSexYes;
+
+  /// No description provided for @mucusDry.
+  ///
+  /// In en, this message translates to:
+  /// **'Dry'**
+  String get mucusDry;
+
+  /// No description provided for @mucusSticky.
+  ///
+  /// In en, this message translates to:
+  /// **'Sticky'**
+  String get mucusSticky;
+
+  /// No description provided for @mucusCreamy.
+  ///
+  /// In en, this message translates to:
+  /// **'Creamy'**
+  String get mucusCreamy;
+
+  /// No description provided for @mucusWatery.
+  ///
+  /// In en, this message translates to:
+  /// **'Watery'**
+  String get mucusWatery;
+
+  /// No description provided for @mucusEggWhite.
+  ///
+  /// In en, this message translates to:
+  /// **'Egg White'**
+  String get mucusEggWhite;
+
+  /// No description provided for @ttcChartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'BBT CHART (14 DAYS)'**
+  String get ttcChartTitle;
+
+  /// No description provided for @ttcChartPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Log temperature to see chart'**
+  String get ttcChartPlaceholder;
+
+  /// No description provided for @hintTemp.
+  ///
+  /// In en, this message translates to:
+  /// **'36.6'**
+  String get hintTemp;
+
+  /// No description provided for @prefNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get prefNotifications;
+
+  /// No description provided for @prefBiometrics.
+  ///
+  /// In en, this message translates to:
+  /// **'FaceID / TouchID'**
+  String get prefBiometrics;
+
+  /// No description provided for @prefCOC.
+  ///
+  /// In en, this message translates to:
+  /// **'Contraceptive Pill Mode'**
+  String get prefCOC;
+
+  /// No description provided for @sectionData.
+  ///
+  /// In en, this message translates to:
+  /// **'Data Management'**
+  String get sectionData;
+
+  /// No description provided for @btnExportPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Export PDF Report'**
+  String get btnExportPdf;
+
+  /// No description provided for @btnBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup Data'**
+  String get btnBackup;
+
+  /// No description provided for @sectionAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get sectionAbout;
+
+  /// No description provided for @btnContactSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Support'**
+  String get btnContactSupport;
+
+  /// No description provided for @btnRateApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate EviMoon'**
+  String get btnRateApp;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

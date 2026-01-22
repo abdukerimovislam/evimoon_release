@@ -1,23 +1,72 @@
 import 'dart:typed_data';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:intl/intl.dart';
+
 import '../models/cycle_model.dart';
-import '../l10n/app_localizations.dart'; // ✅ Импорт локализации
+import '../l10n/app_localizations.dart';
+import '../providers/cycle_provider.dart';
+import '../providers/wellness_provider.dart';
 
 class PdfService {
+
+  /// 🔥 ТОЧКА ВХОДА (Вызывается из настроек)
+  static Future<void> generateReport(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+    final cycleProvider = Provider.of<CycleProvider>(context, listen: false);
+    final wellnessProvider = Provider.of<WellnessProvider>(context, listen: false);
+
+    // 1. Собираем данные (например, за последние 3 месяца)
+    final List<SymptomLog> logs = [];
+    final now = DateTime.now();
+
+    // Проходим по последним 90 дням
+    for (int i = 0; i < 90; i++) {
+      final date = now.subtract(Duration(days: i));
+      // Получаем лог (WellnessProvider должен иметь этот метод)
+      final log = wellnessProvider.getLogForDate(date);
+
+      // Фильтруем пустые дни (если ничего не отмечено)
+      bool hasData = log.flow != FlowIntensity.none ||
+          log.painSymptoms.isNotEmpty ||
+          (log.temperature != null && log.temperature! > 0) ||
+          (log.notes != null && log.notes!.isNotEmpty);
+
+      if (hasData) {
+        logs.add(log);
+      }
+    }
+
+    if (logs.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("No data to generate report"))
+      );
+      return;
+    }
+
+    // 2. Вызываем вашу логику генерации
+    await PdfService().generateMedicalReport(
+      logs: logs,
+      avgCycleLength: cycleProvider.cycleLength,
+      avgPeriodLength: cycleProvider.avgPeriodDuration,
+      l10n: l10n,
+    );
+  }
+
+  // --- ВАШ КОД ГЕНЕРАЦИИ (Без изменений логики) ---
+
   Future<void> generateMedicalReport({
     required List<SymptomLog> logs,
     required int avgCycleLength,
     required int avgPeriodLength,
-    required AppLocalizations l10n, // ✅ Получаем локализацию извне
+    required AppLocalizations l10n,
     String userName = "Patient",
   }) async {
     final pdf = pw.Document();
 
-    // Для поддержки кириллицы (русского языка) обязательно нужен шрифт с полным набором символов
-    // OpenSans обычно поддерживает кириллицу, но для гарантии лучше использовать NotoSans или Roboto
     final fontRegular = await PdfGoogleFonts.openSansRegular();
     final fontBold = await PdfGoogleFonts.openSansBold();
 
@@ -31,6 +80,10 @@ class PdfService {
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.all(40),
+        theme: pw.ThemeData.withFont(
+          base: fontRegular,
+          bold: fontBold,
+        ),
         build: (pw.Context context) {
           return [
             // 1. ШАПКА
@@ -163,15 +216,10 @@ class PdfService {
         ),
         // Rows
         ...logs.map((log) {
-          // Здесь нужна логика расчета дня цикла. Пока оставим placeholder или передадим данные
           String cd = "--";
 
           List<String> symptoms = [];
           if (log.flow != FlowIntensity.none) symptoms.add("${l10n.pdfFlowShort}: ${_flowShort(log.flow, l10n)}");
-
-          // Нужно перевести симптомы, если они хранятся как ID.
-          // Для простоты пока выводим как есть или используем базовый маппинг.
-          // В идеале: log.painSymptoms.map((id) => l10n.translateSymptom(id)).join(", ")
           symptoms.addAll(log.painSymptoms);
 
           return pw.TableRow(
@@ -179,7 +227,7 @@ class PdfService {
               _td(DateFormat('dd.MM.yy').format(log.date), regular),
               _td(cd, regular, align: pw.TextAlign.center),
               _td(symptoms.join(", "), regular, fontSize: 8),
-              _td(log.temperature != null ? "${log.temperature}°" : "-", regular, align: pw.TextAlign.center),
+              _td(log.temperature != null && log.temperature! > 0 ? "${log.temperature}°" : "-", regular, align: pw.TextAlign.center),
               _td(log.notes ?? "", regular, fontSize: 8),
             ],
           );
@@ -204,7 +252,7 @@ class PdfService {
 
   String _flowShort(FlowIntensity f, AppLocalizations l10n) {
     switch (f) {
-      case FlowIntensity.light: return "L"; // Можно тоже вынести в l10n если нужно (Л, С, Т)
+      case FlowIntensity.light: return "L";
       case FlowIntensity.medium: return "M";
       case FlowIntensity.heavy: return "H";
       default: return "";

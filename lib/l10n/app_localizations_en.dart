@@ -121,7 +121,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moodIrritated => 'Irritated';
 
   @override
-  String get btnSave => 'SAVE';
+  String get btnSave => 'Save';
 
   @override
   String get legendPeriod => 'Period';
@@ -1589,4 +1589,125 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phaseWaningCrescent => 'Waning Crescent';
+
+  @override
+  String get ttcChanceHigh => 'High Chance';
+
+  @override
+  String get ttcChancePeak => 'Peak Fertility';
+
+  @override
+  String get ttcChanceLow => 'Low Chance';
+
+  @override
+  String ttcCycleDay(int day) {
+    return 'CYCLE DAY $day';
+  }
+
+  @override
+  String get lblTest => 'LH Test';
+
+  @override
+  String get lblSex => 'Intimacy';
+
+  @override
+  String get lblMucus => 'Mucus';
+
+  @override
+  String valMeasured(double temp) {
+    return '$temp°';
+  }
+
+  @override
+  String get valPositive => 'Positive';
+
+  @override
+  String get valPeak => 'Peak';
+
+  @override
+  String get valNegative => 'Negative';
+
+  @override
+  String get valSexYes => 'Logged';
+
+  @override
+  String get valMucusLogged => 'Logged';
+
+  @override
+  String get titleInputBBT => 'Log Temperature';
+
+  @override
+  String get titleInputTest => 'LH Test Result';
+
+  @override
+  String get titleInputSex => 'Intimacy details';
+
+  @override
+  String get titleInputMucus => 'Cervical Mucus';
+
+  @override
+  String get chipNegative => 'Negative';
+
+  @override
+  String get chipPositive => 'Positive';
+
+  @override
+  String get chipPeak => 'Peak';
+
+  @override
+  String get labelSexNo => 'No';
+
+  @override
+  String get labelSexYes => 'Yes';
+
+  @override
+  String get mucusDry => 'Dry';
+
+  @override
+  String get mucusSticky => 'Sticky';
+
+  @override
+  String get mucusCreamy => 'Creamy';
+
+  @override
+  String get mucusWatery => 'Watery';
+
+  @override
+  String get mucusEggWhite => 'Egg White';
+
+  @override
+  String get ttcChartTitle => 'BBT CHART (14 DAYS)';
+
+  @override
+  String get ttcChartPlaceholder => 'Log temperature to see chart';
+
+  @override
+  String get hintTemp => '36.6';
+
+  @override
+  String get prefNotifications => 'Notifications';
+
+  @override
+  String get prefBiometrics => 'FaceID / TouchID';
+
+  @override
+  String get prefCOC => 'Contraceptive Pill Mode';
+
+  @override
+  String get sectionData => 'Data Management';
+
+  @override
+  String get btnExportPdf => 'Export PDF Report';
+
+  @override
+  String get btnBackup => 'Backup Data';
+
+  @override
+  String get sectionAbout => 'About';
+
+  @override
+  String get btnContactSupport => 'Contact Support';
+
+  @override
+  String get btnRateApp => 'Rate EviMoon';
 }

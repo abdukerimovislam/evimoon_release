@@ -641,7 +641,68 @@
                                               "phaseFirstQuarter": "First Quarter",
                                               "phaseFullMoon": "Full Moon",
                                               "phaseWaningGibbous": "Waning Gibbous",
-                                              "phaseWaningCrescent": "Waning Crescent"
+                                              "phaseWaningCrescent": "Waning Crescent",
+
+                                                "ttcChanceHigh": "High Chance",
+                                                "ttcChancePeak": "Peak Fertility",
+                                                "ttcChanceLow": "Low Chance",
+                                                "ttcCycleDay": "CYCLE DAY {day}",
+                                                "@ttcCycleDay": {
+                                                  "placeholders": {
+                                                    "day": { "type": "int" }
+                                                  }
+                                                },
+
+                                                "lblTemp": "Temperature",
+                                                "lblTest": "LH Test",
+                                                "lblSex": "Intimacy",
+                                                "lblMucus": "Mucus",
+
+                                                "valMeasured": "{temp}°",
+                                                "@valMeasured": {
+                                                  "placeholders": {
+                                                    "temp": { "type": "double" }
+                                                  }
+                                                },
+                                                "valPositive": "Positive",
+                                                "valPeak": "Peak",
+                                                "valNegative": "Negative",
+                                                "valSexYes": "Logged",
+                                                "valMucusLogged": "Logged",
+
+                                                "titleInputBBT": "Log Temperature",
+                                                "titleInputTest": "LH Test Result",
+                                                "titleInputSex": "Intimacy details",
+                                                "titleInputMucus": "Cervical Mucus",
+
+                                                "chipNegative": "Negative",
+                                                "chipPositive": "Positive",
+                                                "chipPeak": "Peak",
+
+                                                "labelSexNo": "No",
+                                                "labelSexYes": "Yes",
+
+                                                "mucusDry": "Dry",
+                                                "mucusSticky": "Sticky",
+                                                "mucusCreamy": "Creamy",
+                                                "mucusWatery": "Watery",
+                                                "mucusEggWhite": "Egg White",
+
+                                                "ttcChartTitle": "BBT CHART (14 DAYS)",
+                                                "ttcChartPlaceholder": "Log temperature to see chart",
+
+                                                "hintTemp": "36.6",
+                                                "btnSave": "Save",
+                                                "sectionGeneral": "General",
+                                                  "prefNotifications": "Notifications",
+                                                  "prefBiometrics": "FaceID / TouchID",
+                                                  "prefCOC": "Contraceptive Pill Mode",
+                                                  "sectionData": "Data Management",
+                                                  "btnExportPdf": "Export PDF Report",
+                                                  "btnBackup": "Backup Data",
+                                                  "sectionAbout": "About",
+                                                  "btnContactSupport": "Contact Support",
+                                                  "btnRateApp": "Rate EviMoon"
 
 
 }

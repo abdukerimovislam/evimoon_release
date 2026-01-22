@@ -584,6 +584,66 @@
                                                   "phaseFirstQuarter": "Первая четверть",
                                                   "phaseFullMoon": "Полнолуние",
                                                   "phaseWaningGibbous": "Убывающая Луна",
-                                                  "phaseWaningCrescent": "Старая Луна"
+                                                  "phaseWaningCrescent": "Старая Луна",
+                                                  "ttcChanceHigh": "Высокий шанс",
+                                                    "ttcChancePeak": "Пик фертильности",
+                                                    "ttcChanceLow": "Низкий шанс",
+                                                    "ttcCycleDay": "ДЕНЬ ЦИКЛА {day}",
+                                                    "@ttcCycleDay": {
+                                                      "placeholders": {
+                                                        "day": { "type": "int" }
+                                                      }
+                                                    },
+
+                                                    "lblTemp": "Температура",
+                                                    "lblTest": "Тест ЛГ",
+                                                    "lblSex": "Близость",
+                                                    "lblMucus": "Выделения",
+
+                                                    "valMeasured": "{temp}°",
+                                                    "@valMeasured": {
+                                                      "placeholders": {
+                                                        "temp": { "type": "double" }
+                                                      }
+                                                    },
+                                                    "valPositive": "Полож.",
+                                                    "valPeak": "Пик",
+                                                    "valNegative": "Отриц.",
+                                                    "valSexYes": "Да",
+                                                    "valMucusLogged": "Отмечено",
+
+                                                    "titleInputBBT": "Ввод температуры",
+                                                    "titleInputTest": "Результат теста ЛГ",
+                                                    "titleInputSex": "Детали близости",
+                                                    "titleInputMucus": "Цервикальная слизь",
+
+                                                    "chipNegative": "Отриц.",
+                                                    "chipPositive": "Полож.",
+                                                    "chipPeak": "Пик",
+
+                                                    "labelSexNo": "Нет",
+                                                    "labelSexYes": "Да",
+
+                                                    "mucusDry": "Сухо",
+                                                    "mucusSticky": "Липкая",
+                                                    "mucusCreamy": "Крем",
+                                                    "mucusWatery": "Вода",
+                                                    "mucusEggWhite": "Белок",
+
+                                                    "ttcChartTitle": "ГРАФИК БТ (14 ДНЕЙ)",
+                                                    "ttcChartPlaceholder": "Введите БТ для графика",
+
+                                                    "hintTemp": "36.6",
+                                                    "btnSave": "Сохранить",
+                                                    "sectionGeneral": "ОСНОВНЫЕ",
+                                                      "prefNotifications": "Уведомления",
+                                                      "prefBiometrics": "Вход по FaceID",
+                                                      "prefCOC": "Режим КОК (Таблетки)",
+                                                      "sectionData": "УПРАВЛЕНИЕ ДАННЫМИ",
+                                                      "btnExportPdf": "Скачать отчет (PDF)",
+                                                      "btnBackup": "Резервная копия",
+                                                      "sectionAbout": "О ПРИЛОЖЕНИИ",
+                                                      "btnContactSupport": "Написать в поддержку",
+                                                      "btnRateApp": "Оценить приложение"
 
 }

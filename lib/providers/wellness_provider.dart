@@ -227,6 +227,20 @@ class WellnessProvider extends ChangeNotifier {
     return insights;
   }
 
+  List<double?> getLast14DaysTemps() {
+    final List<double?> temps = [];
+    final now = DateTime.now();
+
+    // Идем от 13 дней назад до сегодня (всего 14 точек)
+    for (int i = 13; i >= 0; i--) {
+      final date = now.subtract(Duration(days: i));
+      final log = getLogForDate(date); // Используем существующий метод
+      temps.add(log.temperature);
+    }
+
+    return temps;
+  }
+
   // 🔥 🤰 FERTILITY INSIGHTS (Для режима планирования)
   List<Map<String, dynamic>> analyzeFertilityPatterns() {
     List<Map<String, dynamic>> patterns = [];

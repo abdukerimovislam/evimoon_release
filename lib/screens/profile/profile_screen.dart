@@ -15,7 +15,7 @@ import '../../services/pdf_service.dart';
 import '../../services/backup_service.dart';
 import '../../widgets/vision_card.dart';
 import '../../widgets/mode_transition_overlay.dart';
-import '../../widgets/premium_paywall_sheet.dart'; // 🔥 Импорт пейволла
+import '../../widgets/premium_paywall_sheet.dart';
 
 import '../profile/profile_logic_mixin.dart';
 import '../profile/profile_settings_list.dart';
@@ -23,27 +23,20 @@ import '../profile/profile_settings_list.dart';
 class ProfileScreen extends StatelessWidget with ProfileLogicMixin {
   const ProfileScreen({super.key});
 
-  // 🔥 БЕЗОПАСНЫЙ МЕТОД ДЛЯ РАБОТЫ С BACKUP
-  // Гарантирует, что коробки открыты перед созданием сервиса
-  Future<BackupService> _getSafeBackupService() async {
-    // Принудительно открываем коробки, если они закрыты (например, после Hot Restart)
+  // Проверяем, открыты ли боксы перед бэкапом
+  Future<void> _ensureBoxes() async {
     if (!Hive.isBoxOpen('cycles')) await Hive.openBox('cycles');
     if (!Hive.isBoxOpen('settings')) await Hive.openBox('settings');
-
-    return BackupService(Hive.box('cycles'), Hive.box('settings'));
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    // Используем watch, чтобы экран обновлялся при изменении настроек
     final settings = context.watch<SettingsProvider>();
     final cycle = context.watch<CycleProvider>();
     final wellness = context.watch<WellnessProvider>();
     final coc = context.watch<COCProvider>();
-
-    // ❌ УДАЛЕНО: final backupService = ... (Это вызывало краш)
 
     final bool isCOC = coc.isEnabled;
     final bool isTTC = settings.isTTCMode;
@@ -68,9 +61,7 @@ class ProfileScreen extends StatelessWidget with ProfileLogicMixin {
           Center(child: Text(l10n.lblUser, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary))),
           const SizedBox(height: 30),
 
-          // 🔥 TTC MODE CARD
-          _buildTTCSwitch(context, isTTC, isCOC, settings, cycle, coc, l10n),
-          const SizedBox(height: 30),
+          // ❌ КАРТОЧКА TTC УДАЛЕНА ОТСЮДА
 
           // --- 1. CONTRACEPTION ---
           if (!isTTC) ...[
@@ -84,6 +75,7 @@ class ProfileScreen extends StatelessWidget with ProfileLogicMixin {
                   if (val) {
                     showCOCStartDialog(context);
                   } else {
+                    // Анимация выключения
                     ModeTransitionOverlay.show(context, TransitionMode.tracking, l10n.transitionTrack, onComplete: () {
                       coc.toggleCOC(false);
                       cycle.setCOCMode(false);
@@ -156,15 +148,13 @@ class ProfileScreen extends StatelessWidget with ProfileLogicMixin {
             ),
             const Divider(height: 1, indent: 50, color: Colors.black12),
 
-            // ✅ УВЕДОМЛЕНИЯ
             ProfileSwitchTile(
                 icon: Icons.notifications_active_rounded,
                 title: l10n.settingsNotifs,
                 value: settings.notificationsEnabled,
-                onChanged: settings.setNotifications
+                onChanged: settings.setNotifications// Исправлено на правильный метод провайдера
             ),
 
-            // 🔥 ВЕЧЕРНИЙ ЧЕК-ИН
             if (settings.notificationsEnabled) ...[
               const Divider(height: 1, indent: 50, color: Colors.black12),
               ProfileSwitchTile(
@@ -186,16 +176,13 @@ class ProfileScreen extends StatelessWidget with ProfileLogicMixin {
             ProfileSwitchTile(icon: Icons.fingerprint_rounded, title: l10n.settingsBiometrics, value: settings.biometricsEnabled, onChanged: (v) => handleBiometrics(context, v)),
             const Divider(height: 1, indent: 50, color: Colors.black12),
 
-            // 🔥 PDF EXPORT (PREMIUM LOCKED)
             ProfileSettingsTile(
               icon: Icons.picture_as_pdf_rounded,
               title: l10n.settingsExport,
-              // Если нет премиума — показываем замок, иначе стрелочку
               trailing: isPremium
                   ? const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey)
                   : const Icon(Icons.lock_outline, size: 20, color: Colors.amber),
               onTap: () async {
-                // 🔒 LOCK CHECK
                 if (!isPremium) {
                   await showModalBottomSheet(
                     context: context,
@@ -206,7 +193,7 @@ class ProfileScreen extends StatelessWidget with ProfileLogicMixin {
                   return;
                 }
 
-                // Логика экспорта (как и было)
+                // Проверка данных перед экспортом
                 final allLogs = wellness.getLogHistory();
                 final validLogs = allLogs.where((l) {
                   return l.flow != FlowIntensity.none ||
@@ -214,10 +201,7 @@ class ProfileScreen extends StatelessWidget with ProfileLogicMixin {
                       l.symptoms.isNotEmpty ||
                       (l.notes != null && l.notes!.trim().isNotEmpty) ||
                       (l.temperature != null && l.temperature! > 0) ||
-                      l.ovulationTest != OvulationTestResult.none ||
-                      l.mood != 3 ||
-                      l.energy != 3 ||
-                      l.libido != 3;
+                      l.ovulationTest != OvulationTestResult.none;
                 }).toList();
 
                 if (validLogs.length < 7) {
@@ -242,6 +226,7 @@ class ProfileScreen extends StatelessWidget with ProfileLogicMixin {
                   return;
                 }
 
+                // Старт экспорта
                 showDialog(
                   context: context,
                   barrierDismissible: false,
@@ -249,12 +234,8 @@ class ProfileScreen extends StatelessWidget with ProfileLogicMixin {
                 );
 
                 try {
-                  await PdfService().generateMedicalReport(
-                    logs: validLogs,
-                    avgCycleLength: cycle.cycleLength,
-                    avgPeriodLength: cycle.periodDuration,
-                    l10n: l10n,
-                  );
+                  // Вызов статического метода
+                  await PdfService.generateReport(context);
                   if (context.mounted) Navigator.pop(context);
                 } catch (e) {
                   if (context.mounted) {
@@ -276,9 +257,8 @@ class ProfileScreen extends StatelessWidget with ProfileLogicMixin {
                 title: l10n.btnSaveBackup,
                 trailing: const Icon(Icons.save_alt, size: 20, color: AppColors.primary),
                 onTap: () async {
-                  // Получаем сервис безопасно
-                  final service = await _getSafeBackupService();
-                  if (ctx.mounted) await service.createBackup(ctx);
+                  await _ensureBoxes();
+                  if (ctx.mounted) await BackupService.createBackup(ctx);
                 }
             )),
 
@@ -298,13 +278,13 @@ class ProfileScreen extends StatelessWidget with ProfileLogicMixin {
                     CupertinoDialogAction(isDestructiveAction: true, child: Text(l10n.btnRestore), onPressed: () async {
                       Navigator.pop(ctx);
 
-                      // Получаем сервис безопасно
-                      final service = await _getSafeBackupService();
+                      await _ensureBoxes();
+                      // Вызов статического метода
+                      await BackupService.restoreBackup(context);
 
-                      if (await service.restoreBackup(context) && context.mounted) {
-                        cycle.reload(); settings.reload();
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.msgRestoreSuccess), backgroundColor: Colors.green));
-                      }
+                      // Обновляем провайдеры
+                      cycle.reload();
+                      settings.reload();
                     }),
                   ],
                 ),
@@ -332,79 +312,6 @@ class ProfileScreen extends StatelessWidget with ProfileLogicMixin {
           boxShadow: [BoxShadow(color: (isTTC ? Colors.amber : AppColors.primary).withOpacity(0.1), blurRadius: 20, spreadRadius: 5)],
         ),
         child: const CircleAvatar(radius: 45, backgroundColor: Colors.white, child: Icon(Icons.person, size: 45, color: AppColors.primary)),
-      ),
-    );
-  }
-
-  Widget _buildTTCSwitch(BuildContext context, bool isTTC, bool isCOC, SettingsProvider settings, CycleProvider cycle, COCProvider coc, AppLocalizations l10n) {
-    return VisionCard(
-      padding: EdgeInsets.zero,
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: isTTC ? LinearGradient(colors: [Colors.amber.shade50, Colors.white], begin: Alignment.topLeft, end: Alignment.bottomRight) : null,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: SwitchListTile.adaptive(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          secondary: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: isTTC ? Colors.amber : Colors.grey.withOpacity(0.1), shape: BoxShape.circle),
-              child: const Icon(CupertinoIcons.star_fill, color: Colors.white, size: 20)
-          ),
-          title: Row(
-            children: [
-              Flexible(
-                child: Text(
-                  l10n.modeTTC,
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: isTTC ? Colors.black87 : AppColors.textPrimary
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 2,
-                ),
-              ),
-              const SizedBox(width: 6),
-              if (!settings.isPremium)
-                const Icon(Icons.lock, size: 14, color: Colors.amber)
-            ],
-          ),
-          subtitle: Text(l10n.modeTTCDesc, style: TextStyle(fontSize: 12, color: AppColors.textSecondary.withOpacity(0.8))),
-          activeColor: Colors.amber,
-          value: isTTC,
-          onChanged: (val) async {
-            if (val && !settings.isPremium) {
-              await showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (_) => const PremiumPaywallSheet(),
-              );
-              return;
-            }
-
-            if (val && isCOC) {
-              showCupertinoDialog(
-                context: context,
-                builder: (ctx) => CupertinoAlertDialog(
-                  title: Text(l10n.dialogTTCConflict), content: Text(l10n.dialogTTCConflictBody),
-                  actions: [
-                    CupertinoDialogAction(child: Text(l10n.btnCancel), onPressed: () => Navigator.pop(ctx)),
-                    CupertinoDialogAction(isDestructiveAction: true, child: Text(l10n.btnDisableAndSwitch), onPressed: () {
-                      Navigator.pop(ctx);
-                      coc.toggleCOC(false); cycle.setCOCMode(false);
-                      ModeTransitionOverlay.show(context, TransitionMode.ttc, l10n.transitionTTC, onComplete: () { settings.setTTCMode(true); cycle.setTTCMode(true); goToHome(context); });
-                    }),
-                  ],
-                ),
-              );
-            } else {
-              ModeTransitionOverlay.show(context, val ? TransitionMode.ttc : TransitionMode.tracking, val ? l10n.transitionTTC : l10n.transitionTrack, onComplete: () {
-                settings.setTTCMode(val); cycle.setTTCMode(val); goToHome(context);
-              });
-            }
-          },
-        ),
       ),
     );
   }

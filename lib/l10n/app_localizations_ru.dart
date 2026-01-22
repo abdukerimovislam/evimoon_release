@@ -121,7 +121,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get moodIrritated => 'Раздражение';
 
   @override
-  String get btnSave => 'СОХРАНИТЬ';
+  String get btnSave => 'Сохранить';
 
   @override
   String get legendPeriod => 'Месячные';
@@ -163,7 +163,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get profileTitle => 'Профиль';
 
   @override
-  String get sectionGeneral => 'Основное';
+  String get sectionGeneral => 'ОСНОВНЫЕ';
 
   @override
   String get sectionSecurity => 'Безопасность';
@@ -638,7 +638,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get logVitals => 'Показатели';
 
   @override
-  String get lblTemp => 'Температура (БТ)';
+  String get lblTemp => 'Температура';
 
   @override
   String get lblWeight => 'Вес (кг)';
@@ -1589,4 +1589,125 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phaseWaningCrescent => 'Старая Луна';
+
+  @override
+  String get ttcChanceHigh => 'Высокий шанс';
+
+  @override
+  String get ttcChancePeak => 'Пик фертильности';
+
+  @override
+  String get ttcChanceLow => 'Низкий шанс';
+
+  @override
+  String ttcCycleDay(int day) {
+    return 'ДЕНЬ ЦИКЛА $day';
+  }
+
+  @override
+  String get lblTest => 'Тест ЛГ';
+
+  @override
+  String get lblSex => 'Близость';
+
+  @override
+  String get lblMucus => 'Выделения';
+
+  @override
+  String valMeasured(double temp) {
+    return '$temp°';
+  }
+
+  @override
+  String get valPositive => 'Полож.';
+
+  @override
+  String get valPeak => 'Пик';
+
+  @override
+  String get valNegative => 'Отриц.';
+
+  @override
+  String get valSexYes => 'Да';
+
+  @override
+  String get valMucusLogged => 'Отмечено';
+
+  @override
+  String get titleInputBBT => 'Ввод температуры';
+
+  @override
+  String get titleInputTest => 'Результат теста ЛГ';
+
+  @override
+  String get titleInputSex => 'Детали близости';
+
+  @override
+  String get titleInputMucus => 'Цервикальная слизь';
+
+  @override
+  String get chipNegative => 'Отриц.';
+
+  @override
+  String get chipPositive => 'Полож.';
+
+  @override
+  String get chipPeak => 'Пик';
+
+  @override
+  String get labelSexNo => 'Нет';
+
+  @override
+  String get labelSexYes => 'Да';
+
+  @override
+  String get mucusDry => 'Сухо';
+
+  @override
+  String get mucusSticky => 'Липкая';
+
+  @override
+  String get mucusCreamy => 'Крем';
+
+  @override
+  String get mucusWatery => 'Вода';
+
+  @override
+  String get mucusEggWhite => 'Белок';
+
+  @override
+  String get ttcChartTitle => 'ГРАФИК БТ (14 ДНЕЙ)';
+
+  @override
+  String get ttcChartPlaceholder => 'Введите БТ для графика';
+
+  @override
+  String get hintTemp => '36.6';
+
+  @override
+  String get prefNotifications => 'Уведомления';
+
+  @override
+  String get prefBiometrics => 'Вход по FaceID';
+
+  @override
+  String get prefCOC => 'Режим КОК (Таблетки)';
+
+  @override
+  String get sectionData => 'УПРАВЛЕНИЕ ДАННЫМИ';
+
+  @override
+  String get btnExportPdf => 'Скачать отчет (PDF)';
+
+  @override
+  String get btnBackup => 'Резервная копия';
+
+  @override
+  String get sectionAbout => 'О ПРИЛОЖЕНИИ';
+
+  @override
+  String get btnContactSupport => 'Написать в поддержку';
+
+  @override
+  String get btnRateApp => 'Оценить приложение';
 }

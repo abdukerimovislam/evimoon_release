@@ -1,82 +1,108 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Для полной очистки кэша
+import 'package:flutter/foundation.dart';
 
 class SecureStorageService {
-  // Настройки безопасности хранилища (Keystore/Keychain)
-  final FlutterSecureStorage _storage = const FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
-    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
-  );
+  // Singleton pattern
+  static final SecureStorageService _instance = SecureStorageService._internal();
+  factory SecureStorageService() => _instance;
 
-  // Ключи
-  static const _keyNotifications = 'notifications_enabled';
-  static const _keyBiometrics = 'biometrics_enabled';
-  static const _keyLanguage = 'language_code';
-  static const _keyTTCMode = 'ttc_mode_enabled';
+  late final FlutterSecureStorage _storage;
 
-  // --- 1. СИСТЕМНЫЕ НАСТРОЙКИ (Нужны для SettingsProvider) ---
-
-  // Уведомления
-  Future<void> saveNotificationsEnabled(bool enabled) async {
-    await _storage.write(key: _keyNotifications, value: enabled.toString());
+  SecureStorageService._internal() {
+    _storage = const FlutterSecureStorage(
+      aOptions: AndroidOptions(
+        encryptedSharedPreferences: true,
+        // 🔥 ВАЖНО: Сброс при ошибке ключей (Android)
+        resetOnError: true,
+      ),
+      iOptions: IOSOptions(
+        accessibility: KeychainAccessibility.first_unlock,
+      ),
+    );
   }
 
-  Future<void> saveTTCMode(bool enabled) async {
-    await _storage.write(key: _keyTTCMode, value: enabled.toString());
-  }
+  // --- KEYS ---
+  static const String _keyNotifications = 'notifications_enabled';
+  static const String _keyBiometrics = 'biometrics_enabled';
+  static const String _keyLanguage = 'language_code';
+  static const String _keyTTC = 'ttc_mode_enabled';
 
-  Future<bool> getTTCMode() async {
-    final val = await _storage.read(key: _keyTTCMode);
-    return val == 'true';
-  }
+  // --- GENERIC HELPERS (С защитой от ошибок) ---
 
-
-  Future<bool> getNotificationsEnabled() async {
-    final val = await _storage.read(key: _keyNotifications);
-    // По умолчанию false, если не сохранено
-    return val == 'true';
-  }
-
-  // Биометрия (Критично хранить в SecureStorage)
-  Future<void> saveBiometricsEnabled(bool enabled) async {
-    await _storage.write(key: _keyBiometrics, value: enabled.toString());
-  }
-
-  Future<bool> getBiometricsEnabled() async {
-    final val = await _storage.read(key: _keyBiometrics);
-    return val == 'true';
-  }
-
-  // Язык
-  Future<void> saveLanguage(String code) async {
-    await _storage.write(key: _keyLanguage, value: code);
-  }
-
-  Future<String?> getLanguage() async {
-    return await _storage.read(key: _keyLanguage);
-  }
-
-  // --- 2. УПРАВЛЕНИЕ АККАУНТОМ ---
-
-  /// Полная очистка данных (Сброс / Удаление аккаунта)
-  Future<void> clearAll() async {
+  Future<void> _write(String key, String value) async {
     try {
-      // 1. Удаляем ключи шифрования и настройки
-      await _storage.deleteAll();
-
-      // 2. Чистим SharedPreferences (если что-то осталось от старых версий)
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.clear();
-
-      // Примечание: Hive чистится в ProfileScreen через Hive.deleteFromDisk(),
-      // здесь мы чистим только секретную часть.
+      await _storage.write(key: key, value: value);
     } catch (e) {
-      // Игнорируем ошибки при очистке
+      debugPrint("❌ SecureStorage Write Error: $e");
+      // Если запись не удалась, пробуем удалить и записать снова
+      try {
+        await _storage.delete(key: key);
+        await _storage.write(key: key, value: value);
+      } catch (e2) {
+        debugPrint("❌ CRITICAL Storage Error: $e2");
+      }
     }
   }
 
-  // Инициализация (сейчас пустая, но может пригодиться для миграций)
-  Future<void> init() async {
-    // Здесь можно добавить логику проверки первого запуска, если нужно
+  Future<String?> _read(String key) async {
+    try {
+      return await _storage.read(key: key);
+    } catch (e) {
+      debugPrint("❌ SecureStorage Read Error: $e");
+      return null;
+    }
+  }
+
+  Future<void> _delete(String key) async {
+    try {
+      await _storage.delete(key: key);
+    } catch (e) {
+      debugPrint("❌ SecureStorage Delete Error: $e");
+    }
+  }
+
+  // --- PUBLIC API ---
+
+  Future<void> saveNotificationsEnabled(bool enabled) async {
+    await _write(_keyNotifications, enabled.toString());
+  }
+
+  Future<bool> getNotificationsEnabled() async {
+    final val = await _read(_keyNotifications);
+    return val == 'true';
+  }
+
+  Future<void> saveBiometricsEnabled(bool enabled) async {
+    await _write(_keyBiometrics, enabled.toString());
+  }
+
+  Future<bool> getBiometricsEnabled() async {
+    final val = await _read(_keyBiometrics);
+    return val == 'true';
+  }
+
+  Future<void> saveLanguage(String langCode) async {
+    await _write(_keyLanguage, langCode);
+  }
+
+  Future<String?> getLanguage() async {
+    return await _read(_keyLanguage);
+  }
+
+  Future<void> saveTTCMode(bool enabled) async {
+    await _write(_keyTTC, enabled.toString());
+  }
+
+  Future<bool> getTTCMode() async {
+    final val = await _read(_keyTTC);
+    return val == 'true';
+  }
+
+  Future<void> clearAll() async {
+    try {
+      await _storage.deleteAll();
+    } catch (e) {
+      debugPrint("❌ Error clearing storage: $e");
+    }
   }
 }
