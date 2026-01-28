@@ -1286,7 +1286,7 @@ abstract class AppLocalizations {
   /// No description provided for @lblNoData.
   ///
   /// In en, this message translates to:
-  /// **'No Data'**
+  /// **'--'**
   String get lblNoData;
 
   /// No description provided for @lblNoSymptoms.
@@ -2054,7 +2054,7 @@ abstract class AppLocalizations {
   /// No description provided for @dialogPeriodStartTitle.
   ///
   /// In en, this message translates to:
-  /// **'Period Started?'**
+  /// **'When did your period start?'**
   String get dialogPeriodStartTitle;
 
   /// No description provided for @dialogPeriodStartBody.
@@ -2078,7 +2078,7 @@ abstract class AppLocalizations {
   /// No description provided for @splashSlogan.
   ///
   /// In en, this message translates to:
-  /// **'Your cycle. Your rhythm.'**
+  /// **'Listen to your rhythm'**
   String get splashSlogan;
 
   /// No description provided for @settingsSupport.
@@ -2486,7 +2486,7 @@ abstract class AppLocalizations {
   /// No description provided for @modeTTC.
   ///
   /// In en, this message translates to:
-  /// **'Pregnancy Planning'**
+  /// **'Get Pregnant'**
   String get modeTTC;
 
   /// No description provided for @modeTTCDesc.
@@ -2656,6 +2656,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stress affects ovulation. Try 5 min meditation today.'**
   String get ttcTipDefault;
+
+  /// No description provided for @ttcBtnReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get ttcBtnReset;
+
+  /// No description provided for @ttcStrategyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Strategy'**
+  String get ttcStrategyTitle;
+
+  /// No description provided for @ttcStrategyMinimal.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum effort'**
+  String get ttcStrategyMinimal;
+
+  /// No description provided for @ttcStrategyMaximal.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum chances'**
+  String get ttcStrategyMaximal;
+
+  /// No description provided for @ttcPlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan'**
+  String get ttcPlanTitle;
+
+  /// No description provided for @ttcPlanMinimalBody.
+  ///
+  /// In en, this message translates to:
+  /// **'During the fertile window: intimacy every other day, LH tests 2–3 days, BBT optional.'**
+  String get ttcPlanMinimalBody;
+
+  /// No description provided for @ttcPlanMaximalBody.
+  ///
+  /// In en, this message translates to:
+  /// **'During the fertile window: intimacy daily, LH tests daily, BBT every morning.'**
+  String get ttcPlanMaximalBody;
+
+  /// No description provided for @ttcOvulationBadgeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ovulation'**
+  String get ttcOvulationBadgeTitle;
+
+  /// No description provided for @ttcOvulationEstimatedCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated (calendar)'**
+  String get ttcOvulationEstimatedCalendar;
+
+  /// No description provided for @ttcOvulationConfirmedLH.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed by LH'**
+  String get ttcOvulationConfirmedLH;
+
+  /// No description provided for @ttcOvulationConfirmedBBT.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed by BBT'**
+  String get ttcOvulationConfirmedBBT;
+
+  /// No description provided for @ttcOvulationConfirmedManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get ttcOvulationConfirmedManual;
 
   /// No description provided for @dialogHighTempTitle.
   ///
@@ -2876,7 +2948,7 @@ abstract class AppLocalizations {
   /// No description provided for @splashTitle.
   ///
   /// In en, this message translates to:
-  /// **'EviMoon'**
+  /// **'EVIMOON'**
   String get splashTitle;
 
   /// No description provided for @notifPhaseFollicularTitle.
@@ -3400,6 +3472,516 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rate EviMoon'**
   String get btnRateApp;
+
+  /// No description provided for @btnYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get btnYesterday;
+
+  /// No description provided for @btnPickDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick another date'**
+  String get btnPickDate;
+
+  /// No description provided for @modeCycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track Cycle'**
+  String get modeCycle;
+
+  /// No description provided for @backupSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'EviMoon Backup'**
+  String get backupSubject;
+
+  /// No description provided for @backupBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup data for EviMoon app created on {date}'**
+  String backupBody(String date);
+
+  /// No description provided for @settingsTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'App Theme'**
+  String get settingsTheme;
+
+  /// No description provided for @themeOceanic.
+  ///
+  /// In en, this message translates to:
+  /// **'Oceanic'**
+  String get themeOceanic;
+
+  /// No description provided for @themeNature.
+  ///
+  /// In en, this message translates to:
+  /// **'Nature'**
+  String get themeNature;
+
+  /// No description provided for @themeVelvet.
+  ///
+  /// In en, this message translates to:
+  /// **'Velvet'**
+  String get themeVelvet;
+
+  /// No description provided for @themeDigital.
+  ///
+  /// In en, this message translates to:
+  /// **'Digital'**
+  String get themeDigital;
+
+  /// No description provided for @themeActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get themeActive;
+
+  /// No description provided for @selectThemeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Theme'**
+  String get selectThemeTitle;
+
+  /// No description provided for @onboardModeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What is your goal?'**
+  String get onboardModeTitle;
+
+  /// No description provided for @onboardModeCycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track Cycle'**
+  String get onboardModeCycle;
+
+  /// No description provided for @onboardModeCycleDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Predict periods & fertility window'**
+  String get onboardModeCycleDesc;
+
+  /// No description provided for @onboardModePill.
+  ///
+  /// In en, this message translates to:
+  /// **'Track Pill (COC)'**
+  String get onboardModePill;
+
+  /// No description provided for @onboardModePillDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders & pack management'**
+  String get onboardModePillDesc;
+
+  /// No description provided for @onboardDateTitleCycle.
+  ///
+  /// In en, this message translates to:
+  /// **'When did your last period start?'**
+  String get onboardDateTitleCycle;
+
+  /// No description provided for @onboardDateTitlePill.
+  ///
+  /// In en, this message translates to:
+  /// **'When did you start the current pack?'**
+  String get onboardDateTitlePill;
+
+  /// No description provided for @onboardLengthTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cycle Length'**
+  String get onboardLengthTitle;
+
+  /// No description provided for @onboardPackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pack Type'**
+  String get onboardPackTitle;
+
+  /// No description provided for @lblAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Average'**
+  String get lblAverage;
+
+  /// No description provided for @lblNormalRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal: 21-35 days'**
+  String get lblNormalRange;
+
+  /// No description provided for @pack21.
+  ///
+  /// In en, this message translates to:
+  /// **'21 Active + 7 Break'**
+  String get pack21;
+
+  /// No description provided for @pack28.
+  ///
+  /// In en, this message translates to:
+  /// **'28 Active (No Break)'**
+  String get pack28;
+
+  /// No description provided for @pack24.
+  ///
+  /// In en, this message translates to:
+  /// **'24 Active + 4 Dummy'**
+  String get pack24;
+
+  /// No description provided for @badgePro.
+  ///
+  /// In en, this message translates to:
+  /// **'PRO'**
+  String get badgePro;
+
+  /// No description provided for @badgeGoPro.
+  ///
+  /// In en, this message translates to:
+  /// **'GO PRO'**
+  String get badgeGoPro;
+
+  /// No description provided for @modeTrackCycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track Cycle'**
+  String get modeTrackCycle;
+
+  /// No description provided for @modeGetPregnant.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Pregnant'**
+  String get modeGetPregnant;
+
+  /// No description provided for @debugPremiumOn.
+  ///
+  /// In en, this message translates to:
+  /// **'DEBUG: Premium ON'**
+  String get debugPremiumOn;
+
+  /// No description provided for @debugPremiumOff.
+  ///
+  /// In en, this message translates to:
+  /// **'DEBUG: Premium OFF'**
+  String get debugPremiumOff;
+
+  /// No description provided for @lblPreviousCycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous Cycle'**
+  String get lblPreviousCycle;
+
+  /// No description provided for @legendPredictedPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Predicted'**
+  String get legendPredictedPeriod;
+
+  /// No description provided for @designSelectorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Timer Style'**
+  String get designSelectorTitle;
+
+  /// No description provided for @badgePremium.
+  ///
+  /// In en, this message translates to:
+  /// **'PREMIUM'**
+  String get badgePremium;
+
+  /// No description provided for @designClassic.
+  ///
+  /// In en, this message translates to:
+  /// **'Classic'**
+  String get designClassic;
+
+  /// No description provided for @designMinimal.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimal'**
+  String get designMinimal;
+
+  /// No description provided for @designLunar.
+  ///
+  /// In en, this message translates to:
+  /// **'Lunar'**
+  String get designLunar;
+
+  /// No description provided for @designBloom.
+  ///
+  /// In en, this message translates to:
+  /// **'Bloom'**
+  String get designBloom;
+
+  /// No description provided for @designLiquid.
+  ///
+  /// In en, this message translates to:
+  /// **'Liquid'**
+  String get designLiquid;
+
+  /// No description provided for @designOrbit.
+  ///
+  /// In en, this message translates to:
+  /// **'Orbit'**
+  String get designOrbit;
+
+  /// No description provided for @designZen.
+  ///
+  /// In en, this message translates to:
+  /// **'Zen'**
+  String get designZen;
+
+  /// No description provided for @ttcHintToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get ttcHintToday;
+
+  /// No description provided for @ttcTimelineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Timeline'**
+  String get ttcTimelineTitle;
+
+  /// No description provided for @ttcTimelineOvulationEquals.
+  ///
+  /// In en, this message translates to:
+  /// **'Ovulation = {day}'**
+  String ttcTimelineOvulationEquals(int day);
+
+  /// No description provided for @ttcDockBBT.
+  ///
+  /// In en, this message translates to:
+  /// **'BBT'**
+  String get ttcDockBBT;
+
+  /// No description provided for @ttcDockLH.
+  ///
+  /// In en, this message translates to:
+  /// **'LH'**
+  String get ttcDockLH;
+
+  /// No description provided for @ttcDockSex.
+  ///
+  /// In en, this message translates to:
+  /// **'Sex'**
+  String get ttcDockSex;
+
+  /// No description provided for @ttcDockMucus.
+  ///
+  /// In en, this message translates to:
+  /// **'Mucus'**
+  String get ttcDockMucus;
+
+  /// No description provided for @ttcShortBBT.
+  ///
+  /// In en, this message translates to:
+  /// **'BBT'**
+  String get ttcShortBBT;
+
+  /// No description provided for @ttcShortLH.
+  ///
+  /// In en, this message translates to:
+  /// **'LH'**
+  String get ttcShortLH;
+
+  /// No description provided for @ttcShortSex.
+  ///
+  /// In en, this message translates to:
+  /// **'Sex'**
+  String get ttcShortSex;
+
+  /// No description provided for @ttcMarkDone.
+  ///
+  /// In en, this message translates to:
+  /// **'✓'**
+  String get ttcMarkDone;
+
+  /// No description provided for @ttcMarkMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'?'**
+  String get ttcMarkMissing;
+
+  /// No description provided for @ttcAllDone.
+  ///
+  /// In en, this message translates to:
+  /// **'All done ✓'**
+  String get ttcAllDone;
+
+  /// No description provided for @ttcMissingList.
+  ///
+  /// In en, this message translates to:
+  /// **'Left: {items}'**
+  String ttcMissingList(String items);
+
+  /// No description provided for @ttcRemainingLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Left: {items}'**
+  String ttcRemainingLeft(String items);
+
+  /// No description provided for @ttcCtaTestReadyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'DPO {dpo} • BBT {bbt} • LH {lh}'**
+  String ttcCtaTestReadyBody(int dpo, String bbt, String lh);
+
+  /// No description provided for @ttcCtaTestWaitBody.
+  ///
+  /// In en, this message translates to:
+  /// **'DPO {dpo} • ~{days} day(s) until a reliable test'**
+  String ttcCtaTestWaitBody(int dpo, int days);
+
+  /// No description provided for @ttcCtaPeakBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Today/tomorrow is the peak. Log sex and test to improve accuracy.'**
+  String get ttcCtaPeakBody;
+
+  /// No description provided for @ttcCtaHighBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Fertile window is open • peak in ~{days} day(s).'**
+  String ttcCtaHighBody(int days);
+
+  /// No description provided for @ttcCtaMenstruationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Gentle mode: sleep, water, warmth. Logging is optional — but BBT helps.'**
+  String get ttcCtaMenstruationBody;
+
+  /// No description provided for @ttcCtaLowBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Prep day • {status}'**
+  String ttcCtaLowBody(String status);
+
+  /// No description provided for @ttcShortMucus.
+  ///
+  /// In en, this message translates to:
+  /// **'Mucus'**
+  String get ttcShortMucus;
+
+  /// No description provided for @ttcDash.
+  ///
+  /// In en, this message translates to:
+  /// **'—'**
+  String get ttcDash;
+
+  /// No description provided for @eduTitleBBT.
+  ///
+  /// In en, this message translates to:
+  /// **'Why track BBT?'**
+  String get eduTitleBBT;
+
+  /// No description provided for @eduBodyBBT.
+  ///
+  /// In en, this message translates to:
+  /// **'Basal Body Temperature (BBT) rises slightly after ovulation due to progesterone production. Tracking it confirms that ovulation has actually occurred.'**
+  String get eduBodyBBT;
+
+  /// No description provided for @eduTitleLH.
+  ///
+  /// In en, this message translates to:
+  /// **'Why use Ovulation Tests?'**
+  String get eduTitleLH;
+
+  /// No description provided for @eduBodyLH.
+  ///
+  /// In en, this message translates to:
+  /// **'Luteinizing Hormone (LH) surges 24-48 hours before ovulation. A positive test predicts your most fertile days before the egg is released.'**
+  String get eduBodyLH;
+
+  /// No description provided for @eduTitleSex.
+  ///
+  /// In en, this message translates to:
+  /// **'Logging Intimacy'**
+  String get eduTitleSex;
+
+  /// No description provided for @eduBodySex.
+  ///
+  /// In en, this message translates to:
+  /// **'Sperm can survive for up to 5 days inside the body. Logging helps you ensure you have timed intimacy within your fertile window for the best chance of conception.'**
+  String get eduBodySex;
+
+  /// No description provided for @eduTitleMucus.
+  ///
+  /// In en, this message translates to:
+  /// **'Cervical Mucus'**
+  String get eduTitleMucus;
+
+  /// No description provided for @eduBodyMucus.
+  ///
+  /// In en, this message translates to:
+  /// **'As ovulation approaches, estrogen makes your fluid stretchy and clear (like egg whites). This creates the perfect environment for sperm to swim and survive.'**
+  String get eduBodyMucus;
+
+  /// No description provided for @aiStatusHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High Accuracy'**
+  String get aiStatusHigh;
+
+  /// No description provided for @aiStatusMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate Accuracy'**
+  String get aiStatusMedium;
+
+  /// No description provided for @aiStatusLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low Accuracy'**
+  String get aiStatusLow;
+
+  /// No description provided for @aiDescHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Your cycles are very regular. The AI prediction is likely accurate within ±1 day.'**
+  String get aiDescHigh;
+
+  /// No description provided for @aiDescMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'There is some variation in your recent cycles. The prediction might vary by ±2-3 days.'**
+  String get aiDescMedium;
+
+  /// No description provided for @aiDescLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Your cycle history is irregular or too short. AI needs more data to be precise.'**
+  String get aiDescLow;
+
+  /// No description provided for @aiConfidenceScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Confidence Score'**
+  String get aiConfidenceScore;
+
+  /// No description provided for @aiLabelHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History Length'**
+  String get aiLabelHistory;
+
+  /// No description provided for @aiLabelVariation.
+  ///
+  /// In en, this message translates to:
+  /// **'Cycle Variation'**
+  String get aiLabelVariation;
+
+  /// No description provided for @aiSuffixCycles.
+  ///
+  /// In en, this message translates to:
+  /// **'cycles'**
+  String get aiSuffixCycles;
+
+  /// No description provided for @aiSuffixDays.
+  ///
+  /// In en, this message translates to:
+  /// **'days'**
+  String get aiSuffixDays;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

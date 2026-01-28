@@ -1,18 +1,22 @@
 import 'dart:math' as math;
+import 'dart:ui'; // Для ImageFilter
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'dart:ui' as ui;
+import 'package:google_fonts/google_fonts.dart';
 
+// Providers
 import '../providers/settings_provider.dart';
 import '../providers/cycle_provider.dart';
 import '../providers/wellness_provider.dart';
-import '../models/cycle_model.dart'; // Для доступа к CyclePhase
 
+// Screens
 import 'main_screen.dart';
 import 'onboarding_screen.dart';
+import 'splash/realistic_moon.dart'; // 🔥 Убедись, что этот файл создан
+
+// L10n
 import '../l10n/app_localizations.dart';
-import 'splash/realistic_moon.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -22,149 +26,188 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
+  // --- КОНТРОЛЛЕРЫ ---
   late AnimationController _entranceController;
   late AnimationController _breathingController;
-  late AnimationController _rotationController;
   late AnimationController _textController;
+  late AnimationController _syncController; // Для фазы луны
 
-  // 🔥 НОВЫЙ КОНТРОЛЛЕР ДЛЯ СИНХРОНИЗАЦИИ
-  late AnimationController _syncController;
+  // --- АНИМАЦИИ ---
   late Animation<double> _phaseAnimation;
-
-  late Animation<double> _glowAnimation;
   late Animation<double> _scaleAnimation;
+  late Animation<double> _fadeAnimation;
   late Animation<double> _textOpacity;
   late Animation<Offset> _textSlide;
 
   final List<Star> _stars = [];
-  final int _starCount = 70;
-
-  // Дефолтная фаза (Бренд) = 0.0 (Серп)
-  // Целевая фаза будет вычислена
-  double _targetPhase = 0.0;
+  final int _starCount = 90; // Количество звезд
+  double _targetPhase = 0.0; // Целевая фаза (зависит от дня цикла)
+  bool _hasVibrated = false;
 
   @override
   void initState() {
     super.initState();
     _generateStars();
 
-    _entranceController = AnimationController(vsync: this, duration: const Duration(milliseconds: 2500));
-    _breathingController = AnimationController(vsync: this, duration: const Duration(milliseconds: 5000));
-    _rotationController = AnimationController(vsync: this, duration: const Duration(seconds: 40));
-    _textController = AnimationController(vsync: this, duration: const Duration(milliseconds: 2000));
+    // 1. Вход (Появление луны) - 3.5 сек
+    _entranceController = AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 3500)
+    );
 
-    // 🔥 Анимация синхронизации с циклом (1.5 секунды)
-    _syncController = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500));
+    // 2. Дыхание (Вечное пульсирование) - 6 сек
+    _breathingController = AnimationController(
+        vsync: this,
+        duration: const Duration(seconds: 6)
+    );
 
-    // Изначально анимация стоит на 0 (Дефолт)
-    _phaseAnimation = Tween<double>(begin: 0.0, end: 0.0).animate(_syncController);
+    // 3. Текст (Появление) - 1.5 сек
+    _textController = AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 1500)
+    );
 
-    _glowAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _entranceController, curve: Curves.easeOutCubic));
-    _scaleAnimation = Tween<double>(begin: 0.6, end: 1.0).animate(CurvedAnimation(parent: _entranceController, curve: Curves.easeOutBack));
-    _textOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _textController, curve: Curves.easeInQuad));
-    _textSlide = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(CurvedAnimation(parent: _textController, curve: Curves.easeOutCubic));
+    // 4. Синхронизация (Морфинг фазы) - 2 сек
+    _syncController = AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 2000)
+    );
 
-    _startAnimationSequence();
+    _setupAnimations();
+    _startSequence();
     _initializeApp();
   }
 
-  // ... (методы _generateStars и _startAnimationSequence без изменений) ...
+  void _setupAnimations() {
+    // Луна: Масштаб 0.8 -> 1.0 (плавный выход)
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+        CurvedAnimation(parent: _entranceController, curve: Curves.easeOutCubic)
+    );
+
+    // Луна: Прозрачность 0 -> 1
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(parent: _entranceController, curve: Curves.easeIn)
+    );
+
+    // Текст: Прозрачность
+    _textOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(parent: _textController, curve: Curves.easeOut)
+    );
+
+    // Текст: Слайд снизу вверх
+    _textSlide =
+        Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+            CurvedAnimation(parent: _textController, curve: Curves.easeOutQuart)
+        );
+
+    // Фаза: По умолчанию 0.0 (Серп), потом анимируется к _targetPhase
+    _phaseAnimation =
+        Tween<double>(begin: 0.0, end: 0.0).animate(_syncController);
+
+    // Вибрация в момент "раскрытия" (на 60% анимации)
+    _entranceController.addListener(() {
+      if (_entranceController.value > 0.6 && !_hasVibrated) {
+        HapticFeedback.lightImpact();
+        _hasVibrated = true;
+      }
+    });
+  }
+
   void _generateStars() {
     final rng = math.Random();
     for (int i = 0; i < _starCount; i++) {
-      _stars.add(Star(x: rng.nextDouble(), y: rng.nextDouble(), size: rng.nextDouble() * 2.5 + 0.5, offset: rng.nextDouble() * 2 * math.pi));
+      _stars.add(Star(
+        x: rng.nextDouble(),
+        y: rng.nextDouble(),
+        size: rng.nextDouble() * 2.0 + 0.5,
+        // Разный размер
+        offset: rng.nextDouble() * 2 * math.pi,
+        // Сдвиг фазы мерцания
+        speed: rng.nextDouble() * 0.8 + 0.2, // Разная скорость
+      ));
     }
   }
 
-  void _startAnimationSequence() async {
-    _rotationController.repeat();
+  void _startSequence() async {
     _breathingController.repeat(reverse: true);
     await _entranceController.forward();
+    // Вибрация перед текстом
+    HapticFeedback.selectionClick();
     _textController.forward();
   }
 
-
   Future<void> _initializeApp() async {
-    final minSplashTime = Future.delayed(const Duration(milliseconds: 3000));
+    // Минимальное время показа (чтобы успеть насладиться анимацией)
+    final minTime = Future.delayed(const Duration(milliseconds: 4000));
 
-    final dataLoading = Future(() async {
+    final logic = Future(() async {
       if (!mounted) return;
       try {
         final cycleProvider = context.read<CycleProvider>();
         await cycleProvider.reload();
+        if (!mounted) return;
+
         context.read<WellnessProvider>().reload();
         context.read<SettingsProvider>().reload();
 
-        // 🔥 РАСЧЕТ ФАЗЫ ПОСЛЕ ЗАГРУЗКИ ДАННЫХ
-        if (mounted) {
-          _calculateTargetPhase(cycleProvider);
-        }
+        // Рассчитываем фазу, чтобы луна соответствовала реальному циклу
+        if (mounted) _calculateTargetPhase(cycleProvider);
       } catch (e) {
-        debugPrint("Error loading providers: $e");
+        debugPrint("Splash init error: $e");
       }
     });
 
-    await Future.wait([minSplashTime, dataLoading]);
+    await Future.wait([minTime, logic]);
 
-    // Ждем окончания анимации синхронизации, если она еще идет
-    if (_syncController.isAnimating) {
-      await _syncController.forward();
-    }
+    // Если анимация фазы еще идет, ждем её
+    if (_syncController.isAnimating) await _syncController.forward();
 
-    if (!mounted) return;
-    _navigateToNext();
+    if (mounted) _navigateToNext();
   }
 
-  // 🔥 ЛОГИКА "ЖИВОЙ ЛУНЫ"
   void _calculateTargetPhase(CycleProvider provider) {
-    if (!provider.isLoaded || provider.history.isEmpty) {
-      // Нет данных -> Остаемся на Брендовом Серпе
-      return;
-    }
+    if (!provider.isLoaded || provider.history.isEmpty) return;
 
     final data = provider.currentData;
-    final day = data.currentDay;
-    final length = data.totalCycleLength;
 
-    // Рассчитываем "Полноту" луны (0.0 = Серп, 1.0 = Полнолуние)
-    double calculatedPhase = 0.0;
+    // Формула:
+    // День 1 (Начало) -> 0.0 (Серп)
+    // Середина цикла -> 1.0 (Полная)
+    // Конец цикла -> 0.0 (Серп)
+    double progress = data.currentDay / data.totalCycleLength;
+    double phase = math.sin(progress * math.pi); // Синусоида 0 -> 1 -> 0
 
-    // Простая логика (синусоида цикла)
-    // День 1 (Месячные) -> 0.0 (Серп)
-    // День 14 (Овуляция) -> 1.0 (Полная)
-    // День 28 -> 0.0 (Серп)
-
-    // Формула: Пик в середине цикла
-    double cycleProgress = day / length; // 0.0 -> 1.0
-    // Превращаем 0->1 в 0->1->0 (синусоида)
-    calculatedPhase = math.sin(cycleProgress * math.pi);
-
-    // Небольшая корректировка: даже в месячные не делать луну исчезающей,
-    // а оставлять красивый серп (минимум 0.0, что в нашем Painter = серп)
-    // Но если овуляция - хотим полную (1.0).
-
-    // Запускаем анимацию от 0.0 (старт) до calculatedPhase
     setState(() {
-      _targetPhase = calculatedPhase;
+      _targetPhase = phase;
+      // Переназначаем анимацию к новой цели
       _phaseAnimation = Tween<double>(begin: 0.0, end: _targetPhase).animate(
           CurvedAnimation(parent: _syncController, curve: Curves.easeInOutCubic)
       );
     });
-
-    // Запускаем синхронизацию визуально
     _syncController.forward();
   }
 
   void _navigateToNext() {
     final settings = context.read<SettingsProvider>();
-    Widget nextScreen = settings.hasSeenOnboarding ? const MainScreen() : const OnboardingScreen();
+    Widget next = settings.hasSeenOnboarding
+        ? const MainScreen()
+        : const OnboardingScreen();
 
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
-        transitionDuration: const Duration(milliseconds: 1200),
-        pageBuilder: (_, __, ___) => nextScreen,
-        transitionsBuilder: (ctx, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: ScaleTransition(scale: Tween<double>(begin: 0.85, end: 1.0).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutQuart)), child: child));
+        transitionDuration: const Duration(milliseconds: 1500),
+        pageBuilder: (_, __, ___) => next,
+        transitionsBuilder: (_, anim, __, child) {
+          // Плавное исчезновение (Fade + Scale)
+          return FadeTransition(
+            opacity: anim,
+            child: ScaleTransition(
+                scale: Tween<double>(begin: 0.95, end: 1.0).animate(
+                    CurvedAnimation(parent: anim, curve: Curves.easeOut)
+                ),
+                child: child
+            ),
+          );
         },
       ),
     );
@@ -174,7 +217,6 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   void dispose() {
     _entranceController.dispose();
     _breathingController.dispose();
-    _rotationController.dispose();
     _textController.dispose();
     _syncController.dispose();
     super.dispose();
@@ -182,113 +224,214 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
+    // Прозрачный статус-бар для полного погружения
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light.copyWith(
+      statusBarColor: Colors.transparent,
+    ));
+
     final l10n = AppLocalizations.of(context)!;
-    final size = MediaQuery.of(context).size;
-    final double moonContainerSize = (size.width * 0.55).clamp(150.0, 300.0);
-    final double orbitSize = moonContainerSize * 0.85;
+    final size = MediaQuery
+        .of(context)
+        .size;
+    final double moonContainerSize = (size.width * 0.55).clamp(160.0, 280.0);
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter, end: Alignment.bottomCenter,
-            colors: [Color(0xFF05020B), Color(0xFF1A0F2E), Color(0xFF2D1A3D)], stops: [0.0, 0.6, 1.0],
+      backgroundColor: const Color(0xFF0F172A),
+      // 🔥 ИСПРАВЛЕНИЕ: Используем SizedBox.expand, чтобы фон занял ВЕСЬ экран
+      body: SizedBox.expand(
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: RadialGradient(
+              center: Alignment(0, -0.2),
+              radius: 1.6,
+              colors: [
+                Color(0xFF312E81), // Indigo 900
+                Color(0xFF1E1B4B), // Indigo 950
+                Color(0xFF0F172A), // Slate 900
+              ],
+              stops: [0.0, 0.4, 1.0],
+            ),
           ),
-        ),
-        child: Stack(
-          children: [
-            // 1. Звезды
-            AnimatedBuilder(animation: _breathingController, builder: (context, child) => CustomPaint(painter: StarPainter(_stars, _breathingController.value), size: size)),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // 1. ФОН И ЗВЕЗДЫ
+              Positioned.fill(
+                child: AnimatedBuilder(
+                  animation: _breathingController,
+                  builder: (context, child) {
+                    return CustomPaint(
+                      // Передаем size, чтобы рисовальщик знал границы экрана
+                      size: Size.infinite,
+                      painter: StarPainter(_stars, _breathingController.value),
+                    );
+                  },
+                ),
+              ),
 
-            // 2. Контент
-            Center(
-              child: Column(
+              // 2. ЦЕНТРАЛЬНАЯ КОМПОЗИЦИЯ (Луна + Текст)
+              Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.max, // 🔥 Растягиваем колонку
                 children: [
-                  SizedBox(
-                    width: moonContainerSize,
-                    height: moonContainerSize,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // Орбита
-                        AnimatedBuilder(
-                          animation: Listenable.merge([_rotationController, _entranceController]),
-                          builder: (context, child) => Transform.rotate(angle: _rotationController.value * 2 * math.pi, child: Opacity(opacity: _entranceController.value * 0.4, child: Container(width: orbitSize, height: orbitSize, decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.white.withOpacity(0.15), width: 0.8)), child: Align(alignment: Alignment.topCenter, child: Container(width: orbitSize * 0.05, height: orbitSize * 0.05, decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.8), blurRadius: 8, spreadRadius: 1)])))))),
-                        ),
+                  // ... (Код луны и анимации без изменений) ...
+                  AnimatedBuilder(
+                    animation: Listenable.merge([
+                      _entranceController,
+                      _breathingController,
+                      _syncController
+                    ]),
+                    builder: (context, child) {
+                      // ... (тут код анимации луны, он правильный) ...
+                      // Для краткости я его свернул, но он должен остаться как был
+                      double breath = _breathingController.value;
+                      double breathScale = 1.0 +
+                          (math.sin(breath * 2 * math.pi) * 0.02);
+                      double opacity = _fadeAnimation.value;
+                      double currentPhase = _phaseAnimation.value;
 
-                        // 🔥 ЖИВАЯ ЛУНА С АНИМАЦИЕЙ ФАЗЫ 🔥
-                        AnimatedBuilder(
-                          animation: Listenable.merge([_entranceController, _breathingController, _syncController]),
-                          builder: (context, child) {
-                            double breathVal = _breathingController.value;
-                            double glowOpacity = _glowAnimation.value;
-                            double scale = _scaleAnimation.value + (breathVal * 0.03);
-
-                            // Текущая фаза (анимируется от 0 до реальной)
-                            double currentPhase = _phaseAnimation.value;
-
-                            return Transform.scale(
-                              scale: scale,
-                              child: Opacity(
-                                opacity: glowOpacity,
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    // Свечение (сильнее при полной луне)
-                                    Container(
-                                      width: moonContainerSize * 0.6,
-                                      height: moonContainerSize * 0.6,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        boxShadow: [
-                                          BoxShadow(color: Colors.white.withOpacity((0.5 + currentPhase * 0.3) * glowOpacity), blurRadius: 20 + (currentPhase * 10), spreadRadius: 0),
-                                          BoxShadow(color: const Color(0xFFA0A0FF).withOpacity(0.3 * glowOpacity), blurRadius: 50, spreadRadius: 10),
-                                        ],
-                                      ),
+                      return Transform.scale(
+                        scale: _scaleAnimation.value * breathScale,
+                        child: Opacity(
+                          opacity: opacity,
+                          child: SizedBox(
+                            width: moonContainerSize,
+                            height: moonContainerSize,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                // A. Задний ореол
+                                Container(
+                                  width: moonContainerSize * 1.4,
+                                  height: moonContainerSize * 1.4,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: RadialGradient(
+                                      colors: [
+                                        Colors.white.withOpacity(
+                                            0.12 * opacity),
+                                        const Color(0xFF818CF8).withOpacity(
+                                            0.05 * opacity),
+                                        Colors.transparent
+                                      ],
+                                      stops: const [0.0, 0.5, 1.0],
                                     ),
-                                    // Реалистичная луна с параметром progress
-                                    RealisticMoon(
-                                      size: moonContainerSize * 0.55,
-                                      progress: currentPhase, // Передаем анимацию
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
+                                // B. Ближнее свечение
+                                Container(
+                                  width: moonContainerSize * 0.8,
+                                  height: moonContainerSize * 0.8,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(color: const Color(0xFFA5B4FC)
+                                          .withOpacity(0.3 * opacity),
+                                          blurRadius: 60,
+                                          spreadRadius: -5),
+                                      BoxShadow(color: Colors.white.withOpacity(
+                                          0.15 * opacity),
+                                          blurRadius: 30,
+                                          spreadRadius: -10),
+                                    ],
+                                  ),
+                                ),
+                                // C. Луна
+                                Hero(
+                                  tag: 'moon_hero',
+                                  child: RealisticMoon(
+                                      size: moonContainerSize * 0.65,
+                                      progress: currentPhase),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                      ],
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 50),
+
+                  // ... (Код текста без изменений) ...
+                  SlideTransition(
+                    position: _textSlide,
+                    child: FadeTransition(
+                      opacity: _textOpacity,
+                      child: Column(
+                        children: [
+                          Text(
+                              l10n.splashTitle.toUpperCase(),
+                              style: GoogleFonts.cormorantGaramond(
+                                  fontSize: 42,
+                                  color: Colors.white,
+                                  letterSpacing: 6.0,
+                                  fontWeight: FontWeight.w300,
+                                  height: 1.0,
+                                  shadows: [
+                                    Shadow(color: Colors.black.withOpacity(0.3),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4))
+                                  ]
+                              )
+                          ),
+                          const SizedBox(height: 16),
+                          Container(width: 30, height: 1, color: Colors.white
+                              .withOpacity(0.2)),
+                          const SizedBox(height: 16),
+                          Text(
+                            l10n.splashSlogan,
+                            style: GoogleFonts.inter(fontSize: 13,
+                                color: Colors.white.withOpacity(0.6),
+                                letterSpacing: 3.0,
+                                fontWeight: FontWeight.w300),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 40),
-                  // Текст
-                  SlideTransition(position: _textSlide, child: FadeTransition(opacity: _textOpacity, child: Column(children: [Text(l10n.splashTitle, style: const TextStyle(fontFamily: 'Didot', fontSize: 38, color: Colors.white, letterSpacing: 5.0, fontWeight: FontWeight.w200, shadows: [Shadow(color: Color(0x88000000), blurRadius: 15, offset: Offset(0, 5))])), const SizedBox(height: 14), Text(l10n.splashSlogan, style: TextStyle(fontSize: 14, color: Colors.white.withOpacity(0.7), letterSpacing: 2.5, fontWeight: FontWeight.w300, shadows: const [Shadow(color: Color(0x44000000), blurRadius: 10, offset: Offset(0, 2))]))]))),
                 ],
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-// ... Star и StarPainter оставляем как были ...
-class Star { final double x, y, size, offset; Star({required this.x, required this.y, required this.size, required this.offset}); }
+// --- ХУДОЖНИК ПО ЗВЕЗДАМ ---
+class Star {
+  final double x, y, size, offset, speed;
+  Star({required this.x, required this.y, required this.size, required this.offset, required this.speed});
+}
+
 class StarPainter extends CustomPainter {
-  final List<Star> stars; final double animationValue;
+  final List<Star> stars;
+  final double animationValue;
+
   StarPainter(this.stars, this.animationValue);
+
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint();
+    final paint = Paint()..style = PaintingStyle.fill;
+
     for (var star in stars) {
-      double opacity = (math.sin((animationValue * 3 * math.pi) + star.offset) + math.cos(animationValue * 5 + star.x * 10) + 2) / 4;
-      opacity = 0.2 + (opacity * 0.6);
+      // Формула мерцания: синус с индивидуальной скоростью и сдвигом
+      double flicker = math.sin((animationValue * 2 * math.pi * star.speed) + star.offset);
+      // Диапазон прозрачности: 0.1 .. 0.8
+      double opacity = 0.45 + (flicker * 0.35);
+
       paint.color = Colors.white.withOpacity(opacity.clamp(0.0, 1.0));
-      canvas.drawCircle(Offset(star.x * size.width, star.y * size.height), star.size, paint);
+
+      canvas.drawCircle(
+          Offset(star.x * size.width, star.y * size.height),
+          star.size,
+          paint
+      );
     }
   }
-  @override bool shouldRepaint(covariant StarPainter oldDelegate) => oldDelegate.animationValue != animationValue;
+
+  @override
+  bool shouldRepaint(covariant StarPainter oldDelegate) => true;
 }

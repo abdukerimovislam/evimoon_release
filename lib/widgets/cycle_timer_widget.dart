@@ -452,7 +452,7 @@ class ClassicTimerWidgetState extends State<ClassicTimerWidget>
                                 Text(
                                   insights['title'] as String,
                                   textAlign: TextAlign.center,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: AppColors.textPrimary,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 15,
@@ -465,7 +465,7 @@ class ClassicTimerWidgetState extends State<ClassicTimerWidget>
                                     textAlign: TextAlign.center,
                                     maxLines: 3,
                                     overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: AppColors.textSecondary,
                                       fontSize: 11,
                                       height: 1.2,

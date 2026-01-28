@@ -57,7 +57,7 @@ class _PackSelectionDialogState extends State<PackSelectionDialog> {
                 // Заголовок
                 Text(
                   l10n.dialogPackTitle, // "Choose Pack Type"
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,

@@ -10,38 +10,50 @@ import 'package:provider/provider.dart';
 
 import '../models/cycle_model.dart';
 import '../providers/cycle_provider.dart';
+import '../providers/settings_provider.dart'; // Added for reload if needed
+import '../l10n/app_localizations.dart'; // 🔥 Import Localization
 
 class BackupService {
 
-  /// 📤 СОЗДАТЬ БЭКАП (Статический метод)
-  static Future<void> createBackup(BuildContext context) async {
-    try {
-      // Получаем доступ к боксам напрямую по имени (они открыты в main.dart)
-      final cycleBox = Hive.box('cycles');
-      final settingsBox = Hive.box('settings');
+  /// 🔒 Helper to safely get a box (opens it if not already open)
+  static Future<Box> _getBox(String name) async {
+    if (Hive.isBoxOpen(name)) {
+      return Hive.box(name);
+    } else {
+      return await Hive.openBox(name);
+    }
+  }
 
-      // 1. Собираем данные циклов
+  /// 📤 CREATE BACKUP
+  static Future<void> createBackup(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!; // Get localization
+
+    try {
+      // 1. Safely access boxes
+      final cycleBox = await _getBox('cycles');
+      final settingsBox = await _getBox('settings');
+
+      // 2. Collect Cycle Data
       final List<Map<String, dynamic>> cyclesJson = cycleBox.values.map((e) {
         final cycle = e as CycleModel;
         return {
           'startDate': cycle.startDate.millisecondsSinceEpoch,
           'endDate': cycle.endDate?.millisecondsSinceEpoch,
           'length': cycle.length,
-          // 🔥 Важно: сохраняем ручную овуляцию
           'ovulationOverrideDate': cycle.ovulationOverrideDate?.millisecondsSinceEpoch,
         };
       }).toList();
 
-      // 2. Собираем настройки
+      // 3. Collect Settings
       final Map<String, dynamic> settingsJson = {
         'coc_enabled': settingsBox.get('coc_enabled'),
         'avg_cycle_len': settingsBox.get('avg_cycle_len'),
         'avg_period_len': settingsBox.get('avg_period_len'),
         'current_cycle_start': settingsBox.get('current_cycle_start'),
-        'ttc_mode_enabled': settingsBox.get('ttc_mode_enabled'), // Сохраняем режим TTC
+        'ttc_mode_enabled': settingsBox.get('ttc_mode_enabled'),
       };
 
-      // 3. Формируем полный объект
+      // 4. Form Complete Object
       final Map<String, dynamic> backupData = {
         'version': 1,
         'app': 'EviMoon',
@@ -50,28 +62,28 @@ class BackupService {
         'settings': settingsJson,
       };
 
-      // 4. Конвертируем в JSON
+      // 5. Convert to JSON String
       final String jsonString = jsonEncode(backupData);
 
-      // 5. Создаем временный файл
+      // 6. Create Temp File
       final directory = await getTemporaryDirectory();
       final dateStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
       final file = File('${directory.path}/EviMoon_Backup_$dateStr.json');
 
       await file.writeAsString(jsonString);
 
-      // 6. 🔥 FIX ДЛЯ IOS/IPAD
+      // 7. iPad Fix for Share Origin
       final box = context.findRenderObject() as RenderBox?;
       Rect? shareOrigin;
       if (box != null) {
         shareOrigin = box.localToGlobal(Offset.zero) & box.size;
       }
 
-      // 7. Share
+      // 8. Open Share Dialog
       await Share.shareXFiles(
         [XFile(file.path)],
-        subject: 'EviMoon Backup',
-        text: 'Backup data for EviMoon app created on $dateStr',
+        subject: l10n.backupSubject,
+        text: l10n.backupBody(dateStr), // Передаем дату как параметр
         sharePositionOrigin: shareOrigin,
       );
 
@@ -85,10 +97,10 @@ class BackupService {
     }
   }
 
-  /// 📥 ВОССТАНОВИТЬ ИЗ БЭКАПА (Статический метод)
+  /// 📥 RESTORE FROM BACKUP
   static Future<void> restoreBackup(BuildContext context) async {
     try {
-      // 1. Выбор файла
+      // 1. Pick File
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
@@ -99,18 +111,19 @@ class BackupService {
       final file = File(result.files.single.path!);
       final jsonString = await file.readAsString();
 
-      // 2. Парсинг
+      // 2. Parse JSON
       final Map<String, dynamic> data = jsonDecode(jsonString);
 
       if (!data.containsKey('cycles') || !data.containsKey('settings')) {
         throw Exception("Invalid backup file format");
       }
 
-      final cycleBox = Hive.box('cycles');
-      final settingsBox = Hive.box('settings');
+      // 3. Safely open boxes
+      final cycleBox = await _getBox('cycles');
+      final settingsBox = await _getBox('settings');
 
-      // 3. Восстановление
-      await cycleBox.clear(); // Очищаем старое
+      // 4. Restore Data
+      await cycleBox.clear(); // Clear old data
 
       final List<dynamic> cyclesList = data['cycles'];
       for (var c in cyclesList) {
@@ -126,9 +139,11 @@ class BackupService {
       }
 
       final Map<String, dynamic> settingsMap = data['settings'];
-      // Безопасное восстановление ключей
+
       void restoreKey(String key) {
-        if (settingsMap.containsKey(key)) settingsBox.put(key, settingsMap[key]);
+        if (settingsMap.containsKey(key)) {
+          settingsBox.put(key, settingsMap[key]);
+        }
       }
 
       restoreKey('coc_enabled');
@@ -137,10 +152,11 @@ class BackupService {
       restoreKey('current_cycle_start');
       restoreKey('ttc_mode_enabled');
 
-      // 4. Обновление UI
+      // 5. Update UI
       if (context.mounted) {
-        // Перезагружаем провайдер, чтобы UI обновился
+        // Reload providers to refresh UI immediately
         context.read<CycleProvider>().reload();
+        context.read<SettingsProvider>().reload();
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Data restored successfully!"), backgroundColor: Colors.green),
@@ -151,7 +167,7 @@ class BackupService {
       debugPrint("Restore Error: $e");
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Restore failed: Corrupted file"), backgroundColor: Colors.red),
+          SnackBar(content: Text("Restore failed: Corrupted file or wrong format"), backgroundColor: Colors.red),
         );
       }
     }

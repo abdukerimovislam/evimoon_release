@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/services.dart'; // Для HapticFeedback
+import 'package:flutter/services.dart';
 import '../models/timer_design.dart';
 import '../providers/settings_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/premium_paywall_sheet.dart';
+import '../l10n/app_localizations.dart';
 
 class DesignSelectorSheet extends StatelessWidget {
   const DesignSelectorSheet({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Слушаем провайдер, чтобы обновлять UI при смене выбора или покупке премиума
     final settings = context.watch<SettingsProvider>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
@@ -24,28 +25,31 @@ class DesignSelectorSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Заголовок и индикатор перетаскивания
+          // Индикатор
           Center(
             child: Container(
               width: 40, height: 4,
               margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(color: Colors.grey[300],
+              decoration: BoxDecoration(
+                  color: Colors.grey[300],
                   borderRadius: BorderRadius.circular(2)),
             ),
           ),
+
+          // Заголовок
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                "Timer Style",
-                style: TextStyle(fontSize: 22,
+              Text(
+                l10n.designSelectorTitle,
+                style: TextStyle(
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary),
               ),
               if (settings.isPremium)
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 5),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(colors: [
                       Colors.amber.shade300,
@@ -53,16 +57,21 @@ class DesignSelectorSheet extends StatelessWidget {
                     ]),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Text("PREMIUM", style: TextStyle(fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      letterSpacing: 1)),
+                  child: Text(
+                      l10n.badgePremium,
+                      style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          letterSpacing: 1
+                      )
+                  ),
                 )
             ],
           ),
           const SizedBox(height: 24),
 
-          // Сетка Дизайнов
+          // Сетка
           Wrap(
             spacing: 16,
             runSpacing: 16,
@@ -74,18 +83,16 @@ class DesignSelectorSheet extends StatelessWidget {
                 onTap: () async {
                   HapticFeedback.selectionClick();
 
-                  // Пытаемся установить дизайн
                   bool success = await settings.setDesign(design);
 
                   if (!success && context.mounted) {
-                    // Если не вышло (нужен премиум) -> показываем Paywall
-                    Navigator.pop(context); // Закрываем выбор
+                    Navigator.pop(context);
                     _showPaywallStub(context, settings);
                   }
                 },
                 child: Column(
                   children: [
-                    // Карточка превью
+                    // Карточка
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       width: 100,
@@ -109,15 +116,12 @@ class DesignSelectorSheet extends StatelessWidget {
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
-                          // Иконка дизайна
                           Icon(
                               design.icon,
                               size: 42,
-                              color: isSelected ? AppColors.primary : Colors
-                                  .grey[400]
+                              color: isSelected ? AppColors.primary : Colors.grey[400]
                           ),
 
-                          // Слой замка (если закрыто)
                           if (isLocked)
                             Container(
                               decoration: BoxDecoration(
@@ -138,9 +142,8 @@ class DesignSelectorSheet extends StatelessWidget {
                               ),
                             ),
 
-                          // Галочка (если выбрано)
                           if (isSelected)
-                            const Positioned(
+                            Positioned(
                               top: 8, right: 8,
                               child: Icon(Icons.check_circle_rounded,
                                   color: AppColors.primary, size: 22),
@@ -151,15 +154,11 @@ class DesignSelectorSheet extends StatelessWidget {
                     const SizedBox(height: 10),
                     // Название
                     Text(
-                      design.name
-                          .split(" ")
-                          .last, // Берем последнее слово для краткости
+                      _getDesignName(design, l10n),
                       style: TextStyle(
                         fontSize: 13,
-                        fontWeight: isSelected ? FontWeight.w700 : FontWeight
-                            .w500,
-                        color: isSelected ? AppColors.primary : AppColors
-                            .textSecondary,
+                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                        color: isSelected ? AppColors.primary : AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -174,13 +173,34 @@ class DesignSelectorSheet extends StatelessWidget {
     );
   }
 
-  // --- ЗАГЛУШКА PAYWALL (ЭКРАН ПОКУПКИ) ---
+  // 🔥 Обновленный хелпер с учетом всех вариантов
+  String _getDesignName(TimerDesign design, AppLocalizations l10n) {
+    switch (design) {
+      case TimerDesign.classic:
+        return l10n.designClassic;
+      case TimerDesign.minimal:
+        return l10n.designMinimal;
+      case TimerDesign.lunar:
+        return l10n.designLunar;
+      case TimerDesign.bloom:
+        return l10n.designBloom;
+      case TimerDesign.liquid:
+        return l10n.designLiquid;
+      case TimerDesign.orbit:
+        return l10n.designOrbit;
+      case TimerDesign.zen:
+        return l10n.designZen;
+      default:
+        return design.toString().split('.').last; // Fallback
+    }
+  }
+
   void _showPaywallStub(BuildContext context, SettingsProvider settings) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => const PremiumPaywallSheet(), // Используем новый виджет
+      builder: (ctx) => const PremiumPaywallSheet(),
     );
   }
 }

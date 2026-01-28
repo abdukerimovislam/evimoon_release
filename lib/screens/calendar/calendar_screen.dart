@@ -11,8 +11,9 @@ import '../../providers/cycle_provider.dart';
 import '../../providers/wellness_provider.dart';
 import '../../l10n/app_localizations.dart';
 
-// Импорты наших модулей
-import '../calendar/calendar_visuals.dart';
+// Виджеты
+import '../../widgets/mesh_background.dart'; // 🔥 Импорт нового фона
+import '../calendar/calendar_visuals.dart'; // Здесь лежит обновленный CalendarLegend
 import '../calendar/calendar_2d_view.dart';
 import '../calendar/time_tunnel_painter.dart';
 import '../calendar/calendar_day_details.dart';
@@ -29,7 +30,6 @@ class _CalendarScreenState extends State<CalendarScreen> with TickerProviderStat
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-  double _bgOffset = 0.0;
 
   // 3D Time Tunnel State
   bool _isTimeTunnelMode = false;
@@ -52,8 +52,6 @@ class _CalendarScreenState extends State<CalendarScreen> with TickerProviderStat
   void _onPageChanged(DateTime focusedDay) {
     setState(() {
       _focusedDay = focusedDay;
-      _bgOffset += 0.2;
-      if (_bgOffset > 1.0) _bgOffset = -1.0;
     });
   }
 
@@ -93,7 +91,11 @@ class _CalendarScreenState extends State<CalendarScreen> with TickerProviderStat
     final l10n = AppLocalizations.of(context)!;
     final currentCycleStart = cycleProvider.currentData.cycleStartDate;
 
-    return Scaffold(
+    // 🔥 ИСПОЛЬЗУЕМ MESH BACKGROUND ВМЕСТО PARALLAX
+    return MeshCycleBackground(
+      phase: cycleProvider.currentData.phase, //
+      child: Scaffold(
+      backgroundColor: Colors.transparent, // Важно для видимости Mesh
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text(
@@ -103,7 +105,7 @@ class _CalendarScreenState extends State<CalendarScreen> with TickerProviderStat
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        iconTheme: IconThemeData(color: AppColors.textPrimary),
         actions: [
           IconButton(
             icon: Icon(_isTimeTunnelMode ? CupertinoIcons.grid : CupertinoIcons.timelapse, color: AppColors.primary),
@@ -118,45 +120,41 @@ class _CalendarScreenState extends State<CalendarScreen> with TickerProviderStat
             },
           ),
           if (_isTimeTunnelMode)
-            IconButton(icon: const Icon(Icons.today_rounded, color: AppColors.textPrimary), onPressed: _resetTunnelToToday)
+            IconButton(icon: Icon(Icons.today_rounded, color: AppColors.textPrimary), onPressed: _resetTunnelToToday)
         ],
       ),
-      body: Stack(
-        children: [
-          // 🔥 ИСПРАВЛЕНО: Фон теперь всегда светлый (isDark: false), даже в режиме туннеля
-          ParallaxBackground(offset: _bgOffset, isDark: false),
-
-          SafeArea(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 500),
-              transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: ScaleTransition(scale: animation.drive(Tween(begin: 0.9, end: 1.0)), child: child)),
-              child: _isTimeTunnelMode
-              // 🔮 3D VIEW
-                  ? _buildTimeTunnelView(context, cycleProvider, wellnessProvider, currentCycleStart)
-              // 📅 2D VIEW
-                  : Column(
-                key: const ValueKey('classic'),
-                children: [
-                  Calendar2DView(
-                    l10n: l10n,
-                    focusedDay: _focusedDay,
-                    selectedDay: _selectedDay,
-                    calendarFormat: _calendarFormat,
-                    cycleProvider: cycleProvider,
-                    wellnessProvider: wellnessProvider,
-                    currentCycleStart: currentCycleStart,
-                    onDaySelected: (selected, focused) => setState(() { _selectedDay = selected; _focusedDay = focused; }),
-                    onFormatChanged: (format) { if (_calendarFormat != format) setState(() => _calendarFormat = format); },
-                    onPageChanged: _onPageChanged,
-                  ),
-                  const Padding(padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8), child: CalendarLegend()),
-                  Expanded(child: CalendarDayDetails(date: _selectedDay!, cycle: cycleProvider, wellness: wellnessProvider)),
-                ],
+      body: SafeArea(
+        bottom: false, // Чтобы контент уходил под низ
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 500),
+          transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: ScaleTransition(scale: animation.drive(Tween(begin: 0.9, end: 1.0)), child: child)),
+          child: _isTimeTunnelMode
+          // 🔮 3D VIEW
+              ? _buildTimeTunnelView(context, cycleProvider, wellnessProvider, currentCycleStart)
+          // 📅 2D VIEW
+              : Column(
+            key: const ValueKey('classic'),
+            children: [
+              Calendar2DView(
+                l10n: l10n,
+                focusedDay: _focusedDay,
+                selectedDay: _selectedDay,
+                calendarFormat: _calendarFormat,
+                cycleProvider: cycleProvider,
+                wellnessProvider: wellnessProvider,
+                currentCycleStart: currentCycleStart,
+                onDaySelected: (selected, focused) => setState(() { _selectedDay = selected; _focusedDay = focused; }),
+                onFormatChanged: (format) { if (_calendarFormat != format) setState(() => _calendarFormat = format); },
+                onPageChanged: _onPageChanged,
               ),
-            ),
+              // 🔥 Обновленная легенда (берется из calendar_visuals.dart с новыми цветами)
+              const Padding(padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8), child: CalendarLegend()),
+              Expanded(child: CalendarDayDetails(date: _selectedDay!, cycle: cycleProvider, wellness: wellnessProvider)),
+            ],
           ),
-        ],
+        ),
       ),
+    ),
     );
   }
 
@@ -180,7 +178,7 @@ class _CalendarScreenState extends State<CalendarScreen> with TickerProviderStat
                 decoration: BoxDecoration(
                   border: Border.all(color: AppColors.primary.withOpacity(0.3), width: 2),
                   borderRadius: BorderRadius.circular(30),
-                  // Легкий градиент для "объема", но прозрачный
+                  // Легкий градиент для "объема", но прозрачный, чтобы было видно Mesh фон
                   gradient: RadialGradient(
                       colors: [Colors.transparent, AppColors.primary.withOpacity(0.1)],
                       stops: const [0.6, 1.0]

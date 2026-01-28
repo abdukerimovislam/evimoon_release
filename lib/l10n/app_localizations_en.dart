@@ -623,7 +623,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get symptomBloating => 'Bloating';
 
   @override
-  String get lblNoData => 'No Data';
+  String get lblNoData => '--';
 
   @override
   String get lblNoSymptoms => 'No symptoms logged.';
@@ -1023,7 +1023,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lblLuteal => 'Luteal';
 
   @override
-  String get dialogPeriodStartTitle => 'Period Started?';
+  String get dialogPeriodStartTitle => 'When did your period start?';
 
   @override
   String get dialogPeriodStartBody => 'Did your period start today or did you forget to log it?';
@@ -1035,7 +1035,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get btnAnotherDay => 'Select Date';
 
   @override
-  String get splashSlogan => 'Your cycle. Your rhythm.';
+  String get splashSlogan => 'Listen to your rhythm';
 
   @override
   String get settingsSupport => 'Support & Feedback';
@@ -1243,7 +1243,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lblUser => 'EviMoon User';
 
   @override
-  String get modeTTC => 'Pregnancy Planning';
+  String get modeTTC => 'Get Pregnant';
 
   @override
   String get modeTTCDesc => 'Enable fertility tracking and ovulation focus';
@@ -1332,6 +1332,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ttcTipDefault => 'Stress affects ovulation. Try 5 min meditation today.';
+
+  @override
+  String get ttcBtnReset => 'Reset';
+
+  @override
+  String get ttcStrategyTitle => 'Strategy';
+
+  @override
+  String get ttcStrategyMinimal => 'Minimum effort';
+
+  @override
+  String get ttcStrategyMaximal => 'Maximum chances';
+
+  @override
+  String get ttcPlanTitle => 'Your plan';
+
+  @override
+  String get ttcPlanMinimalBody => 'During the fertile window: intimacy every other day, LH tests 2–3 days, BBT optional.';
+
+  @override
+  String get ttcPlanMaximalBody => 'During the fertile window: intimacy daily, LH tests daily, BBT every morning.';
+
+  @override
+  String get ttcOvulationBadgeTitle => 'Ovulation';
+
+  @override
+  String get ttcOvulationEstimatedCalendar => 'Estimated (calendar)';
+
+  @override
+  String get ttcOvulationConfirmedLH => 'Confirmed by LH';
+
+  @override
+  String get ttcOvulationConfirmedBBT => 'Confirmed by BBT';
+
+  @override
+  String get ttcOvulationConfirmedManual => 'Confirmed';
 
   @override
   String get dialogHighTempTitle => 'High Temperature';
@@ -1442,7 +1478,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get btnOk => 'Understood';
 
   @override
-  String get splashTitle => 'EviMoon';
+  String get splashTitle => 'EVIMOON';
 
   @override
   String get notifPhaseFollicularTitle => 'Energy Rising ⚡';
@@ -1710,4 +1746,275 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get btnRateApp => 'Rate EviMoon';
+
+  @override
+  String get btnYesterday => 'Yesterday';
+
+  @override
+  String get btnPickDate => 'Pick another date';
+
+  @override
+  String get modeCycle => 'Track Cycle';
+
+  @override
+  String get backupSubject => 'EviMoon Backup';
+
+  @override
+  String backupBody(String date) {
+    return 'Backup data for EviMoon app created on $date';
+  }
+
+  @override
+  String get settingsTheme => 'App Theme';
+
+  @override
+  String get themeOceanic => 'Oceanic';
+
+  @override
+  String get themeNature => 'Nature';
+
+  @override
+  String get themeVelvet => 'Velvet';
+
+  @override
+  String get themeDigital => 'Digital';
+
+  @override
+  String get themeActive => 'Active';
+
+  @override
+  String get selectThemeTitle => 'Select Theme';
+
+  @override
+  String get onboardModeTitle => 'What is your goal?';
+
+  @override
+  String get onboardModeCycle => 'Track Cycle';
+
+  @override
+  String get onboardModeCycleDesc => 'Predict periods & fertility window';
+
+  @override
+  String get onboardModePill => 'Track Pill (COC)';
+
+  @override
+  String get onboardModePillDesc => 'Reminders & pack management';
+
+  @override
+  String get onboardDateTitleCycle => 'When did your last period start?';
+
+  @override
+  String get onboardDateTitlePill => 'When did you start the current pack?';
+
+  @override
+  String get onboardLengthTitle => 'Cycle Length';
+
+  @override
+  String get onboardPackTitle => 'Pack Type';
+
+  @override
+  String get lblAverage => 'Average';
+
+  @override
+  String get lblNormalRange => 'Normal: 21-35 days';
+
+  @override
+  String get pack21 => '21 Active + 7 Break';
+
+  @override
+  String get pack28 => '28 Active (No Break)';
+
+  @override
+  String get pack24 => '24 Active + 4 Dummy';
+
+  @override
+  String get badgePro => 'PRO';
+
+  @override
+  String get badgeGoPro => 'GO PRO';
+
+  @override
+  String get modeTrackCycle => 'Track Cycle';
+
+  @override
+  String get modeGetPregnant => 'Get Pregnant';
+
+  @override
+  String get debugPremiumOn => 'DEBUG: Premium ON';
+
+  @override
+  String get debugPremiumOff => 'DEBUG: Premium OFF';
+
+  @override
+  String get lblPreviousCycle => 'Previous Cycle';
+
+  @override
+  String get legendPredictedPeriod => 'Predicted';
+
+  @override
+  String get designSelectorTitle => 'Timer Style';
+
+  @override
+  String get badgePremium => 'PREMIUM';
+
+  @override
+  String get designClassic => 'Classic';
+
+  @override
+  String get designMinimal => 'Minimal';
+
+  @override
+  String get designLunar => 'Lunar';
+
+  @override
+  String get designBloom => 'Bloom';
+
+  @override
+  String get designLiquid => 'Liquid';
+
+  @override
+  String get designOrbit => 'Orbit';
+
+  @override
+  String get designZen => 'Zen';
+
+  @override
+  String get ttcHintToday => 'Today';
+
+  @override
+  String get ttcTimelineTitle => 'Timeline';
+
+  @override
+  String ttcTimelineOvulationEquals(int day) {
+    return 'Ovulation = $day';
+  }
+
+  @override
+  String get ttcDockBBT => 'BBT';
+
+  @override
+  String get ttcDockLH => 'LH';
+
+  @override
+  String get ttcDockSex => 'Sex';
+
+  @override
+  String get ttcDockMucus => 'Mucus';
+
+  @override
+  String get ttcShortBBT => 'BBT';
+
+  @override
+  String get ttcShortLH => 'LH';
+
+  @override
+  String get ttcShortSex => 'Sex';
+
+  @override
+  String get ttcMarkDone => '✓';
+
+  @override
+  String get ttcMarkMissing => '?';
+
+  @override
+  String get ttcAllDone => 'All done ✓';
+
+  @override
+  String ttcMissingList(String items) {
+    return 'Left: $items';
+  }
+
+  @override
+  String ttcRemainingLeft(String items) {
+    return 'Left: $items';
+  }
+
+  @override
+  String ttcCtaTestReadyBody(int dpo, String bbt, String lh) {
+    return 'DPO $dpo • BBT $bbt • LH $lh';
+  }
+
+  @override
+  String ttcCtaTestWaitBody(int dpo, int days) {
+    return 'DPO $dpo • ~$days day(s) until a reliable test';
+  }
+
+  @override
+  String get ttcCtaPeakBody => 'Today/tomorrow is the peak. Log sex and test to improve accuracy.';
+
+  @override
+  String ttcCtaHighBody(int days) {
+    return 'Fertile window is open • peak in ~$days day(s).';
+  }
+
+  @override
+  String get ttcCtaMenstruationBody => 'Gentle mode: sleep, water, warmth. Logging is optional — but BBT helps.';
+
+  @override
+  String ttcCtaLowBody(String status) {
+    return 'Prep day • $status';
+  }
+
+  @override
+  String get ttcShortMucus => 'Mucus';
+
+  @override
+  String get ttcDash => '—';
+
+  @override
+  String get eduTitleBBT => 'Why track BBT?';
+
+  @override
+  String get eduBodyBBT => 'Basal Body Temperature (BBT) rises slightly after ovulation due to progesterone production. Tracking it confirms that ovulation has actually occurred.';
+
+  @override
+  String get eduTitleLH => 'Why use Ovulation Tests?';
+
+  @override
+  String get eduBodyLH => 'Luteinizing Hormone (LH) surges 24-48 hours before ovulation. A positive test predicts your most fertile days before the egg is released.';
+
+  @override
+  String get eduTitleSex => 'Logging Intimacy';
+
+  @override
+  String get eduBodySex => 'Sperm can survive for up to 5 days inside the body. Logging helps you ensure you have timed intimacy within your fertile window for the best chance of conception.';
+
+  @override
+  String get eduTitleMucus => 'Cervical Mucus';
+
+  @override
+  String get eduBodyMucus => 'As ovulation approaches, estrogen makes your fluid stretchy and clear (like egg whites). This creates the perfect environment for sperm to swim and survive.';
+
+  @override
+  String get aiStatusHigh => 'High Accuracy';
+
+  @override
+  String get aiStatusMedium => 'Moderate Accuracy';
+
+  @override
+  String get aiStatusLow => 'Low Accuracy';
+
+  @override
+  String get aiDescHigh => 'Your cycles are very regular. The AI prediction is likely accurate within ±1 day.';
+
+  @override
+  String get aiDescMedium => 'There is some variation in your recent cycles. The prediction might vary by ±2-3 days.';
+
+  @override
+  String get aiDescLow => 'Your cycle history is irregular or too short. AI needs more data to be precise.';
+
+  @override
+  String get aiConfidenceScore => 'Confidence Score';
+
+  @override
+  String get aiLabelHistory => 'History Length';
+
+  @override
+  String get aiLabelVariation => 'Cycle Variation';
+
+  @override
+  String get aiSuffixCycles => 'cycles';
+
+  @override
+  String get aiSuffixDays => 'days';
 }

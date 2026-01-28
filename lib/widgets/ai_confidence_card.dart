@@ -31,54 +31,59 @@ class AIConfidenceCard extends StatelessWidget {
 
     switch (c.level) {
       case ConfidenceLevel.high:
-        accentColor = AppColors.follicular;
-        iconBgColor = const Color(0xFFE8F3F1);
+        accentColor = AppColors.chartLuteal; // Зеленый/Спокойный
+        iconBgColor = accentColor.withOpacity(0.1);
         icon = Icons.verified_user_outlined;
         title = l10n.aiForecastHigh;
         subtitle = l10n.aiForecastHighSub;
         break;
       case ConfidenceLevel.medium:
-        accentColor = AppColors.ovulation;
-        iconBgColor = const Color(0xFFFFF8EC);
+        accentColor = AppColors.chartOvulation; // Оранжевый/Предупреждение
+        iconBgColor = accentColor.withOpacity(0.1);
         icon = Icons.shield_outlined;
         title = l10n.aiForecastMedium;
         subtitle = l10n.aiForecastMediumSub;
         break;
       case ConfidenceLevel.low:
-        accentColor = AppColors.menstruation;
-        iconBgColor = const Color(0xFFF9EAEB);
+        accentColor = AppColors.chartMenstruation; // Красный/Внимание
+        iconBgColor = accentColor.withOpacity(0.1);
         icon = Icons.info_outline_rounded;
         title = l10n.aiForecastLow;
         subtitle = l10n.aiForecastLowSub;
         break;
       case ConfidenceLevel.calculating:
         accentColor = AppColors.primary;
-        iconBgColor = AppColors.secondaryBackground;
+        iconBgColor = AppColors.surface;
         icon = Icons.hourglass_empty_rounded;
         title = l10n.aiLearning;
         subtitle = l10n.aiLearningSub;
         break;
     }
 
-    final int scoreInt = c.score.clamp(0, 100);
-    final double percent = (scoreInt / 100.0).clamp(0.0, 1.0);
+    // 🔥 ИСПРАВЛЕНИЕ ЛОГИКИ ОЧКОВ
+    // c.score приходит как 0.0 - 1.0.
+    // Для текста нам нужно 0 - 100.
+    final double rawScore = c.score.clamp(0.0, 1.0);
+    final int scoreInt = (rawScore * 100).round();
+    final double percent = rawScore;
 
     return Semantics(
       button: onTap != null,
-      label: isCalculating ? title : '$title, $scoreInt',
+      label: isCalculating ? title : '$title, $scoreInt percent confidence',
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 8), // Убрал горизонтальный марджин, так как родитель задает padding
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
+            // 🔥 Динамическая тень под цвет темы
             BoxShadow(
-              color: const Color(0xFF4A4063).withOpacity(0.04),
+              color: AppColors.primary.withOpacity(0.06),
               blurRadius: 15,
               offset: const Offset(0, 4),
             ),
           ],
-          border: Border.all(color: Colors.black.withOpacity(0.03)),
+          border: Border.all(color: AppColors.gridLines),
         ),
         child: Material(
           color: Colors.transparent,
@@ -89,6 +94,7 @@ class AIConfidenceCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
               child: Row(
                 children: [
+                  // Иконка слева
                   Container(
                     width: 44,
                     height: 44,
@@ -99,6 +105,8 @@ class AIConfidenceCard extends StatelessWidget {
                     child: Icon(icon, color: accentColor, size: 22),
                   ),
                   const SizedBox(width: 16),
+
+                  // Текстовая часть
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -140,7 +148,10 @@ class AIConfidenceCard extends StatelessWidget {
                       ],
                     ),
                   ),
+
                   const SizedBox(width: 12),
+
+                  // Круговой индикатор справа
                   if (!isCalculating)
                     Stack(
                       alignment: Alignment.center,
@@ -149,9 +160,9 @@ class AIConfidenceCard extends StatelessWidget {
                           width: 42,
                           height: 42,
                           child: CircularProgressIndicator(
-                            value: percent,
+                            value: percent, // Используем 0.0 - 1.0
                             strokeWidth: 3.5,
-                            backgroundColor: AppColors.secondaryBackground,
+                            backgroundColor: AppColors.background,
                             valueColor: AlwaysStoppedAnimation<Color>(accentColor),
                             strokeCap: StrokeCap.round,
                           ),
@@ -220,7 +231,7 @@ class _PulsingRingState extends State<_PulsingRing> with SingleTickerProviderSta
           child: CircularProgressIndicator(
             value: _value.value,
             strokeWidth: 3.5,
-            backgroundColor: AppColors.secondaryBackground,
+            backgroundColor: AppColors.background,
             valueColor: AlwaysStoppedAnimation<Color>(widget.color),
             strokeCap: StrokeCap.round,
           ),

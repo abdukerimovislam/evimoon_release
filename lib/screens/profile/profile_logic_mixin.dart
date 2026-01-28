@@ -21,27 +21,19 @@ import '../main_screen.dart';
 
 mixin ProfileLogicMixin {
 
-  // 🔥 ОБНОВЛЕНО: Плавный Fade-переход на Главную
+  // 🔥 SMOOTH FADE TRANSITION TO HOME
   void goToHome(BuildContext context) {
-    // Небольшая задержка, чтобы Overlay успел начать закрываться
     Future.delayed(const Duration(milliseconds: 50), () {
       if (context.mounted) {
         Navigator.of(context).pushAndRemoveUntil(
           PageRouteBuilder(
-            // Длительность анимации перехода (медленнее = плавнее)
             transitionDuration: const Duration(milliseconds: 800),
-            // Обратная анимация (если вдруг)
             reverseTransitionDuration: const Duration(milliseconds: 800),
             pageBuilder: (context, animation, secondaryAnimation) => const MainScreen(),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              // Используем кривую для естественности
               const curve = Curves.easeInOut;
               var curvedAnimation = CurvedAnimation(parent: animation, curve: curve);
-
-              return FadeTransition(
-                opacity: curvedAnimation,
-                child: child,
-              );
+              return FadeTransition(opacity: curvedAnimation, child: child);
             },
           ),
               (route) => false,
@@ -63,7 +55,9 @@ mixin ProfileLogicMixin {
       if (await canLaunchUrl(emailLaunchUri)) {
         await launchUrl(emailLaunchUri);
       } else {
-        if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.msgEmailError(supportEmail))));
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.msgEmailError(supportEmail))));
+        }
       }
     } catch (e) {
       debugPrint("Error launching email: $e");
@@ -101,6 +95,7 @@ mixin ProfileLogicMixin {
     final l10n = AppLocalizations.of(context)!;
     final coc = Provider.of<COCProvider>(context, listen: false);
     final cycle = Provider.of<CycleProvider>(context, listen: false);
+    final settings = Provider.of<SettingsProvider>(context, listen: false); // Needed to force-disable TTC
 
     showGeneralDialog(
       context: context,
@@ -116,6 +111,10 @@ mixin ProfileLogicMixin {
             onFreshStart: () {
               Navigator.pop(ctx);
               ModeTransitionOverlay.show(context, TransitionMode.coc, l10n.transitionCOC, onComplete: () {
+                // 🔥 Ensure TTC is OFF when enabling COC
+                settings.setTTCMode(false);
+                cycle.setTTCMode(false);
+
                 coc.toggleCOC(true, notifTitle: l10n.notifPillTitle, notifBody: l10n.notifPillBody);
                 cycle.setCOCMode(true);
                 cycle.startNewCycle();
@@ -127,12 +126,17 @@ mixin ProfileLogicMixin {
               final DateTime? picked = await showDatePicker(
                 context: context,
                 initialDate: DateTime.now(),
-                firstDate: DateTime.now().subtract(const Duration(days: 30)),
+                // 🔥 Expanded range to 90 days
+                firstDate: DateTime.now().subtract(const Duration(days: 90)),
                 lastDate: DateTime.now(),
-                builder: (context, child) => Theme(data: Theme.of(context).copyWith(colorScheme: const ColorScheme.light(primary: AppColors.primary)), child: child!),
+                builder: (context, child) => Theme(data: Theme.of(context).copyWith(colorScheme: ColorScheme.light(primary: AppColors.primary)), child: child!),
               );
               if (picked != null) {
                 ModeTransitionOverlay.show(context, TransitionMode.coc, l10n.transitionCOC, onComplete: () {
+                  // 🔥 Ensure TTC is OFF when enabling COC
+                  settings.setTTCMode(false);
+                  cycle.setTTCMode(false);
+
                   coc.toggleCOC(true, notifTitle: l10n.notifPillTitle, notifBody: l10n.notifPillBody);
                   cycle.setCOCMode(true);
                   cycle.setSpecificCycleStartDate(picked);
@@ -184,13 +188,13 @@ mixin ProfileLogicMixin {
       final auth = AuthService();
       if (await auth.canCheckBiometrics) {
         if (await auth.authenticate(l10n.authBiometricsReason)) {
-          settings.setBiometrics(true);
+          settings.setBiometricsEnabled(true); // ✅ Fixed Method Name
         }
       } else {
         if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.msgBiometricsError)));
       }
     } else {
-      settings.setBiometrics(false);
+      settings.setBiometricsEnabled(false); // ✅ Fixed Method Name
     }
   }
 }

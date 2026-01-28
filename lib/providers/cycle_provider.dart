@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
@@ -8,6 +9,9 @@ import '../logic/cycle_ai_engine.dart';
 
 // Enum для вероятности зачатия
 enum FertilityChance { low, high, peak }
+
+// ✅ TTC стратегия (для "вау" UX: план действий)
+enum TTCStrategy { minimal, maximal }
 
 class CycleProvider with ChangeNotifier {
   // 📦 Хранилища данных
@@ -28,6 +32,9 @@ class CycleProvider with ChangeNotifier {
   int _avgCycleLength = 28;
   int _avgPeriodDuration = 5;
 
+  // ✅ TTC Strategy (persisted)
+  TTCStrategy _ttcStrategy = TTCStrategy.minimal;
+
   // ✅ OVERRIDE: Пользователь нажал “Закончить месячные”
   int? _periodEndCycleStartMs;
   int? _periodEndedAtDay;
@@ -35,6 +42,11 @@ class CycleProvider with ChangeNotifier {
   // ✅ OVERRIDE: Подтвержденная овуляция (Тест/БТТ) для ТЕКУЩЕГО цикла
   DateTime? _ovulationOverride;
 
+  // Источник подтверждения овуляции (для безопасного автосброса)
+  // Возможные значения: 'lh', 'bbt', 'manual'
+  String? _ovulationOverrideSource;
+
+  // Флаг загрузки
   bool _isLoaded = false;
 
   CycleProvider(this._cycleBox, this._settingsBox, [this._notificationService]) {
@@ -47,13 +59,25 @@ class CycleProvider with ChangeNotifier {
   CycleConfidenceResult? get aiConfidence => _aiConfidence;
 
   // Длина цикла динамическая: если есть override овуляции, цикл подстраивается
-  int get cycleLength => _currentData.totalCycleLength > 0 ? _currentData.totalCycleLength : (_isCOCEnabled ? 28 : _avgCycleLength);
+  int get cycleLength => _currentData.totalCycleLength > 0
+      ? _currentData.totalCycleLength
+      : (_isCOCEnabled ? 28 : _avgCycleLength);
+
   int get avgPeriodDuration => _avgPeriodDuration;
   int get periodDuration => _avgPeriodDuration;
 
   bool get isCOCEnabled => _isCOCEnabled;
   bool get isTTCMode => _isTTCMode;
   bool get isLoaded => _isLoaded;
+
+  // ✅ New getters for TTC UI
+  TTCStrategy get ttcStrategy => _ttcStrategy;
+
+  // ✅ Ovulation confirmation status for badge in UI
+  bool get isOvulationConfirmed => _ovulationOverride != null;
+
+  // ✅ Source for badge (lh/bbt/manual)
+  String? get ovulationOverrideSource => _ovulationOverrideSource;
 
   // --- 🤰 TTC (ПЛАНИРОВАНИЕ) ---
 
@@ -79,6 +103,11 @@ class CycleProvider with ChangeNotifier {
 
     final current = _currentData.currentDay;
     final ovDay = ovulationDay;
+
+    // Защита: во время месячных шанс всегда низкий (если только цикл не супер короткий)
+    if (_currentData.phase == CyclePhase.menstruation && current < 6) {
+      return FertilityChance.low;
+    }
 
     if (current == ovDay || current == ovDay - 1) {
       return FertilityChance.peak;
@@ -116,10 +145,22 @@ class CycleProvider with ChangeNotifier {
 
       final ovMs = _settingsBox.get('current_ovulation_override') as int?;
       _ovulationOverride = ovMs != null ? DateTime.fromMillisecondsSinceEpoch(ovMs) : null;
+
+      _ovulationOverrideSource = _settingsBox.get('current_ovulation_override_source') as String?;
+
+      // ✅ load TTC strategy
+      final rawStrategy = _settingsBox.get('ttc_strategy') as String?;
+      if (rawStrategy == 'maximal') {
+        _ttcStrategy = TTCStrategy.maximal;
+      } else {
+        _ttcStrategy = TTCStrategy.minimal;
+      }
     } catch (_) {
       _periodEndCycleStartMs = null;
       _periodEndedAtDay = null;
       _ovulationOverride = null;
+      _ovulationOverrideSource = null;
+      _ttcStrategy = TTCStrategy.minimal;
     }
   }
 
@@ -134,8 +175,10 @@ class CycleProvider with ChangeNotifier {
 
   Future<void> _clearOvulationOverride() async {
     _ovulationOverride = null;
+    _ovulationOverrideSource = null;
     try {
       await _settingsBox.delete('current_ovulation_override');
+      await _settingsBox.delete('current_ovulation_override_source');
     } catch (_) {}
   }
 
@@ -148,6 +191,7 @@ class CycleProvider with ChangeNotifier {
   // --- 🚀 Инициализация ---
   Future<void> _init() async {
     _isLoaded = false;
+
     try {
       await _ensureBoxOpen();
 
@@ -184,10 +228,13 @@ class CycleProvider with ChangeNotifier {
       _isLoaded = true;
       notifyListeners();
 
-      // Ставим уведомления после первого построения UI
+      // Ставим уведомления после загрузки
       _rescheduleNotifications();
     } catch (e) {
       debugPrint("CycleProvider Init Error: $e");
+      // В случае ошибки ставим флаг, чтобы UI не завис вечно
+      _isLoaded = true;
+      notifyListeners();
     }
   }
 
@@ -229,13 +276,6 @@ class CycleProvider with ChangeNotifier {
       predictedOvulation = safeStart.add(Duration(days: effectiveCycleLen - 14));
     }
 
-    // Нормализация дня для UI кольца (чтобы не вылетал прогресс > 1.0)
-    int dayForWindow = currentDay;
-    if (dayForWindow > effectiveCycleLen && effectiveCycleLen > 0) {
-      // Мы в "Late" фазе, но для расчетов окна оставляем как есть,
-      // или можно циклично отображать (но для TTC важно знать реальный день)
-    }
-
     final phase = _calculatePhase(
       day: currentDay,
       length: effectiveCycleLen,
@@ -247,10 +287,11 @@ class CycleProvider with ChangeNotifier {
 
     // Окно фертильности (для UI)
     final ovDayIndex = predictedOvulation.difference(safeStart).inDays + 1;
-    final bool isFertile = !_isCOCEnabled && (currentDay >= (ovDayIndex - 5) && currentDay <= ovDayIndex);
+    final bool isFertile =
+        !_isCOCEnabled && (currentDay >= (ovDayIndex - 5) && currentDay <= ovDayIndex);
 
     // Дни до следующих месячных
-    final nextPeriodDate = predictedOvulation.add(const Duration(days: 14));
+    final nextPeriodDate = safeStart.add(Duration(days: effectiveCycleLen));
     int daysUntilNext = nextPeriodDate.difference(normalizedNow).inDays;
 
     if (phase == CyclePhase.late) daysUntilNext = 0;
@@ -288,6 +329,7 @@ class CycleProvider with ChangeNotifier {
     final bool endedForThisCycle = _periodOverrideApplies(cycleStart);
     final int? endedAtDay = endedForThisCycle ? _periodEndedAtDay : null;
 
+    // 1. Менструация
     if (period > 0 && day <= period) {
       if (endedAtDay != null && day >= endedAtDay) {
         // Месячные принудительно закончены -> Фолликулярная
@@ -299,28 +341,156 @@ class CycleProvider with ChangeNotifier {
 
     final ovDayIndex = ovulationDate.difference(cycleStart).inDays + 1;
 
-    if (day >= ovDayIndex - 5 && day <= ovDayIndex + 1) return CyclePhase.ovulation;
-    if (day < ovDayIndex - 5) return CyclePhase.follicular;
+    // 2. Овуляция (день Х и +- окно фертильности в визуале, но здесь строгий расчет)
+    // Защита: Овуляция не может быть во время месячных
+    if (ovDayIndex > period) {
+      if (day >= ovDayIndex - 2 && day <= ovDayIndex + 1) return CyclePhase.ovulation;
+    }
+
+    // 3. Фолликулярная (до овуляции)
+    if (day < ovDayIndex - 2) return CyclePhase.follicular;
+
+    // 4. Задержка (после ожидаемого конца)
     if (day > length) return CyclePhase.late;
 
+    // 5. Лютеиновая (все остальное после овуляции)
     return CyclePhase.luteal;
   }
 
   // --- 🎮 Действия пользователя ---
 
+  // ✅ New: set TTC strategy + persist (Hive)
+  Future<void> setTTCStrategy(TTCStrategy strategy) async {
+    await _ensureBoxOpen();
+    _ttcStrategy = strategy;
+    try {
+      await _settingsBox.put('ttc_strategy', strategy == TTCStrategy.maximal ? 'maximal' : 'minimal');
+    } catch (_) {}
+    notifyListeners();
+  }
+
   // 🔥 Вызывается из UI, когда тест ЛГ положительный
-  Future<void> confirmOvulation(DateTime date) async {
+  Future<void> confirmOvulation(DateTime date, {String source = 'manual'}) async {
     await _ensureBoxOpen();
 
     // Валидация: Овуляция не может быть до начала цикла
     if (date.isBefore(_currentData.cycleStartDate)) return;
 
     _ovulationOverride = _normalizeDate(date);
+    _ovulationOverrideSource = source;
     await _settingsBox.put('current_ovulation_override', _ovulationOverride!.millisecondsSinceEpoch);
+    await _settingsBox.put('current_ovulation_override_source', source);
 
     // Обновляем данные (теперь цикл пересчитается от этой даты)
     _updateCurrentData(_currentData.cycleStartDate, _avgCycleLength, _avgPeriodDuration);
     await _rescheduleNotifications();
+  }
+
+  /// Безопасный сброс подтвержденной овуляции, если она была выставлена
+  /// именно этим ЛГ-тестом (т.е. testDate + 1 день) и источник = 'lh'.
+  /// Это предотвращает ситуацию, когда отрицательный тест/ресет случайно
+  /// стирает подтверждение, полученное по БТТ или вручную.
+  Future<void> clearOvulationIfMatchesLHTestDate(DateTime testDate) async {
+    await _ensureBoxOpen();
+
+    if (_ovulationOverride == null) return;
+    if (_ovulationOverrideSource != 'lh') return;
+
+    final expectedOvulation = _normalizeDate(testDate.add(const Duration(days: 1)));
+    if (_normalizeDate(_ovulationOverride!) != expectedOvulation) return;
+
+    await _clearOvulationOverride();
+    _updateCurrentData(_currentData.cycleStartDate, _avgCycleLength, _avgPeriodDuration);
+    await _rescheduleNotifications();
+    notifyListeners();
+  }
+
+  /// Автоподтверждение овуляции по сдвигу БТТ.
+  /// Работает ТОЛЬКО для текущего цикла и только если овуляция ещё не подтверждена.
+  ///
+  /// Алгоритм (упрощенный, но устойчивый):
+  /// - берем температуры текущего цикла
+  /// - ищем первую дату, когда есть 3 подряд значения >= (среднее из 6 предыдущих) + 0.2°C
+  /// - овуляция оценивается как день ДО первого "высокого" дня
+  Future<void> tryAutoConfirmOvulationFromBBT(List<MapEntry<DateTime, double>> tempHistory) async {
+    await _ensureBoxOpen();
+
+    if (!_isTTCMode || _isCOCEnabled) return;
+    if (_ovulationOverride != null) return;
+
+    final cycleStart = _normalizeDate(_currentData.cycleStartDate);
+
+    // Отфильтровать температуры по текущему циклу
+    final temps = tempHistory
+        .map((e) => MapEntry(_normalizeDate(e.key), e.value))
+        .where((e) => !e.key.isBefore(cycleStart))
+        .toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+
+    if (temps.length < 10) return; // мало данных
+
+    // Индексируем по дате для быстрого доступа к последовательности
+    final Map<DateTime, double> map = {for (final e in temps) e.key: e.value};
+    final dates = map.keys.toList()..sort();
+
+    DateTime? shiftStart;
+
+    for (int i = 6; i < dates.length; i++) {
+      final d = dates[i];
+      // 6 дней "до" должны существовать как даты с измерениями
+      final prevDates = <DateTime>[];
+      for (int k = 1; k <= 6; k++) {
+        final pd = d.subtract(Duration(days: k));
+        if (map.containsKey(pd)) prevDates.add(pd);
+      }
+      if (prevDates.length < 5) continue; // допускаем 1 пропуск
+
+      final baseline =
+          prevDates.map((pd) => map[pd]!).reduce((a, b) => a + b) / prevDates.length;
+
+      // Проверяем 3 подряд "высоких" дня: d, d+1, d+2
+      final d1 = d.add(const Duration(days: 1));
+      final d2 = d.add(const Duration(days: 2));
+      if (!map.containsKey(d1) || !map.containsKey(d2)) continue;
+
+      final threshold = baseline + 0.20;
+      if (map[d]! >= threshold && map[d1]! >= threshold && map[d2]! >= threshold) {
+        shiftStart = d;
+        break;
+      }
+    }
+
+    if (shiftStart == null) return;
+
+    final estimatedOvulation = _normalizeDate(shiftStart.subtract(const Duration(days: 1)));
+
+    // Защита: не подтверждаем овуляцию во время месячных
+    final minOvulation = cycleStart.add(Duration(days: _avgPeriodDuration));
+    if (!estimatedOvulation.isAfter(minOvulation)) return;
+
+    _ovulationOverride = estimatedOvulation;
+    _ovulationOverrideSource = 'bbt';
+    await _settingsBox.put('current_ovulation_override', estimatedOvulation.millisecondsSinceEpoch);
+    await _settingsBox.put('current_ovulation_override_source', 'bbt');
+
+    _updateCurrentData(_currentData.cycleStartDate, _avgCycleLength, _avgPeriodDuration);
+    await _rescheduleNotifications();
+    notifyListeners();
+  }
+
+  // 🔥 НОВЫЙ МЕТОД: Отмена подтвержденной овуляции
+  Future<void> clearOvulationData(DateTime date) async {
+    await _ensureBoxOpen();
+
+    // Работаем только с текущим циклом
+    if (date.isBefore(_currentData.cycleStartDate)) return;
+
+    await _clearOvulationOverride();
+
+    _updateCurrentData(_currentData.cycleStartDate, _avgCycleLength, _avgPeriodDuration);
+    await _rescheduleNotifications();
+
+    notifyListeners();
   }
 
   Future<void> setTTCMode(bool enabled) async {
@@ -517,10 +687,11 @@ class CycleProvider with ChangeNotifier {
   }
 
   // --- 📅 Календарь ---
+  /// Возвращает фазу цикла для любой даты (в прошлом или будущем)
   CyclePhase? getPhaseForDate(DateTime date) {
     final normalized = _normalizeDate(date);
 
-    // История
+    // 1. Проверяем историю
     for (final h in _history) {
       if (h.endDate == null) continue;
 
@@ -532,7 +703,7 @@ class CycleProvider with ChangeNotifier {
         final len = _cycleLenFromModel(h);
         if (len <= 0) return null;
 
-        // Если в истории есть подтвержденная овуляция, используем её
+        // Если в истории есть подтвержденная овуляция
         DateTime ovDate;
         if (h.ovulationOverrideDate != null) {
           ovDate = h.ovulationOverrideDate!;
@@ -551,21 +722,25 @@ class CycleProvider with ChangeNotifier {
       }
     }
 
-    // Текущий цикл
+    // 2. Проверяем текущий/будущий цикл
     final start = _normalizeDate(_currentData.cycleStartDate);
     if (!normalized.isBefore(start)) {
       final daysDiff = normalized.difference(start).inDays;
-      final len = cycleLength; // Это свойство уже учитывает override
+      final len = cycleLength; // Учитывает текущий override овуляции
       final dayInCycle = (daysDiff % len) + 1;
 
-      // Рассчитываем овуляцию для этого будущего/текущего дня
-      // Если это текущий цикл - берем текущий override
-      // Если будущий - берем стандартный расчет
+      // Определяем начало ЭТОГО конкретного цикла (для будущего прогноза)
+      final cyclesPassed = (daysDiff / len).floor();
+      final thisCycleStart = start.add(Duration(days: cyclesPassed * len));
+
+      // Для овуляции:
+      // Если это самый ПЕРВЫЙ (текущий) цикл — учитываем override.
+      // Если это будущие циклы — считаем стандартно (т.к. мы не знаем дату овуляции в будущем).
       DateTime ovDate;
-      if (_ovulationOverride != null) {
+      if (cyclesPassed == 0 && _ovulationOverride != null) {
         ovDate = _ovulationOverride!;
       } else {
-        ovDate = start.add(Duration(days: len - 14));
+        ovDate = thisCycleStart.add(Duration(days: len - 14));
       }
 
       return _calculatePhase(
@@ -573,7 +748,7 @@ class CycleProvider with ChangeNotifier {
         length: len,
         period: _avgPeriodDuration,
         isCOC: _isCOCEnabled,
-        cycleStart: start,
+        cycleStart: thisCycleStart,
         ovulationDate: ovDate,
       );
     }
@@ -634,9 +809,11 @@ class CycleProvider with ChangeNotifier {
       final nextPeriodStart = lastStart.add(Duration(days: len));
 
       if (_isCOCEnabled) {
-        await _scheduleIfFuture(100, nextPeriodStart, "New Pack 💊", "Time to start a new pack!", payload: "screen_coc");
+        await _scheduleIfFuture(100, nextPeriodStart, "New Pack 💊", "Time to start a new pack!",
+            payload: "screen_coc");
         final breakDate = lastStart.add(const Duration(days: 21));
-        await _scheduleIfFuture(101, breakDate, "Break Week 🩸", "Active pills finished.", payload: "screen_coc");
+        await _scheduleIfFuture(101, breakDate, "Break Week 🩸", "Active pills finished.",
+            payload: "screen_coc");
         return;
       }
 

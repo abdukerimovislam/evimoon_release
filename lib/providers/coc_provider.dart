@@ -9,11 +9,17 @@ class COCProvider with ChangeNotifier {
   bool _isEnabled = false;
   TimeOfDay _reminderTime = const TimeOfDay(hour: 20, minute: 0);
   List<DateTime> _history = [];
-  int _pillCount = 21;
+
+  // 🔥 Новые поля для логики пачек
+  DateTime _startDate = DateTime.now(); // Дата начала ТЕКУЩЕЙ пачки
+  int _activePillCount = 21; // Количество активных таблеток
+  int _breakDays = 7; // Количество дней перерыва
 
   // Ключи
   static const String _keyEnabled = 'coc_enabled';
   static const String _keyPillCount = 'coc_pill_count';
+  static const String _keyBreakDays = 'coc_break_days'; // Новый ключ
+  static const String _keyStartDate = 'coc_start_date'; // Новый ключ
   static const String _keyTimeHour = 'coc_time_hour';
   static const String _keyTimeMinute = 'coc_time_minute';
   static const String _keyHistory = 'coc_history';
@@ -24,35 +30,41 @@ class COCProvider with ChangeNotifier {
 
   void _init() {
     _isEnabled = _box.get(_keyEnabled, defaultValue: false);
-    _pillCount = _box.get(_keyPillCount, defaultValue: 21);
+    _activePillCount = _box.get(_keyPillCount, defaultValue: 21);
+    _breakDays = _box.get(_keyBreakDays, defaultValue: 7);
+
+    // Загрузка даты старта
+    final startMs = _box.get(_keyStartDate);
+    if (startMs != null) {
+      _startDate = DateTime.fromMillisecondsSinceEpoch(startMs);
+    } else {
+      _startDate = DateTime.now();
+    }
 
     final h = _box.get(_keyTimeHour, defaultValue: 20);
     final m = _box.get(_keyTimeMinute, defaultValue: 0);
     _reminderTime = TimeOfDay(hour: h, minute: m);
 
-    // 🔥 ИСПРАВЛЕНИЕ ОШИБКИ ЗДЕСЬ
-    // Hive возвращает List<dynamic>. Нам нужно вручную привести его к List<DateTime>
+    // Загрузка истории
     final rawHistory = _box.get(_keyHistory, defaultValue: []);
-
     if (rawHistory is List) {
       _history = rawHistory.map((e) {
-        // Если сохранили как миллисекунды (int)
         if (e is int) return DateTime.fromMillisecondsSinceEpoch(e);
-        // Если вдруг там строка (старый формат)
         if (e is String) return DateTime.tryParse(e) ?? DateTime.now();
-        return DateTime.now(); // Fallback
+        return DateTime.now();
       }).toList();
     } else {
       _history = [];
     }
-
     _history.sort();
   }
 
   // --- Getters ---
   bool get isEnabled => _isEnabled;
   TimeOfDay get reminderTime => _reminderTime;
-  int get pillCount => _pillCount;
+  int get pillCount => _activePillCount;
+  int get breakDays => _breakDays;
+  DateTime get startDate => _startDate;
   bool get isLoaded => true;
 
   bool get isTakenToday {
@@ -67,24 +79,62 @@ class COCProvider with ChangeNotifier {
     );
   }
 
+  // 🔥 Расчет текущего дня в пачке (1-based)
+  int get currentPillNumber {
+    final now = DateTime.now();
+    final diff = now.difference(_startDate).inDays;
+    final totalCycle = _activePillCount + _breakDays;
+
+    // Остаток от деления на длину цикла пачки
+    final dayInCycle = (diff % totalCycle) + 1;
+    return dayInCycle;
+  }
+
+  // Находимся ли мы сейчас на перерыве (месячные)?
+  bool get isOnBreak {
+    return currentPillNumber > _activePillCount;
+  }
+
   // --- Actions ---
+
+  // 🔥 Метод для Онбординга
+  Future<void> initSettings({
+    required DateTime startDate,
+    required int activePills,
+    required int breakDays,
+  }) async {
+    _startDate = startDate;
+    _activePillCount = activePills;
+    _breakDays = breakDays;
+
+    await _box.put(_keyStartDate, startDate.millisecondsSinceEpoch);
+    await _box.put(_keyPillCount, activePills);
+    await _box.put(_keyBreakDays, breakDays);
+
+    // Включаем уведомления по умолчанию на 20:00
+    await setTime(const TimeOfDay(hour: 20, minute: 0), notifTitle: "Pill Time 💊", notifBody: "Time to take your pill!");
+
+    notifyListeners();
+  }
 
   Future<void> toggleCOC(bool value, {String? notifTitle, String? notifBody}) async {
     _isEnabled = value;
     await _box.put(_keyEnabled, value);
 
     if (value) {
-      if (notifTitle != null && notifBody != null) {
-        await _scheduleNotification(notifTitle, notifBody);
-      }
+      // При включении шедулим уведомление
+      await _scheduleNotification(
+          notifTitle ?? "Pill Time 💊",
+          notifBody ?? "Don't forget your pill!"
+      );
     } else {
-      await _notifications.cancelNotification(999);
+      await _notifications.cancelNotification(1001); // Используем ID 1001 для таблеток
     }
     notifyListeners();
   }
 
   Future<void> setPillCount(int count) async {
-    _pillCount = count;
+    _activePillCount = count;
     await _box.put(_keyPillCount, count);
     notifyListeners();
   }
@@ -133,7 +183,6 @@ class COCProvider with ChangeNotifier {
 
   // Вспомогательный метод сохранения
   Future<void> _saveHistory() async {
-    // Сохраняем как список чисел (миллисекунды), это самый надежный способ для Hive
     final timestamps = _history.map((e) => e.millisecondsSinceEpoch).toList();
     await _box.put(_keyHistory, timestamps);
   }
@@ -141,18 +190,13 @@ class COCProvider with ChangeNotifier {
   // --- Notifications ---
 
   Future<void> _scheduleNotification(String title, String body) async {
-    final now = DateTime.now();
-    var scheduledDate = DateTime(now.year, now.month, now.day, _reminderTime.hour, _reminderTime.minute);
-
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
-    }
-
-    await _notifications.scheduleNotification(
-      id: 999,
+    // Используем метод для ЕЖЕДНЕВНЫХ уведомлений
+    // ID 1001 зарезервирован под таблетки
+    await _notifications.scheduleDailyNotification(
+      id: 1001,
       title: title,
       body: body,
-      scheduledDate: scheduledDate,
+      time: _reminderTime,
     );
   }
 }

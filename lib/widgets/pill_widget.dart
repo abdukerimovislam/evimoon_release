@@ -129,7 +129,7 @@ class _ActivePillCard extends StatelessWidget {
                   if (!isTaken)
                     Text(
                       l10n.pillScheduled(coc.reminderTime.format(context)),
-                      style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                      style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
                     ),
                 ],
               ),

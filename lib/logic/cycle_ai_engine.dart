@@ -4,7 +4,8 @@ import '../models/cycle_model.dart';
 enum ConfidenceLevel { high, medium, low, calculating }
 
 class CycleConfidenceResult {
-  final int score; // 0-100
+  final double score; // 🔥 Исправлено: теперь double (0.0 - 1.0)
+  final double stdDevDays; // 🔥 Добавлено: отклонение в днях
   final ConfidenceLevel level;
 
   /// Localization key for the main explanation text
@@ -15,6 +16,7 @@ class CycleConfidenceResult {
 
   const CycleConfidenceResult({
     required this.score,
+    required this.stdDevDays, // 🔥
     required this.level,
     required this.explanationKey,
     this.factors = const [],
@@ -23,44 +25,41 @@ class CycleConfidenceResult {
 
 class CycleAIEngine {
   // Guardrails for plausible cycle length (in days).
-  // We use broad limits to avoid punishing valid-but-uncommon cases too much.
   static const int _minCycleLen = 15;
   static const int _maxCycleLen = 90;
 
-  /// Main method: estimate forecast confidence based on cycle history.
-  /// Returns localization KEYS only (no UI dependency).
-  ///
-  /// Expected input: list of completed cycles, where CycleModel.startDate is day 1 of period,
-  /// and consecutive startDate distances represent cycle length.
   static CycleConfidenceResult calculateConfidence(List<CycleModel> history) {
     if (history.isEmpty) {
       return const CycleConfidenceResult(
-        score: 0,
+        score: 0.0,
+        stdDevDays: 0.0,
         level: ConfidenceLevel.low,
         explanationKey: 'confidenceNoData',
         factors: ['factorDataNeeded'],
       );
     }
 
-    // Sort by startDate ascending (old -> new) for robust interval computation.
+    // Sort by startDate ascending (old -> new)
     final sorted = [...history]..sort((a, b) => a.startDate.compareTo(b.startDate));
 
     // Use last 12 cycles max.
     final int from = max(0, sorted.length - 12);
     final recent = sorted.sublist(from);
 
-    // Need at least 3 cycles to build meaningful stability (2+ intervals).
+    // Need at least 3 cycles to build meaningful stability.
     if (recent.length < 3) {
-      final int score = (recent.length * 33).clamp(0, 99);
+      // Score based on data count (max 0.99 for calc state)
+      final double score = (recent.length * 0.33).clamp(0.0, 0.99);
       return CycleConfidenceResult(
         score: score,
+        stdDevDays: 0.0,
         level: ConfidenceLevel.calculating,
         explanationKey: 'confidenceCalcDesc',
         factors: const ['factorDataNeeded'],
       );
     }
 
-    // Compute cycle lengths as difference between consecutive cycle starts.
+    // Compute cycle lengths
     final lengths = <int>[];
     int invalidIntervals = 0;
 
@@ -70,7 +69,6 @@ class CycleAIEngine {
 
       final int days = b.difference(a).inDays;
 
-      // Guard against impossible/dirty data.
       if (days < _minCycleLen || days > _maxCycleLen) {
         invalidIntervals++;
         continue;
@@ -78,12 +76,12 @@ class CycleAIEngine {
       lengths.add(days);
     }
 
-    // If we cannot build enough valid intervals, confidence is low.
     if (lengths.length < 2) {
       final factors = <String>['factorDataNeeded'];
       if (invalidIntervals > 0) factors.add('factorAnomaly');
       return CycleConfidenceResult(
-        score: 20,
+        score: 0.2,
+        stdDevDays: 0.0,
         level: ConfidenceLevel.low,
         explanationKey: 'confidenceNoData',
         factors: factors,
@@ -93,18 +91,18 @@ class CycleAIEngine {
     final double mean = lengths.reduce((a, b) => a + b) / lengths.length;
     final double variance =
         lengths.map((len) => pow(len - mean, 2)).reduce((a, b) => a + b) / lengths.length;
-    final double stdDev = sqrt(variance);
+    final double stdDev = sqrt(variance); // 🔥 Рассчитываем отклонение
 
     // --- Score model ---
-    double score = 100.0;
+    double rawScore = 100.0;
     final factors = <String>[];
 
     // 1) Stability penalty based on std deviation.
     if (stdDev > 6.0) {
-      score -= 45;
+      rawScore -= 45;
       factors.add('factorHighVar');
     } else if (stdDev > 3.5) {
-      score -= 25;
+      rawScore -= 25;
       factors.add('factorSlightVar');
     } else {
       factors.add('factorStable');
@@ -113,27 +111,29 @@ class CycleAIEngine {
     // 2) Anomaly penalty (big deviations from mean).
     final bool hasAnomaly = lengths.any((l) => (l - mean).abs() > 8);
     if (hasAnomaly) {
-      score -= 15;
+      rawScore -= 15;
       factors.add('factorAnomaly');
     }
 
-    // 3) Data volume adjustment (small but meaningful).
-    if (lengths.length >= 6) score += 6;
-    if (lengths.length <= 2) score -= 10;
+    // 3) Data volume adjustment.
+    if (lengths.length >= 6) rawScore += 6;
+    if (lengths.length <= 2) rawScore -= 10;
 
-    // 4) Data quality penalty for invalid intervals.
+    // 4) Data quality penalty.
     if (invalidIntervals >= 2) {
-      score -= 10;
+      rawScore -= 10;
       if (!factors.contains('factorAnomaly')) factors.add('factorAnomaly');
     }
 
-    final int finalScore = score.clamp(0.0, 100.0).round();
+    // Переводим 0-100 в 0.0-1.0
+    final double finalScore = (rawScore.clamp(0.0, 100.0) / 100.0);
 
     final ConfidenceLevel level =
-    (finalScore >= 80) ? ConfidenceLevel.high : (finalScore >= 50) ? ConfidenceLevel.medium : ConfidenceLevel.low;
+    (finalScore >= 0.8) ? ConfidenceLevel.high : (finalScore >= 0.5) ? ConfidenceLevel.medium : ConfidenceLevel.low;
 
     return CycleConfidenceResult(
       score: finalScore,
+      stdDevDays: stdDev, // 🔥 Передаем рассчитанное значение
       level: level,
       explanationKey: _explanationKey(level),
       factors: factors,

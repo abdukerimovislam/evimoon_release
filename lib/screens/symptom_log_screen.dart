@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'dart:ui';
+import 'dart:ui'; // For ImageFilter
 
 import '../l10n/app_localizations.dart';
 import '../models/cycle_model.dart';
@@ -14,8 +14,7 @@ import '../logic/symptom_intelligence.dart';
 import '../theme/app_theme.dart';
 import '../theme/ttc_theme.dart';
 
-// Виджеты
-import '../widgets/glass_container.dart';
+// Widgets
 import '../widgets/mesh_background.dart';
 
 class SymptomLogScreen extends StatefulWidget {
@@ -86,72 +85,68 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
     final allSymptoms = [..._currentLog.painSymptoms, ..._currentLog.symptoms];
     final insight = SymptomIntelligence.getInsight(context, allSymptoms, phase);
 
+    // Safe area for top padding
+    final topPadding = MediaQuery.of(context).padding.top;
+
     return Scaffold(
       extendBody: true,
-      // Используем MeshBackground, но контент делаем более контрастным
       body: MeshCycleBackground(
         phase: phase,
         child: Column(
           children: [
-            // --- HEADER (Premium Style) ---
-            _PremiumHeader(
-              selectedDate: _selectedDate,
-              isDirty: _isDirty,
-              l10n: l10n,
-              onSave: _save,
-              onDateSelected: _loadDataForDate,
-              safeTop: MediaQuery.of(context).padding.top,
-            ),
+            // --- HEADER ---
+            _buildHeader(l10n, topPadding),
 
-            // --- BODY ---
+            // --- SCROLLABLE CONTENT ---
             Expanded(
               child: ListView(
                 physics: const BouncingScrollPhysics(),
                 padding: EdgeInsets.fromLTRB(20, 10, 20, widget.isTab ? 110 : 40),
                 children: [
                   if (insight != null) ...[
-                    _AppleInsightBanner(insight: insight),
+                    _InsightCard(insight: insight),
                     const SizedBox(height: 24),
                   ],
 
                   // 1. MOOD
-                  _SectionTitle(title: l10n.logMood),
-                  _PremiumMoodSelector(
+                  _SectionHeader(title: l10n.logMood, icon: CupertinoIcons.smiley),
+                  _MoodSelector(
                     selectedMood: _currentLog.mood,
                     onMoodChanged: (v) => _updateLog(_currentLog.copyWith(mood: v)),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
 
-                  // 2. BODY & MIND
-                  _SectionTitle(title: l10n.lblBodyMind),
-                  _PremiumGlassCard(
+                  // 2. BODY & MIND (Now includes Skin!)
+                  _SectionHeader(title: l10n.lblBodyMind, icon: CupertinoIcons.person),
+                  _GlassContainer(
                     child: Column(
                       children: [
-                        _PremiumRatingRow(
+                        _RatingRow(
                           icon: CupertinoIcons.bolt_fill,
                           color: Colors.amber,
                           label: l10n.paramEnergy,
                           value: _currentLog.energy,
                           onChanged: (v) => _updateLog(_currentLog.copyWith(energy: v)),
                         ),
-                        const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1)),
-                        _PremiumRatingRow(
-                          icon: CupertinoIcons.moon_fill,
+                        _Divider(),
+                        _RatingRow(
+                          icon: CupertinoIcons.moon_stars_fill,
                           color: Colors.indigoAccent,
                           label: l10n.logSleep,
                           value: _currentLog.sleep,
                           onChanged: (v) => _updateLog(_currentLog.copyWith(sleep: v)),
                         ),
-                        const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1)),
-                        _PremiumRatingRow(
+                        _Divider(),
+                        _RatingRow(
                           icon: CupertinoIcons.heart_fill,
-                          color: Colors.redAccent,
+                          color: Colors.pinkAccent,
                           label: l10n.paramLibido,
                           value: _currentLog.libido,
                           onChanged: (v) => _updateLog(_currentLog.copyWith(libido: v)),
                         ),
-                        const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1)),
-                        _PremiumRatingRow(
+                        _Divider(),
+                        // 🔥 ADDED SKIN BACK
+                        _RatingRow(
                           icon: CupertinoIcons.sparkles,
                           color: Colors.purpleAccent,
                           label: l10n.paramSkin,
@@ -161,14 +156,14 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
 
-                  // 3. VITALS
-                  _SectionTitle(title: l10n.logVitals),
+                  // 3. VITALS (2 Columns)
+                  _SectionHeader(title: l10n.logVitals, icon: CupertinoIcons.waveform_path_ecg),
                   Row(
                     children: [
                       Expanded(
-                        child: _PremiumHealthStepper(
+                        child: _VitalsCard(
                           title: l10n.lblTemp,
                           unit: "°C",
                           value: _currentLog.temperature,
@@ -177,13 +172,13 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                           min: 35.0,
                           max: 42.0,
                           icon: CupertinoIcons.thermometer,
-                          color: Colors.orangeAccent,
+                          color: Colors.orange,
                           onChanged: (v) => _updateLog(_currentLog.copyWith(temperature: v)),
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 12),
                       Expanded(
-                        child: _PremiumHealthStepper(
+                        child: _VitalsCard(
                           title: l10n.lblWeight,
                           unit: "kg",
                           value: _currentLog.weight,
@@ -192,26 +187,26 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                           min: 30.0,
                           max: 200.0,
                           icon: CupertinoIcons.gauge,
-                          color: Colors.blueAccent,
+                          color: Colors.blue,
                           onChanged: (v) => _updateLog(_currentLog.copyWith(weight: v)),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
 
                   // 4. OVULATION TEST
-                  _SectionTitle(title: l10n.ttcBtnTest),
-                  _PremiumOvulationSelector(
+                  _SectionHeader(title: l10n.ttcBtnTest, icon: CupertinoIcons.lab_flask),
+                  _OvulationSelector(
                     selectedResult: _currentLog.ovulationTest,
                     l10n: l10n,
                     onChanged: (v) => _updateLog(_currentLog.copyWith(ovulationTest: v)),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
 
-                  // 5. SYMPTOMS
-                  _SectionTitle(title: l10n.logPain),
-                  _PremiumSymptomGrid(
+                  // 5. SYMPTOMS & PAIN
+                  _SectionHeader(title: l10n.logPain, icon: CupertinoIcons.bandage),
+                  _SymptomGrid(
                     selectedSymptoms: _currentLog.painSymptoms,
                     l10n: l10n,
                     onToggle: (s) {
@@ -220,29 +215,29 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                       _updateLog(_currentLog.copyWith(painSymptoms: list));
                     },
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
 
-                  // 6. FLOW & LOVE
-                  _SectionTitle(title: l10n.lblFlowAndLove),
-                  _PremiumGlassCard(
+                  // 6. FLOW & INTIMACY
+                  _SectionHeader(title: l10n.lblFlowAndLove, icon: CupertinoIcons.drop),
+                  _GlassContainer(
                     child: Column(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          padding: const EdgeInsets.all(16),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              _PremiumFlowBtn(
+                              _FlowButton(
                                   intensity: FlowIntensity.light,
                                   isSelected: _currentLog.flow == FlowIntensity.light,
                                   onTap: () => _updateLog(_currentLog.copyWith(flow: _currentLog.flow == FlowIntensity.light ? FlowIntensity.none : FlowIntensity.light))
                               ),
-                              _PremiumFlowBtn(
+                              _FlowButton(
                                   intensity: FlowIntensity.medium,
                                   isSelected: _currentLog.flow == FlowIntensity.medium,
                                   onTap: () => _updateLog(_currentLog.copyWith(flow: _currentLog.flow == FlowIntensity.medium ? FlowIntensity.none : FlowIntensity.medium))
                               ),
-                              _PremiumFlowBtn(
+                              _FlowButton(
                                   intensity: FlowIntensity.heavy,
                                   isSelected: _currentLog.flow == FlowIntensity.heavy,
                                   onTap: () => _updateLog(_currentLog.copyWith(flow: _currentLog.flow == FlowIntensity.heavy ? FlowIntensity.none : FlowIntensity.heavy))
@@ -250,8 +245,8 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                             ],
                           ),
                         ),
-                        const Divider(height: 1),
-                        _PremiumIntimacyRow(
+                        _Divider(),
+                        _IntimacyRow(
                           hadSex: _currentLog.hadSex,
                           protected: _currentLog.protectedSex,
                           l10n: l10n,
@@ -261,30 +256,28 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                       ],
                     ),
                   ),
-
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
 
                   // 7. NOTES
-                  _SectionTitle(title: l10n.logNotes),
-                  _PremiumGlassCard(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(minHeight: 100),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: TextField(
-                          controller: _notesController,
-                          maxLines: null,
-                          onChanged: (_) => setState(() => _isDirty = true),
-                          style: const TextStyle(fontSize: 16, height: 1.5, color: AppColors.textPrimary),
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: l10n.hintNotes,
-                            hintStyle: TextStyle(color: AppColors.textSecondary.withOpacity(0.5)),
-                          ),
+                  _SectionHeader(title: l10n.logNotes, icon: CupertinoIcons.pencil),
+                  _GlassContainer(
+                    child: Container(
+                      constraints: const BoxConstraints(minHeight: 120),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: TextField(
+                        controller: _notesController,
+                        maxLines: null,
+                        onChanged: (_) => setState(() => _isDirty = true),
+                        style: TextStyle(fontSize: 16, height: 1.5, color: AppColors.textPrimary),
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: l10n.hintNotes,
+                          hintStyle: TextStyle(color: AppColors.textSecondary.withOpacity(0.5)),
                         ),
                       ),
                     ),
                   ),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
@@ -293,144 +286,123 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
       ),
     );
   }
-}
 
-// --- PREMIUM WIDGETS ---
+  // --- UI BUILDERS ---
 
-class _SectionTitle extends StatelessWidget {
-  final String title;
-  const _SectionTitle({required this.title});
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 12),
-      child: Text(
-        title.toUpperCase(),
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 1.2,
-          color: AppColors.textSecondary.withOpacity(0.7),
-        ),
-      ),
-    );
-  }
-}
-
-class _PremiumHeader extends StatelessWidget {
-  final DateTime selectedDate;
-  final bool isDirty;
-  final AppLocalizations l10n;
-  final VoidCallback onSave;
-  final Function(DateTime) onDateSelected;
-  final double safeTop;
-
-  const _PremiumHeader({
-    required this.selectedDate,
-    required this.isDirty,
-    required this.l10n,
-    required this.onSave,
-    required this.onDateSelected,
-    required this.safeTop,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildHeader(AppLocalizations l10n, double topPadding) {
     return ClipRRect(
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
         child: Container(
-          padding: EdgeInsets.only(top: safeTop + 10, bottom: 16),
+          padding: EdgeInsets.only(top: topPadding + 10, bottom: 20),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.5),
-            border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.4))),
+            color: AppColors.surface.withOpacity(0.6),
+            border: Border(bottom: BorderSide(color: AppColors.primary.withOpacity(0.1))),
           ),
           child: Column(
             children: [
+              // Top Bar
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // 🔥 ИСПРАВЛЕНИЕ: Оборачиваем Text в Expanded
                     Expanded(
-                      child: Text(
-                        l10n.logSymptomsTitle,
-                        style: const TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.5,
-                            color: AppColors.textPrimary
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis, // Обрезаем с троеточием, если не влезает
-                      ),
-                    ),
-                    // Кнопка сохранения (если есть изменения)
-                    if (isDirty)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 12.0),
-                        child: GestureDetector(
-                          onTap: onSave,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(colors: [AppColors.primary, Color(0xFFFF9A9E)]),
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [BoxShadow(color: AppColors.primary.withOpacity(0.4), blurRadius: 10, offset: const Offset(0, 4))],
-                            ),
-                            child: Text(
-                                l10n.btnSave,
-                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            DateFormat.MMMMd(Localizations.localeOf(context).toString()).format(_selectedDate).toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textSecondary,
+                              letterSpacing: 1.0,
                             ),
                           ),
-                        ),
+                          Text(
+                            l10n.logSymptomsTitle,
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.textPrimary,
+                              height: 1.1,
+                            ),
+                          ),
+                        ],
                       ),
+                    ),
+                    if (_isDirty)
+                      GestureDetector(
+                        onTap: () {
+                          HapticFeedback.mediumImpact();
+                          _save();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)]),
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(color: AppColors.primary.withOpacity(0.4), blurRadius: 10, offset: const Offset(0, 4))
+                            ],
+                          ),
+                          child: Text(
+                            l10n.btnSave,
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      )
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
-              // ... Calendar ListView (без изменений) ...
+              const SizedBox(height: 15),
+              // Calendar Strip
               SizedBox(
-                height: 75,
+                height: 70,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: 30,
+                  itemCount: 30, // Last 30 days
                   reverse: true,
                   physics: const BouncingScrollPhysics(),
                   itemBuilder: (ctx, index) {
                     final date = DateTime.now().subtract(Duration(days: index));
-                    final isSelected = date.year == selectedDate.year && date.month == selectedDate.month && date.day == selectedDate.day;
+                    final isSelected = date.year == _selectedDate.year && date.month == _selectedDate.month && date.day == _selectedDate.day;
 
                     return GestureDetector(
                       onTap: () {
-                        HapticFeedback.lightImpact();
-                        onDateSelected(date);
+                        HapticFeedback.selectionClick();
+                        _loadDataForDate(date);
                       },
                       child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
-                        margin: const EdgeInsets.symmetric(horizontal: 6),
-                        width: 52,
+                        duration: const Duration(milliseconds: 200),
+                        margin: const EdgeInsets.symmetric(horizontal: 5),
+                        width: 50,
                         decoration: BoxDecoration(
-                          color: isSelected ? AppColors.textPrimary : Colors.white.withOpacity(0.4),
-                          borderRadius: BorderRadius.circular(18),
-                          border: isSelected ? null : Border.all(color: Colors.white.withOpacity(0.6)),
-                          boxShadow: isSelected
-                              ? [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 12, offset: const Offset(0, 6))]
-                              : [],
+                          color: isSelected ? AppColors.primary : Colors.white.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(16),
+                          border: isSelected ? null : Border.all(color: Colors.white),
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
                               DateFormat('E', Localizations.localeOf(context).toString()).format(date).toUpperCase(),
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: isSelected ? Colors.white.withOpacity(0.8) : AppColors.textSecondary),
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: isSelected ? Colors.white.withOpacity(0.9) : AppColors.textSecondary,
+                              ),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               date.day.toString(),
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: isSelected ? Colors.white : AppColors.textPrimary),
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: isSelected ? Colors.white : AppColors.textPrimary,
+                              ),
                             ),
                           ],
                         ),
@@ -438,7 +410,7 @@ class _PremiumHeader extends StatelessWidget {
                     );
                   },
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -447,18 +419,30 @@ class _PremiumHeader extends StatelessWidget {
   }
 }
 
-class _PremiumGlassCard extends StatelessWidget {
+// =============================================================================
+// 🔥 MODERNIZED UI COMPONENTS
+// =============================================================================
+
+class _GlassContainer extends StatelessWidget {
   final Widget child;
-  const _PremiumGlassCard({required this.child});
+  final EdgeInsetsGeometry? padding;
+
+  const _GlassContainer({required this.child, this.padding});
+
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: padding,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.55),
+        color: AppColors.surface.withOpacity(0.6),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.6)),
+        border: Border.all(color: Colors.white.withOpacity(0.8), width: 1.5),
         boxShadow: [
-          BoxShadow(color: AppColors.primary.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 10)),
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          )
         ],
       ),
       child: ClipRRect(
@@ -472,35 +456,114 @@ class _PremiumGlassCard extends StatelessWidget {
   }
 }
 
-class _PremiumRatingRow extends StatelessWidget {
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  final IconData icon;
+
+  const _SectionHeader({required this.title, required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: AppColors.primary.withOpacity(0.8)),
+          const SizedBox(width: 8),
+          Text(
+            title.toUpperCase(),
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.2,
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Divider extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Divider(height: 1, indent: 56, color: AppColors.textSecondary.withOpacity(0.1));
+  }
+}
+
+class _MoodSelector extends StatelessWidget {
+  final int selectedMood;
+  final ValueChanged<int> onMoodChanged;
+
+  const _MoodSelector({required this.selectedMood, required this.onMoodChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final moods = [
+      {"v": 1, "e": "😭", "c": Colors.purple},
+      {"v": 2, "e": "😟", "c": Colors.blueGrey},
+      {"v": 3, "e": "😐", "c": Colors.grey},
+      {"v": 4, "e": "🙂", "c": Colors.orange},
+      {"v": 5, "e": "🤩", "c": Colors.amber},
+    ];
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: moods.map((m) {
+        final isSelected = selectedMood == m['v'];
+        return GestureDetector(
+          onTap: () {
+            HapticFeedback.lightImpact();
+            onMoodChanged(m['v'] as int);
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.elasticOut,
+            width: isSelected ? 60 : 48,
+            height: isSelected ? 60 : 48,
+            decoration: BoxDecoration(
+              color: isSelected ? Colors.white : Colors.white.withOpacity(0.3),
+              shape: BoxShape.circle,
+              border: Border.all(
+                  color: isSelected ? (m['c'] as Color).withOpacity(0.5) : Colors.white.withOpacity(0.5),
+                  width: isSelected ? 3 : 1
+              ),
+              boxShadow: isSelected ? [BoxShadow(color: (m['c'] as Color).withOpacity(0.3), blurRadius: 15, spreadRadius: 2)] : [],
+            ),
+            alignment: Alignment.center,
+            child: Text(m['e'] as String, style: TextStyle(fontSize: isSelected ? 28 : 22)),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class _RatingRow extends StatelessWidget {
   final IconData icon;
   final Color color;
   final String label;
   final int value;
   final ValueChanged<int> onChanged;
 
-  const _PremiumRatingRow({
-    required this.icon, required this.color, required this.label, required this.value, required this.onChanged
-  });
+  const _RatingRow({required this.icon, required this.color, required this.label, required this.value, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
             child: Icon(icon, size: 20, color: color),
           ),
           const SizedBox(width: 16),
-          Expanded(
-            child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: AppColors.textPrimary)),
-          ),
-          // Bar Styled Selector
+          Expanded(child: Text(label, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary))),
           SizedBox(
-            height: 24,
+            height: 28,
             child: Row(
               children: List.generate(5, (index) {
                 final int starValue = index + 1;
@@ -511,14 +574,13 @@ class _PremiumRatingRow extends StatelessWidget {
                     onChanged(starValue);
                   },
                   child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeOut,
+                    duration: const Duration(milliseconds: 200),
                     margin: const EdgeInsets.only(left: 4),
-                    width: 16,
+                    width: 20,
                     height: isSelected ? 24 : 12,
                     decoration: BoxDecoration(
-                      color: isSelected ? color : Colors.grey.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(4),
+                      color: isSelected ? color : AppColors.textSecondary.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(6),
                     ),
                   ),
                 );
@@ -531,56 +593,7 @@ class _PremiumRatingRow extends StatelessWidget {
   }
 }
 
-class _PremiumMoodSelector extends StatelessWidget {
-  final int selectedMood;
-  final ValueChanged<int> onMoodChanged;
-  const _PremiumMoodSelector({required this.selectedMood, required this.onMoodChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    final moods = [
-      {"v": 1, "e": "😭", "c": Colors.purple},
-      {"v": 2, "e": "😟", "c": Colors.blueGrey},
-      {"v": 3, "e": "😐", "c": Colors.grey},
-      {"v": 4, "e": "🙂", "c": Colors.orange},
-      {"v": 5, "e": "🤩", "c": Colors.amber},
-    ];
-
-    return SizedBox(
-      height: 75,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: moods.map((m) {
-          final isSelected = selectedMood == m['v'];
-          return GestureDetector(
-            onTap: () {
-              HapticFeedback.mediumImpact();
-              onMoodChanged(m['v'] as int);
-            },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.elasticOut,
-              width: isSelected ? 65 : 48,
-              height: isSelected ? 65 : 48,
-              decoration: BoxDecoration(
-                color: isSelected ? Colors.white : Colors.white.withOpacity(0.4),
-                shape: BoxShape.circle,
-                border: isSelected ? Border.all(color: (m['c'] as Color).withOpacity(0.3), width: 3) : Border.all(color: Colors.white.withOpacity(0.5)),
-                boxShadow: isSelected
-                    ? [BoxShadow(color: (m['c'] as Color).withOpacity(0.4), blurRadius: 20, spreadRadius: 5)]
-                    : [],
-              ),
-              alignment: Alignment.center,
-              child: Text(m['e'] as String, style: TextStyle(fontSize: isSelected ? 34 : 22)),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-}
-
-class _PremiumHealthStepper extends StatelessWidget {
+class _VitalsCard extends StatelessWidget {
   final String title;
   final String unit;
   final double? value;
@@ -592,8 +605,10 @@ class _PremiumHealthStepper extends StatelessWidget {
   final Color color;
   final ValueChanged<double> onChanged;
 
-  const _PremiumHealthStepper({
-    required this.title, required this.unit, required this.value, required this.defaultValue, required this.step, required this.min, required this.max, required this.icon, required this.color, required this.onChanged
+  const _VitalsCard({
+    required this.title, required this.unit, required this.value, required this.defaultValue,
+    required this.step, required this.min, required this.max, required this.icon,
+    required this.color, required this.onChanged
   });
 
   @override
@@ -601,107 +616,81 @@ class _PremiumHealthStepper extends StatelessWidget {
     final displayValue = value != null ? value!.toStringAsFixed(1) : "--";
     final activeValue = value ?? defaultValue;
 
-    return _PremiumGlassCard(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    return _GlassContainer(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 14, color: color),
+              const SizedBox(width: 6),
+              Text(title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Icon(icon, size: 16, color: color),
-                const SizedBox(width: 8),
-                Expanded(child: Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textSecondary))),
+                Text(displayValue, style: TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: AppColors.textPrimary, height: 1.0)),
+                const SizedBox(width: 2),
+                Padding(padding: const EdgeInsets.only(bottom: 5), child: Text(unit, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textSecondary))),
               ],
             ),
-            const SizedBox(height: 16),
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(displayValue, style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w800, color: AppColors.textPrimary, height: 1.0)),
-                  const SizedBox(width: 4),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 6),
-                    child: Text(unit, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.grey)),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _PremiumCircleBtn(
-                    icon: CupertinoIcons.minus,
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      final newVal = (activeValue - step).clamp(min, max);
-                      onChanged(double.parse(newVal.toStringAsFixed(1)));
-                    }
-                ),
-                _PremiumCircleBtn(
-                    icon: CupertinoIcons.plus,
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      final newVal = (activeValue + step).clamp(min, max);
-                      onChanged(double.parse(newVal.toStringAsFixed(1)));
-                    }
-                ),
-              ],
-            )
-          ],
-        ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _CircleButton(icon: CupertinoIcons.minus, onTap: () {
+                HapticFeedback.lightImpact();
+                final newVal = (activeValue - step).clamp(min, max);
+                onChanged(double.parse(newVal.toStringAsFixed(1)));
+              }),
+              _CircleButton(icon: CupertinoIcons.plus, onTap: () {
+                HapticFeedback.lightImpact();
+                final newVal = (activeValue + step).clamp(min, max);
+                onChanged(double.parse(newVal.toStringAsFixed(1)));
+              }),
+            ],
+          )
+        ],
       ),
     );
   }
 }
 
-class _PremiumCircleBtn extends StatefulWidget {
+class _CircleButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
-  const _PremiumCircleBtn({required this.icon, required this.onTap});
-  @override
-  State<_PremiumCircleBtn> createState() => _PremiumCircleBtnState();
-}
-
-class _PremiumCircleBtnState extends State<_PremiumCircleBtn> {
-  Timer? _timer;
-  void _startHolding() {
-    widget.onTap();
-    _timer = Timer.periodic(const Duration(milliseconds: 80), (t) => widget.onTap());
-  }
-  void _stopHolding() { _timer?.cancel(); _timer = null; }
-  @override
-  void dispose() { _stopHolding(); super.dispose(); }
+  const _CircleButton({required this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: widget.onTap,
-      onLongPressStart: (_) => _startHolding(),
-      onLongPressEnd: (_) => _stopHolding(),
-      onLongPressCancel: () => _stopHolding(),
+      onTap: onTap,
       child: Container(
-        width: 38, height: 38,
+        width: 36, height: 36,
         decoration: BoxDecoration(
           color: Colors.white,
           shape: BoxShape.circle,
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5, offset: const Offset(0, 2))],
-          border: Border.all(color: Colors.grey.withOpacity(0.1)),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))],
         ),
-        child: Icon(widget.icon, size: 18, color: AppColors.primary),
+        child: Icon(icon, size: 18, color: AppColors.primary),
       ),
     );
   }
 }
 
-class _PremiumSymptomGrid extends StatelessWidget {
+class _SymptomGrid extends StatelessWidget {
   final List<String> selectedSymptoms;
   final ValueChanged<String> onToggle;
   final AppLocalizations l10n;
-  const _PremiumSymptomGrid({required this.selectedSymptoms, required this.onToggle, required this.l10n});
+
+  const _SymptomGrid({required this.selectedSymptoms, required this.onToggle, required this.l10n});
+
   @override
   Widget build(BuildContext context) {
     final items = [
@@ -710,12 +699,13 @@ class _PremiumSymptomGrid extends StatelessWidget {
       {"id": "bloating", "label": l10n.symptomBloating, "icon": CupertinoIcons.wind},
       {"id": "acne", "label": l10n.symptomAcne, "icon": CupertinoIcons.sparkles},
       {"id": "back", "label": l10n.painBack, "icon": CupertinoIcons.person_crop_rectangle},
+      {"id": "nausea", "label": "Nausea", "icon": CupertinoIcons.tornado},
     ];
 
     return Wrap(
-      spacing: 12, runSpacing: 12,
+      spacing: 10, runSpacing: 10,
       children: items.map((item) {
-        final isSel = selectedSymptoms.contains(item['id']);
+        final isSelected = selectedSymptoms.contains(item['id']);
         return GestureDetector(
           onTap: () {
             HapticFeedback.selectionClick();
@@ -723,19 +713,19 @@ class _PremiumSymptomGrid extends StatelessWidget {
           },
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: isSel ? AppColors.primary : Colors.white.withOpacity(0.6),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: isSel ? AppColors.primary : Colors.white, width: 1.5),
-              boxShadow: isSel ? [BoxShadow(color: AppColors.primary.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4))] : [],
+              color: isSelected ? AppColors.primary : Colors.white.withOpacity(0.6),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: isSelected ? AppColors.primary : Colors.white, width: 1.5),
+              boxShadow: isSelected ? [BoxShadow(color: AppColors.primary.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))] : [],
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(item['icon'] as IconData, size: 18, color: isSel ? Colors.white : AppColors.textPrimary),
+                Icon(item['icon'] as IconData, size: 16, color: isSelected ? Colors.white : AppColors.textPrimary),
                 const SizedBox(width: 8),
-                Text(item['label'] as String, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: isSel ? Colors.white : AppColors.textPrimary)),
+                Text(item['label'] as String, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: isSelected ? Colors.white : AppColors.textPrimary)),
               ],
             ),
           ),
@@ -745,11 +735,12 @@ class _PremiumSymptomGrid extends StatelessWidget {
   }
 }
 
-class _PremiumFlowBtn extends StatelessWidget {
+class _FlowButton extends StatelessWidget {
   final FlowIntensity intensity;
   final bool isSelected;
   final VoidCallback onTap;
-  const _PremiumFlowBtn({required this.intensity, required this.isSelected, required this.onTap});
+
+  const _FlowButton({required this.intensity, required this.isSelected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -760,25 +751,25 @@ class _PremiumFlowBtn extends StatelessWidget {
     if (intensity == FlowIntensity.heavy) { drops = 3; c = Colors.pink[600]!; label = "Heavy"; }
 
     return GestureDetector(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        onTap();
-      },
+      onTap: () { HapticFeedback.selectionClick(); onTap(); },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        width: 70, height: 90,
+        width: 70, height: 85,
         decoration: BoxDecoration(
-          color: isSelected ? c : Colors.white.withOpacity(0.5),
+          color: isSelected ? c : Colors.white.withOpacity(0.4),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: isSelected ? c : Colors.white),
-          boxShadow: isSelected ? [BoxShadow(color: c.withOpacity(0.4), blurRadius: 12, offset: const Offset(0, 6))] : [],
+          border: Border.all(color: isSelected ? c : Colors.white.withOpacity(0.6), width: 1.5),
+          boxShadow: isSelected ? [BoxShadow(color: c.withOpacity(0.4), blurRadius: 10, offset: const Offset(0, 5))] : [],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(drops, (i) => Icon(CupertinoIcons.drop_fill, size: 14, color: isSelected ? Colors.white : c))),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(drops, (i) => Icon(CupertinoIcons.drop_fill, size: 14, color: isSelected ? Colors.white : c)),
+            ),
             const SizedBox(height: 8),
-            Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: isSelected ? Colors.white : Colors.grey[600])),
+            Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isSelected ? Colors.white : AppColors.textSecondary)),
           ],
         ),
       ),
@@ -786,16 +777,14 @@ class _PremiumFlowBtn extends StatelessWidget {
   }
 }
 
-class _PremiumIntimacyRow extends StatelessWidget {
+class _IntimacyRow extends StatelessWidget {
   final bool hadSex;
   final bool protected;
   final ValueChanged<bool> onSexChanged;
   final ValueChanged<bool> onProtectedChanged;
   final AppLocalizations l10n;
 
-  const _PremiumIntimacyRow({
-    required this.hadSex, required this.protected, required this.l10n, required this.onSexChanged, required this.onProtectedChanged
-  });
+  const _IntimacyRow({required this.hadSex, required this.protected, required this.l10n, required this.onSexChanged, required this.onProtectedChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -804,50 +793,23 @@ class _PremiumIntimacyRow extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: GestureDetector(
-              onTap: () { HapticFeedback.mediumImpact(); onSexChanged(!hadSex); },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: BoxDecoration(
-                  color: hadSex ? Colors.pinkAccent.withOpacity(0.1) : Colors.transparent,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: hadSex ? Colors.pinkAccent : Colors.grey.withOpacity(0.2)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(hadSex ? CupertinoIcons.heart_fill : CupertinoIcons.heart, color: Colors.pinkAccent, size: 22),
-                    const SizedBox(width: 8),
-                    Text(l10n.hadSex, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimary)),
-                  ],
-                ),
-              ),
+            child: _IntimacyToggle(
+              label: l10n.hadSex,
+              icon: hadSex ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
+              isActive: hadSex,
+              color: Colors.pinkAccent,
+              onTap: () => onSexChanged(!hadSex),
             ),
           ),
           if (hadSex) ...[
             const SizedBox(width: 12),
             Expanded(
-              child: GestureDetector(
-                onTap: () { HapticFeedback.lightImpact(); onProtectedChanged(!protected); },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  decoration: BoxDecoration(
-                    color: protected ? Colors.teal : Colors.grey.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: protected ? Colors.teal : Colors.grey.withOpacity(0.2)),
-                    boxShadow: protected ? [BoxShadow(color: Colors.teal.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))] : [],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(CupertinoIcons.shield_fill, color: protected ? Colors.white : Colors.grey, size: 18),
-                      const SizedBox(width: 6),
-                      Text(l10n.protectedSex, style: TextStyle(fontSize: 13, color: protected ? Colors.white : Colors.grey[600], fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ),
+              child: _IntimacyToggle(
+                label: l10n.protectedSex,
+                icon: CupertinoIcons.shield_fill,
+                isActive: protected,
+                color: Colors.teal,
+                onTap: () => onProtectedChanged(!protected),
               ),
             ),
           ]
@@ -857,23 +819,33 @@ class _PremiumIntimacyRow extends StatelessWidget {
   }
 }
 
-class _PremiumOvulationSelector extends StatelessWidget {
-  final OvulationTestResult selectedResult;
-  final ValueChanged<OvulationTestResult> onChanged;
-  final AppLocalizations l10n;
-  const _PremiumOvulationSelector({required this.selectedResult, required this.onChanged, required this.l10n});
+class _IntimacyToggle extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool isActive;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _IntimacyToggle({required this.label, required this.icon, required this.isActive, required this.color, required this.onTap});
+
   @override
   Widget build(BuildContext context) {
-    return _PremiumGlassCard(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
+    return GestureDetector(
+      onTap: () { HapticFeedback.mediumImpact(); onTap(); },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: isActive ? color.withOpacity(0.1) : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: isActive ? color : AppColors.textSecondary.withOpacity(0.2)),
+        ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Expanded(child: _PremiumTestOption(l10n.lblNegative, selectedResult == OvulationTestResult.negative, Colors.grey, () => onChanged(selectedResult == OvulationTestResult.negative ? OvulationTestResult.none : OvulationTestResult.negative))),
+            Icon(icon, color: isActive ? color : AppColors.textSecondary, size: 20),
             const SizedBox(width: 8),
-            Expanded(child: _PremiumTestOption(l10n.lblPositive, selectedResult == OvulationTestResult.positive, TTCTheme.statusTest, () => onChanged(selectedResult == OvulationTestResult.positive ? OvulationTestResult.none : OvulationTestResult.positive))),
-            const SizedBox(width: 8),
-            Expanded(child: _PremiumTestOption(l10n.lblPeak, selectedResult == OvulationTestResult.peak, Colors.purpleAccent, () => onChanged(selectedResult == OvulationTestResult.peak ? OvulationTestResult.none : OvulationTestResult.peak))),
+            Text(label, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: isActive ? color : AppColors.textSecondary)),
           ],
         ),
       ),
@@ -881,12 +853,38 @@ class _PremiumOvulationSelector extends StatelessWidget {
   }
 }
 
-class _PremiumTestOption extends StatelessWidget {
+class _OvulationSelector extends StatelessWidget {
+  final OvulationTestResult selectedResult;
+  final ValueChanged<OvulationTestResult> onChanged;
+  final AppLocalizations l10n;
+
+  const _OvulationSelector({required this.selectedResult, required this.onChanged, required this.l10n});
+
+  @override
+  Widget build(BuildContext context) {
+    return _GlassContainer(
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        children: [
+          Expanded(child: _OvulationOption(l10n.lblNegative, selectedResult == OvulationTestResult.negative, Colors.grey, () => onChanged(selectedResult == OvulationTestResult.negative ? OvulationTestResult.none : OvulationTestResult.negative))),
+          const SizedBox(width: 8),
+          Expanded(child: _OvulationOption(l10n.lblPositive, selectedResult == OvulationTestResult.positive, TTCTheme.statusTest, () => onChanged(selectedResult == OvulationTestResult.positive ? OvulationTestResult.none : OvulationTestResult.positive))),
+          const SizedBox(width: 8),
+          Expanded(child: _OvulationOption(l10n.lblPeak, selectedResult == OvulationTestResult.peak, Colors.purpleAccent, () => onChanged(selectedResult == OvulationTestResult.peak ? OvulationTestResult.none : OvulationTestResult.peak))),
+        ],
+      ),
+    );
+  }
+}
+
+class _OvulationOption extends StatelessWidget {
   final String label;
   final bool isSelected;
   final Color color;
   final VoidCallback onTap;
-  const _PremiumTestOption(this.label, this.isSelected, this.color, this.onTap);
+
+  const _OvulationOption(this.label, this.isSelected, this.color, this.onTap);
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -897,7 +895,7 @@ class _PremiumTestOption extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected ? color : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isSelected ? color : Colors.grey.withOpacity(0.2)),
+          border: Border.all(color: isSelected ? color : AppColors.textSecondary.withOpacity(0.2)),
         ),
         alignment: Alignment.center,
         child: Text(label, style: TextStyle(color: isSelected ? Colors.white : AppColors.textSecondary, fontWeight: FontWeight.bold, fontSize: 13)),
@@ -906,21 +904,34 @@ class _PremiumTestOption extends StatelessWidget {
   }
 }
 
-// Повторное использование существующего компонента для Insight
-class _AppleInsightBanner extends StatelessWidget {
+class _InsightCard extends StatelessWidget {
   final SymptomInsight insight;
-  const _AppleInsightBanner({required this.insight});
+  const _InsightCard({required this.insight});
+
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(color: AppColors.surface.withOpacity(0.7), borderRadius: BorderRadius.circular(24), border: Border.all(color: Colors.white.withOpacity(0.6)), boxShadow: [BoxShadow(color: (insight.isWarning ? AppColors.error : AppColors.primary).withOpacity(0.15), blurRadius: 25, offset: const Offset(0, 8))]),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: (insight.isWarning ? AppColors.error : AppColors.primary).withOpacity(0.1), shape: BoxShape.circle), child: Icon(insight.isWarning ? CupertinoIcons.exclamationmark_triangle_fill : CupertinoIcons.lightbulb_fill, color: insight.isWarning ? AppColors.error : AppColors.primary, size: 24)), const SizedBox(width: 16), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(insight.title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.black)), const SizedBox(height: 6), Text(insight.description, style: TextStyle(fontSize: 15, height: 1.4, color: Colors.black.withOpacity(0.8), fontWeight: FontWeight.w500))]))]),
-        ),
+    return _GlassContainer(
+      padding: const EdgeInsets.all(20),
+      child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(color: (insight.isWarning ? AppColors.error : AppColors.primary).withOpacity(0.1), shape: BoxShape.circle),
+                child: Icon(insight.isWarning ? CupertinoIcons.exclamationmark_triangle_fill : CupertinoIcons.lightbulb_fill, color: insight.isWarning ? AppColors.error : AppColors.primary, size: 20)
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(insight.title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+                      const SizedBox(height: 4),
+                      Text(insight.description, style: TextStyle(fontSize: 14, height: 1.4, color: AppColors.textSecondary))
+                    ]
+                )
+            )
+          ]
       ),
     );
   }

@@ -79,7 +79,7 @@ class SubscriptionStatusSheet extends StatelessWidget {
           // Title
           Text(
             l10n.proStatusActive,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
           ),
           const SizedBox(height: 10),
           Text(
@@ -92,7 +92,7 @@ class SubscriptionStatusSheet extends StatelessWidget {
           // Manage Button (Apple Requirement)
           ListTile(
             onTap: () => _openIOSSettings(context),
-            leading: const Icon(Icons.settings_suggest_rounded, color: AppColors.primary),
+            leading: Icon(Icons.settings_suggest_rounded, color: AppColors.primary),
             title: Text(l10n.btnManageSub, style: const TextStyle(fontWeight: FontWeight.bold)),
             subtitle: Text(l10n.btnManageSubDesc, style: const TextStyle(fontSize: 12, color: Colors.grey)),
             trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey),

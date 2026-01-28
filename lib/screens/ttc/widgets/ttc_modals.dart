@@ -7,10 +7,9 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/app_theme.dart';
 import '../../../theme/ttc_theme.dart';
-import '../../../models/personal_model.dart';
 import '../../../models/cycle_model.dart';
 import '../../../providers/wellness_provider.dart';
-import '../../../providers/cycle_provider.dart'; // Нужно для подтверждения овуляции
+import '../../../providers/cycle_provider.dart';
 
 // --- ГЛАССМОРФИЗМ ОБЕРТКА (Blur) ---
 class _GlassModalWrapper extends StatelessWidget {
@@ -31,10 +30,10 @@ class _GlassModalWrapper extends StatelessWidget {
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15), // Эффект стекла
+        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.9), // Почти непрозрачный белый для читаемости
+            color: Colors.white.withOpacity(0.9),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
             border: Border(top: BorderSide(color: Colors.white.withOpacity(0.5))),
           ),
@@ -42,7 +41,6 @@ class _GlassModalWrapper extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Индикатор шторки
               Container(
                 width: 40, height: 4,
                 margin: const EdgeInsets.only(bottom: 24),
@@ -61,7 +59,7 @@ class _GlassModalWrapper extends StatelessWidget {
 
               const SizedBox(height: 30),
 
-              child, // Контент
+              child,
 
               if (onSave != null) ...[
                 const SizedBox(height: 30),
@@ -112,8 +110,13 @@ class _BBTModalState extends State<BBTModal> {
     if (log.temperature != null && log.temperature! > 0) {
       _selectedTemp = log.temperature!;
     }
-    // Вычисляем индекс: (36.6 - 35.0) * 10 = 16
-    int initialItem = ((_selectedTemp - _minTemp) * 10).round();
+
+    // 🔥 ИСПРАВЛЕНИЕ: Защита от краша, если температура выходит за границы (например, при смене единиц измерения или баге)
+    double safeTemp = _selectedTemp.clamp(_minTemp, 42.0);
+    int initialItem = ((safeTemp - _minTemp) * 10).round();
+
+    if (initialItem < 0) initialItem = 0;
+
     _controller = FixedExtentScrollController(initialItem: initialItem);
   }
 
@@ -123,11 +126,19 @@ class _BBTModalState extends State<BBTModal> {
     super.dispose();
   }
 
-  void _save() {
+  Future<void> _save() async {
     final provider = context.read<WellnessProvider>();
     final log = provider.getLogForDate(widget.date);
-    provider.saveLog(log.copyWith(temperature: _selectedTemp));
-    Navigator.pop(context);
+    await provider.saveLog(log.copyWith(temperature: _selectedTemp));
+
+    // Премиальная ценность TTC: пытаемся подтвердить овуляцию по БТТ
+    // (ретроспективно, только если данных достаточно)
+    final temps = provider.getTemperatureHistory();
+    await context.read<CycleProvider>().tryAutoConfirmOvulationFromBBT(temps);
+
+    if (context.mounted) {
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -142,7 +153,6 @@ class _BBTModalState extends State<BBTModal> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            // Фон активного элемента
             Container(
               height: 50,
               decoration: BoxDecoration(
@@ -150,7 +160,6 @@ class _BBTModalState extends State<BBTModal> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            // Рулетка
             ListWheelScrollView.useDelegate(
               controller: _controller,
               itemExtent: 45,
@@ -163,7 +172,7 @@ class _BBTModalState extends State<BBTModal> {
                 });
               },
               childDelegate: ListWheelChildBuilderDelegate(
-                childCount: 71, // (42.0 - 35.0) * 10 + 1 запас
+                childCount: 71,
                 builder: (context, index) {
                   final value = _minTemp + (index / 10);
                   final isSelected = value.toStringAsFixed(1) == _selectedTemp.toStringAsFixed(1);
@@ -192,28 +201,31 @@ class TestModal extends StatelessWidget {
   final DateTime date;
   const TestModal({super.key, required this.date});
 
-  void _save(BuildContext context, OvulationTestResult result) {
+  void _save(BuildContext context, OvulationTestResult result) async {
     // 1. Сохраняем в велнес
     final provider = context.read<WellnessProvider>();
     final log = provider.getLogForDate(date);
-    provider.saveLog(log.copyWith(ovulationTest: result));
+    await provider.saveLog(log.copyWith(ovulationTest: result));
 
-    // 2. 🔥 Если тест положительный — обновляем цикл
+    // 2. Обновляем цикл
+    final cycleProvider = context.read<CycleProvider>();
+
     if (result == OvulationTestResult.positive || result == OvulationTestResult.peak) {
-      // Предполагаем овуляцию завтра
+      // Овуляция обычно через ~24ч после пика ЛГ
       final estimatedOvulation = date.add(const Duration(days: 1));
-      context.read<CycleProvider>().confirmOvulation(estimatedOvulation);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("LH Peak recorded! Cycle updated."),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 2),
-          )
-      );
+      await cycleProvider.confirmOvulation(estimatedOvulation, source: 'lh');
     }
 
-    Navigator.pop(context);
+    // ВАЖНО: отрицательный тест НЕ должен сбрасывать подтвержденную овуляцию.
+    // (после пика ЛГ тесты почти всегда снова становятся отрицательными.)
+    // Сброс — только через явный "Reset".
+    if (result == OvulationTestResult.none) {
+      await cycleProvider.clearOvulationIfMatchesLHTestDate(date);
+    }
+
+    if (context.mounted) {
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -251,7 +263,7 @@ class TestModal extends StatelessWidget {
             const SizedBox(height: 20),
             TextButton(
               onPressed: () => _save(context, OvulationTestResult.none),
-              child: const Text("Reset", style: TextStyle(color: Colors.grey)),
+              child: Text(l10n.dialogResetConfirm, style: const TextStyle(color: Colors.grey)),
             )
           ]
         ],
@@ -371,7 +383,7 @@ class MucusModal extends StatelessWidget {
   }
 }
 
-// --- UI Helper: Карточка выбора ---
+// --- UI Helper ---
 class _SelectableCard extends StatelessWidget {
   final String label;
   final bool isSelected;

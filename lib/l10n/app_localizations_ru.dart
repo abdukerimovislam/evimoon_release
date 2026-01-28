@@ -247,7 +247,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get lblPeriodLength => 'Длительность месячных';
 
   @override
-  String get authLockedTitle => 'EviMoon заблокирован';
+  String get authLockedTitle => 'EviMoon Заблокирован';
 
   @override
   String get authUnlockBtn => 'Разблокировать';
@@ -623,7 +623,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get symptomBloating => 'Вздутие';
 
   @override
-  String get lblNoData => 'Нет данных';
+  String get lblNoData => '--';
 
   @override
   String get lblNoSymptoms => 'Симптомы не отмечены.';
@@ -1023,7 +1023,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get lblLuteal => 'Лютеиновая';
 
   @override
-  String get dialogPeriodStartTitle => 'Начались месячные?';
+  String get dialogPeriodStartTitle => 'Когда начались месячные?';
 
   @override
   String get dialogPeriodStartBody => 'Они начались сегодня или вы забыли отметить раньше?';
@@ -1035,7 +1035,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get btnAnotherDay => 'Выбрать дату';
 
   @override
-  String get splashSlogan => 'Твой цикл. Твой ритм.';
+  String get splashSlogan => 'Слушай свой ритм';
 
   @override
   String get settingsSupport => 'Поддержка и Отзывы';
@@ -1243,7 +1243,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get lblUser => 'Пользователь EviMoon';
 
   @override
-  String get modeTTC => 'Планирование беременности';
+  String get modeTTC => 'Планирование';
 
   @override
   String get modeTTCDesc => 'Фокус на фертильности и овуляции';
@@ -1332,6 +1332,42 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get ttcTipDefault => 'Стресс влияет на овуляцию. Попробуйте 5-минутную медитацию.';
+
+  @override
+  String get ttcBtnReset => 'Сбросить';
+
+  @override
+  String get ttcStrategyTitle => 'Стратегия';
+
+  @override
+  String get ttcStrategyMinimal => 'Минимум усилий';
+
+  @override
+  String get ttcStrategyMaximal => 'Максимум шансов';
+
+  @override
+  String get ttcPlanTitle => 'План';
+
+  @override
+  String get ttcPlanMinimalBody => 'В фертильное окно: близость через день, ЛГ-тесты 2–3 дня, ББТ по желанию.';
+
+  @override
+  String get ttcPlanMaximalBody => 'В фертильное окно: близость каждый день, ЛГ-тест ежедневно, ББТ каждое утро.';
+
+  @override
+  String get ttcOvulationBadgeTitle => 'Овуляция';
+
+  @override
+  String get ttcOvulationEstimatedCalendar => 'Оценка (календарь)';
+
+  @override
+  String get ttcOvulationConfirmedLH => 'Подтверждено по ЛГ';
+
+  @override
+  String get ttcOvulationConfirmedBBT => 'Подтверждено по ББТ';
+
+  @override
+  String get ttcOvulationConfirmedManual => 'Подтверждено';
 
   @override
   String get dialogHighTempTitle => 'Высокая температура';
@@ -1442,7 +1478,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get btnOk => 'Понятно';
 
   @override
-  String get splashTitle => 'EviMoon';
+  String get splashTitle => 'EVIMOON';
 
   @override
   String get notifPhaseFollicularTitle => 'Прилив сил ⚡';
@@ -1710,4 +1746,275 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get btnRateApp => 'Оценить приложение';
+
+  @override
+  String get btnYesterday => 'Вчера';
+
+  @override
+  String get btnPickDate => 'Выбрать дату';
+
+  @override
+  String get modeCycle => 'Трекер цикла';
+
+  @override
+  String get backupSubject => 'Резервная копия EviMoon';
+
+  @override
+  String backupBody(String date) {
+    return 'Резервная копия данных EviMoon от $date';
+  }
+
+  @override
+  String get settingsTheme => 'Оформление';
+
+  @override
+  String get themeOceanic => 'Океан';
+
+  @override
+  String get themeNature => 'Природа';
+
+  @override
+  String get themeVelvet => 'Бархат';
+
+  @override
+  String get themeDigital => 'Диджитал';
+
+  @override
+  String get themeActive => 'Активна';
+
+  @override
+  String get selectThemeTitle => 'Выберите тему';
+
+  @override
+  String get onboardModeTitle => 'Какая у вас цель?';
+
+  @override
+  String get onboardModeCycle => 'Отслеживать цикл';
+
+  @override
+  String get onboardModeCycleDesc => 'Прогноз месячных и фертильности';
+
+  @override
+  String get onboardModePill => 'Пить таблетки (КОК)';
+
+  @override
+  String get onboardModePillDesc => 'Напоминания и учет пачек';
+
+  @override
+  String get onboardDateTitleCycle => 'Когда начались последние месячные?';
+
+  @override
+  String get onboardDateTitlePill => 'Когда вы начали эту пачку?';
+
+  @override
+  String get onboardLengthTitle => 'Длина цикла';
+
+  @override
+  String get onboardPackTitle => 'Тип упаковки';
+
+  @override
+  String get lblAverage => 'В среднем';
+
+  @override
+  String get lblNormalRange => 'Норма: 21-35 дней';
+
+  @override
+  String get pack21 => '21 Активная + 7 Перерыв';
+
+  @override
+  String get pack28 => '28 Активных (Без перерыва)';
+
+  @override
+  String get pack24 => '24 Активные + 4 Пустышки';
+
+  @override
+  String get badgePro => 'PRO';
+
+  @override
+  String get badgeGoPro => 'GO PRO';
+
+  @override
+  String get modeTrackCycle => 'Отслеживать цикл';
+
+  @override
+  String get modeGetPregnant => 'Хочу забеременеть';
+
+  @override
+  String get debugPremiumOn => 'ОТЛАДКА: Премиум ВКЛ';
+
+  @override
+  String get debugPremiumOff => 'ОТЛАДКА: Премиум ВЫКЛ';
+
+  @override
+  String get lblPreviousCycle => 'Прошлый цикл';
+
+  @override
+  String get legendPredictedPeriod => 'Прогноз';
+
+  @override
+  String get designSelectorTitle => 'Стиль таймера';
+
+  @override
+  String get badgePremium => 'ПРЕМИУМ';
+
+  @override
+  String get designClassic => 'Классика';
+
+  @override
+  String get designMinimal => 'Минимализм';
+
+  @override
+  String get designLunar => 'Луна';
+
+  @override
+  String get designBloom => 'Цветение';
+
+  @override
+  String get designLiquid => 'Жидкость';
+
+  @override
+  String get designOrbit => 'Орбита';
+
+  @override
+  String get designZen => 'Дзен';
+
+  @override
+  String get ttcHintToday => 'Сегодня';
+
+  @override
+  String get ttcTimelineTitle => 'Лента';
+
+  @override
+  String ttcTimelineOvulationEquals(int day) {
+    return 'Овуляция = $day';
+  }
+
+  @override
+  String get ttcDockBBT => 'БТТ';
+
+  @override
+  String get ttcDockLH => 'ЛГ';
+
+  @override
+  String get ttcDockSex => 'Секс';
+
+  @override
+  String get ttcDockMucus => 'Слизь';
+
+  @override
+  String get ttcShortBBT => 'БТТ';
+
+  @override
+  String get ttcShortLH => 'ЛГ';
+
+  @override
+  String get ttcShortSex => 'Секс';
+
+  @override
+  String get ttcMarkDone => '✓';
+
+  @override
+  String get ttcMarkMissing => '?';
+
+  @override
+  String get ttcAllDone => 'Всё заполнено ✓';
+
+  @override
+  String ttcMissingList(String items) {
+    return 'Осталось: $items';
+  }
+
+  @override
+  String ttcRemainingLeft(String items) {
+    return 'Осталось: $items';
+  }
+
+  @override
+  String ttcCtaTestReadyBody(int dpo, String bbt, String lh) {
+    return 'DPO $dpo • БТТ $bbt • ЛГ $lh';
+  }
+
+  @override
+  String ttcCtaTestWaitBody(int dpo, int days) {
+    return 'DPO $dpo • осталось ~$days дн. до надёжного теста';
+  }
+
+  @override
+  String get ttcCtaPeakBody => 'Сегодня/завтра — максимум. Отметь секс и тест, чтобы улучшить точность.';
+
+  @override
+  String ttcCtaHighBody(int days) {
+    return 'Окно фертильности открыто • пик через ~$days дн.';
+  }
+
+  @override
+  String get ttcCtaMenstruationBody => 'Мягкий режим: сон, вода, тепло. Лог необязателен — но БТТ полезна.';
+
+  @override
+  String ttcCtaLowBody(String status) {
+    return 'День подготовки • $status';
+  }
+
+  @override
+  String get ttcShortMucus => 'Слизь';
+
+  @override
+  String get ttcDash => '—';
+
+  @override
+  String get eduTitleBBT => 'Зачем измерять БТ?';
+
+  @override
+  String get eduBodyBBT => 'Базальная температура (БТ) немного повышается после овуляции из-за выработки прогестерона. График температуры помогает подтвердить, что овуляция действительно произошла.';
+
+  @override
+  String get eduTitleLH => 'Тесты на овуляцию';
+
+  @override
+  String get eduBodyLH => 'Уровень лютеинизирующего гормона (ЛГ) резко возрастает за 24–48 часов до овуляции. Положительный тест предсказывает самые благоприятные дни для зачатия перед выходом яйцеклетки.';
+
+  @override
+  String get eduTitleSex => 'Отметка близости';
+
+  @override
+  String get eduBodySex => 'Сперматозоиды могут жить в организме до 5 дней. Отметки помогают убедиться, что близость совпала с окном фертильности, что значительно повышает шансы на зачатие.';
+
+  @override
+  String get eduTitleMucus => 'Цервикальная слизь';
+
+  @override
+  String get eduBodyMucus => 'При приближении овуляции эстроген делает выделения прозрачными и тягучими (как яичный белок). Это создает идеальную среду для выживания и передвижения сперматозоидов.';
+
+  @override
+  String get aiStatusHigh => 'Высокая точность';
+
+  @override
+  String get aiStatusMedium => 'Средняя точность';
+
+  @override
+  String get aiStatusLow => 'Низкая точность';
+
+  @override
+  String get aiDescHigh => 'Ваш цикл очень регулярный. Прогноз ИИ, скорее всего, точен до ±1 дня.';
+
+  @override
+  String get aiDescMedium => 'В последних циклах есть вариативность. Прогноз может отклоняться на ±2-3 дня.';
+
+  @override
+  String get aiDescLow => 'История циклов нерегулярна или слишком коротка. ИИ нужно больше данных.';
+
+  @override
+  String get aiConfidenceScore => 'Уровень доверия';
+
+  @override
+  String get aiLabelHistory => 'Длина истории';
+
+  @override
+  String get aiLabelVariation => 'Вариация цикла';
+
+  @override
+  String get aiSuffixCycles => 'циклов';
+
+  @override
+  String get aiSuffixDays => 'дней';
 }

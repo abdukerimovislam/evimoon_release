@@ -1,110 +1,105 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'dart:ui' as ui;
 
 class RealisticMoon extends StatelessWidget {
   final double size;
-  /// Прогресс фазы от 0.0 (Тонкий серп) до 1.0 (Полнолуние)
-  final double progress;
+  final double progress; // 0.0 (Новолуние) -> 1.0 (Полнолуние)
 
   const RealisticMoon({
     super.key,
     required this.size,
-    this.progress = 0.35, // Дефолт (Брендовый серп)
+    required this.progress,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: size,
-      height: size,
-      child: CustomPaint(
-        painter: _PhaseMoonPainter(progress),
-      ),
+    // Небольшая корректировка, чтобы луна никогда не исчезала полностью
+    // Даже в "новолуние" мы оставим тонкий серп для красоты (мин 0.1)
+    final effectiveProgress = progress.clamp(0.15, 1.0);
+
+    return CustomPaint(
+      size: Size(size, size),
+      painter: _MoonPainter(phase: effectiveProgress),
     );
   }
 }
 
-class _PhaseMoonPainter extends CustomPainter {
-  final double progress; // 0.0 ... 1.0
+class _MoonPainter extends CustomPainter {
+  final double phase; // 0.0 to 1.0
 
-  _PhaseMoonPainter(this.progress);
-
-  static const List<List<double>> _craters = [
-    [0.65, 0.5, 0.10], [0.60, 0.25, 0.07], [0.70, 0.75, 0.08],
-    [0.85, 0.4, 0.06], [0.55, 0.65, 0.05], [0.4, 0.5, 0.09], [0.3, 0.3, 0.06]
-  ];
+  _MoonPainter({required this.phase});
 
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2;
 
-    // 1. ПУТЬ ПОЛНОЙ ЛУНЫ
-    final moonPath = Path()..addOval(Rect.fromCircle(center: center, radius: radius));
+    // 1. Рисуем "Теневую" сторону (Едва заметный круг, чтобы луна имела объем)
+    final shadowPaint = Paint()
+      ..color = const Color(0xFF1A1A2E) // Цвет темной части луны
+      ..style = PaintingStyle.fill;
 
-    // 2. РАСЧЕТ ТЕНИ (ДИНАМИКА)
-    // progress 0.0 -> shadowOffset = -0.55 (наш серп)
-    // progress 1.0 -> shadowOffset = -2.0 (тень улетает далеко влево, открывая всю луну)
+    canvas.drawCircle(center, radius, shadowPaint);
 
-    // Интерполяция позиции тени
-    final double startOffset = -radius * 0.55; // Позиция для серпа
-    final double endOffset = -radius * 3.0;    // Позиция для полнолуния (далеко)
+    // 2. Рисуем "Светлую" сторону (Освещенная часть)
+    // Используем градиент для объема (от белого к серебру)
+    final lightPaint = Paint()
+      ..shader = const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Colors.white, Color(0xFFE0E0E0), Color(0xFFC0C0C0)],
+      ).createShader(Rect.fromCircle(center: center, radius: radius))
+      ..style = PaintingStyle.fill;
 
-    final currentOffset = startOffset + (endOffset - startOffset) * progress;
+    // Математика фазы:
+    // Мы рисуем две дуги. Одна - внешний контур, вторая - терминатор (граница света и тени).
+    final path = Path();
 
-    final shadowRadius = radius * 1.05;
-    final shadowOffsetPos = Offset(currentOffset, 0);
+    // Внешний контур (справа - всегда полуокружность света)
+    path.addArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -math.pi / 2,
+      math.pi,
+    );
 
-    final shadowPath = Path()
-      ..addOval(Rect.fromCircle(center: center + shadowOffsetPos, radius: shadowRadius));
+    // Терминатор (граница тени). Это эллипс, ширина которого меняется.
+    // phase 0 -> 1. Преобразуем в -1 (серп) -> 0 (половина) -> 1 (полная)
+    // Но для упрощения анимации от серпа до полной:
+    // widthFactor меняется от -radius (тонкий серп) до +radius (полная)
 
-    // Вычитаем тень (получаем текущую фазу)
-    final visiblePath = Path.combine(PathOperation.difference, moonPath, shadowPath);
+    // Интерполируем: 0.0 -> серп, 1.0 -> полная
+    double widthFactor = (phase * 2 - 1) * radius;
 
-    // 3. РИСОВАНИЕ
-    canvas.save();
-    canvas.clipPath(visiblePath);
+    // Рисуем вторую половину эллипсом
+    // Используем кривые Безье для идеальной формы
+    path.arcToPoint(
+      Offset(center.dx, center.dy - radius), // Возвращаемся наверх
+      radius: Radius.elliptical(widthFactor.abs(), radius),
+      rotation: 0,
+      largeArc: false,
+      clockwise: widthFactor > 0, // Направление зависит от того, больше половины или меньше
+    );
 
-    // Градиент (меняем центр блика в зависимости от полноты)
-    final bgPaint = Paint()
-      ..shader = RadialGradient(
-        center: Alignment(0.4 - (progress * 0.4), -0.2), // Блик смещается к центру при полнолунии
-        radius: 1.1,
-        colors: [Colors.white, const Color(0xFFF0F0F6), const Color(0xFFD0D0E0)],
-        stops: const [0.0, 0.5, 1.0],
-      ).createShader(Rect.fromCircle(center: center, radius: radius));
+    path.close();
+    canvas.drawPath(path, lightPaint);
 
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), bgPaint);
-
-    // Кратеры
-    for (var crater in _craters) {
-      final cx = crater[0] * size.width;
-      final cy = crater[1] * size.height;
-      final cr = crater[2] * size.width;
-
-      final craterPaint = Paint()..color = const Color(0xFF9090A0).withOpacity(0.3);
-      canvas.drawCircle(Offset(cx, cy), cr, craterPaint);
-
-      final rimPaint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = cr * 0.08
-        ..shader = LinearGradient(
-          begin: Alignment.topLeft, end: Alignment.bottomRight,
-          colors: [Colors.black.withOpacity(0.15), Colors.white.withOpacity(0.5)],
-        ).createShader(Rect.fromCircle(center: Offset(cx, cy), radius: cr));
-      canvas.drawCircle(Offset(cx, cy), cr, rimPaint);
+    // 3. Добавляем кратеры (опционально, едва заметные) для текстуры
+    if (phase > 0.3) {
+      _drawCraters(canvas, center, radius, widthFactor);
     }
+  }
 
-    // Внутренняя тень
-    final innerShadowPaint = Paint()
-      ..color = const Color(0xFF202040).withOpacity(0.15 * (1 - progress)) // Тень исчезает при полнолунии
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5);
+  void _drawCraters(Canvas canvas, Offset center, double radius, double widthFactor) {
+    final craterPaint = Paint()
+      ..color = Colors.black.withOpacity(0.05)
+      ..style = PaintingStyle.fill;
 
-    canvas.drawPath(shadowPath.shift(const Offset(3, 0)), innerShadowPaint);
-
-    canvas.restore();
+    // Пара "кратеров" для реализма
+    canvas.drawCircle(Offset(center.dx + radius * 0.2, center.dy - radius * 0.3), radius * 0.15, craterPaint);
+    canvas.drawCircle(Offset(center.dx - radius * 0.1, center.dy + radius * 0.4), radius * 0.1, craterPaint);
+    canvas.drawCircle(Offset(center.dx + radius * 0.4, center.dy + radius * 0.1), radius * 0.08, craterPaint);
   }
 
   @override
-  bool shouldRepaint(covariant _PhaseMoonPainter oldDelegate) => oldDelegate.progress != progress;
+  bool shouldRepaint(covariant _MoonPainter oldDelegate) => oldDelegate.phase != phase;
 }

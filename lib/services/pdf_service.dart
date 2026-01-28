@@ -1,5 +1,5 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Для debugPrint
 import 'package:provider/provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -16,24 +16,26 @@ class PdfService {
   /// 🔥 ТОЧКА ВХОДА (Вызывается из настроек)
   static Future<void> generateReport(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
+
+    // Используем listen: false, так как мы только читаем данные один раз
     final cycleProvider = Provider.of<CycleProvider>(context, listen: false);
     final wellnessProvider = Provider.of<WellnessProvider>(context, listen: false);
 
-    // 1. Собираем данные (например, за последние 3 месяца)
+    // 1. Собираем данные (за последние 90 дней)
     final List<SymptomLog> logs = [];
     final now = DateTime.now();
 
-    // Проходим по последним 90 дням
     for (int i = 0; i < 90; i++) {
       final date = now.subtract(Duration(days: i));
-      // Получаем лог (WellnessProvider должен иметь этот метод)
       final log = wellnessProvider.getLogForDate(date);
 
-      // Фильтруем пустые дни (если ничего не отмечено)
+      // Фильтруем пустые дни
       bool hasData = log.flow != FlowIntensity.none ||
           log.painSymptoms.isNotEmpty ||
           (log.temperature != null && log.temperature! > 0) ||
-          (log.notes != null && log.notes!.isNotEmpty);
+          (log.notes != null && log.notes!.trim().isNotEmpty) || // trim() для защиты от пробелов
+          log.hadSex ||
+          log.ovulationTest != OvulationTestResult.none;
 
       if (hasData) {
         logs.add(log);
@@ -41,22 +43,33 @@ class PdfService {
     }
 
     if (logs.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("No data to generate report"))
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("No sufficient data to generate report"))
+        );
+      }
       return;
     }
 
-    // 2. Вызываем вашу логику генерации
-    await PdfService().generateMedicalReport(
-      logs: logs,
-      avgCycleLength: cycleProvider.cycleLength,
-      avgPeriodLength: cycleProvider.avgPeriodDuration,
-      l10n: l10n,
-    );
+    // 2. Вызываем генератор
+    try {
+      await PdfService().generateMedicalReport(
+        logs: logs,
+        avgCycleLength: cycleProvider.cycleLength,
+        avgPeriodLength: cycleProvider.avgPeriodDuration,
+        l10n: l10n,
+      );
+    } catch (e) {
+      debugPrint("Error generating PDF: $e");
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Error creating PDF: $e"))
+        );
+      }
+    }
   }
 
-  // --- ВАШ КОД ГЕНЕРАЦИИ (Без изменений логики) ---
+  // --- ЛОГИКА ГЕНЕРАЦИИ PDF ---
 
   Future<void> generateMedicalReport({
     required List<SymptomLog> logs,
@@ -67,8 +80,22 @@ class PdfService {
   }) async {
     final pdf = pw.Document();
 
-    final fontRegular = await PdfGoogleFonts.openSansRegular();
-    final fontBold = await PdfGoogleFonts.openSansBold();
+    pw.Font fontRegular;
+    pw.Font fontBold;
+
+    // 🔥 ИСПРАВЛЕНИЕ: Защита от краша без интернета
+    try {
+      // Пытаемся загрузить красивые шрифты (требует интернет)
+      fontRegular = await PdfGoogleFonts.openSansRegular();
+      fontBold = await PdfGoogleFonts.openSansBold();
+    } catch (e) {
+      debugPrint("Offline mode: Using fallback fonts. Error: $e");
+      // Если интернета нет, используем стандартные шрифты
+      // (Внимание: Helvetica может не поддерживать кириллицу на некоторых устройствах,
+      // лучше всего добавить .ttf в assets и грузить через rootBundle, если нужна гарантия)
+      fontRegular = pw.Font.helvetica();
+      fontBold = pw.Font.helveticaBold();
+    }
 
     // Сортируем: сначала новые
     logs.sort((a, b) => b.date.compareTo(a.date));
@@ -168,7 +195,13 @@ class PdfService {
         children: [
           _medicalMetric(l10n.pdfAvgCycle, "$cycleLen ${l10n.unitDays}", bold, regular),
           _medicalMetric(l10n.pdfAvgPeriod, "$periodLen ${l10n.unitDays}", bold, regular),
-          _medicalMetric(l10n.pdfPainReported, totalDays > 0 ? "${((painDays/totalDays)*100).toStringAsFixed(1)}%" : "0%", bold, regular, isWarning: totalDays > 0 && painDays > totalDays * 0.3),
+          _medicalMetric(
+              l10n.pdfPainReported,
+              totalDays > 0 ? "${((painDays/totalDays)*100).toStringAsFixed(1)}%" : "0%",
+              bold,
+              regular,
+              isWarning: totalDays > 0 && painDays > totalDays * 0.3
+          ),
         ],
       ),
     );
@@ -216,10 +249,12 @@ class PdfService {
         ),
         // Rows
         ...logs.map((log) {
-          String cd = "--";
+          String cd = "--"; // TODO: Можно передать cycleStartDate и рассчитать
 
           List<String> symptoms = [];
-          if (log.flow != FlowIntensity.none) symptoms.add("${l10n.pdfFlowShort}: ${_flowShort(log.flow, l10n)}");
+          if (log.flow != FlowIntensity.none) {
+            symptoms.add("${l10n.pdfFlowShort}: ${_flowShort(log.flow, l10n)}");
+          }
           symptoms.addAll(log.painSymptoms);
 
           return pw.TableRow(
@@ -227,7 +262,11 @@ class PdfService {
               _td(DateFormat('dd.MM.yy').format(log.date), regular),
               _td(cd, regular, align: pw.TextAlign.center),
               _td(symptoms.join(", "), regular, fontSize: 8),
-              _td(log.temperature != null && log.temperature! > 0 ? "${log.temperature}°" : "-", regular, align: pw.TextAlign.center),
+              _td(
+                  (log.temperature != null && log.temperature! > 0) ? "${log.temperature}°" : "-",
+                  regular,
+                  align: pw.TextAlign.center
+              ),
               _td(log.notes ?? "", regular, fontSize: 8),
             ],
           );

@@ -39,7 +39,7 @@ void main() async {
 
   // 2. Инициализация критических сервисов (до Hive)
   await SubscriptionService.init();
-  final storageService = SecureStorageService(); // Инициализирует secure storage
+  final storageService = SecureStorageService();
 
   // 3. Настройка UI (Система)
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
@@ -56,8 +56,7 @@ void main() async {
   // 4. Инициализация Hive
   await Hive.initFlutter();
 
-  // 🔥 РЕГИСТРАЦИЯ АДАПТЕРОВ (СТРОГО ДО ОТКРЫТИЯ БОКСОВ)
-  // Используем try-catch, чтобы не упасть, если адаптер уже есть (на всякий случай)
+  // 🔥 РЕГИСТРАЦИЯ АДАПТЕРОВ
   try {
     if (!Hive.isAdapterRegistered(0)) Hive.registerAdapter(CycleModelAdapter());
     if (!Hive.isAdapterRegistered(1)) Hive.registerAdapter(SymptomLogAdapter());
@@ -71,7 +70,6 @@ void main() async {
   }
 
   // 5. Открытие боксов
-  // Боксы открываем последовательно, чтобы избежать блокировок
   final settingsBox = await Hive.openBox('settings');
   final cycleBox = await Hive.openBox('cycles');
   final wellnessBox = await Hive.openBox('symptom_logs');
@@ -82,7 +80,6 @@ void main() async {
   await notificationService.init(
     onNotificationTap: (payload) {
       debugPrint("🚀 Notification Payload: $payload");
-      // Отложенная навигация, чтобы дождаться построения UI
       Future.delayed(const Duration(milliseconds: 500), () {
         if (payload == NotificationService.payloadCOC) {
           navigatorKey.currentState?.pushNamed('/profile');
@@ -128,7 +125,6 @@ class EviMoonAppRoot extends StatelessWidget {
         Provider<SecureStorageService>.value(value: storageService),
         Provider<NotificationService>.value(value: notificationService),
 
-        // SettingsProvider грузит язык, поэтому он первый
         ChangeNotifierProvider(
           create: (_) => SettingsProvider(settingsBox, storageService, notificationService),
         ),
@@ -157,7 +153,6 @@ class EviMoonApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
 
-    // Устанавливаем локаль для форматирования дат
     try {
       Intl.defaultLocale = settings.locale.languageCode;
     } catch (e) {
@@ -169,12 +164,26 @@ class EviMoonApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
 
-      // Локализация
+      // Локализация из провайдера
       locale: settings.locale,
+
       supportedLocales: const [
-        Locale('en'), // Английский
+        Locale('en'), // English
         Locale('ru'), // Русский
       ],
+
+      // Логика подбора локали (на случай если в settings еще пусто)
+      localeResolutionCallback: (deviceLocale, supportedLocales) {
+        if (deviceLocale == null) return supportedLocales.first;
+
+        for (var locale in supportedLocales) {
+          if (locale.languageCode == deviceLocale.languageCode) {
+            return locale;
+          }
+        }
+        return supportedLocales.first;
+      },
+
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -212,7 +221,6 @@ class _AuthGuardState extends State<AuthGuard> {
   }
 
   Future<void> _checkAuth() async {
-    // Даем Flutter время отрисовать первый кадр
     await Future.delayed(Duration.zero);
 
     if (!mounted) return;
@@ -232,8 +240,13 @@ class _AuthGuardState extends State<AuthGuard> {
     final auth = AuthService();
     final bool canCheck = await auth.canCheckBiometrics;
 
+    // Используем локализацию для сообщения биометрии
+    // (понадобится доступ к context внутри, но здесь это асинхронный вызов)
+    // Для системного диалога iOS/Android строки берутся из Info.plist/Manifest или системных настроек,
+    // но message можно передать.
+
     if (canCheck) {
-      final bool success = await auth.authenticate("Unlock EviMoon");
+      final bool success = await auth.authenticate("Unlock EviMoon"); // Тут можно тоже использовать l10n
       if (mounted) {
         setState(() {
           _isAuthenticated = success;
@@ -259,6 +272,10 @@ class _AuthGuardState extends State<AuthGuard> {
       );
     }
 
+    // 🔥 УБРАН ХАРДКОД
+    // Получаем локализацию
+    final l10n = AppLocalizations.of(context);
+
     return _isAuthenticated
         ? widget.child
         : Scaffold(
@@ -266,16 +283,16 @@ class _AuthGuardState extends State<AuthGuard> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.lock_outline, size: 64, color: AppColors.primary),
+            Icon(Icons.lock_outline, size: 64, color: AppColors.primary),
             const SizedBox(height: 20),
-            const Text(
-              "EviMoon Locked",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Text(
+              l10n?.authLockedTitle ?? "EviMoon Locked",
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
             CupertinoButton.filled(
-              child: const Text("Unlock"),
               onPressed: _checkAuth,
+              child: Text(l10n?.authUnlockBtn ?? "Unlock"),
             ),
           ],
         ),

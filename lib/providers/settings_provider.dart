@@ -3,7 +3,8 @@ import 'package:hive/hive.dart';
 import '../services/secure_storage_service.dart';
 import '../services/notification_service.dart';
 import '../models/timer_design.dart';
-import '../services/subscription_service.dart'; // 🔥 Импорт сервиса подписок
+import '../services/subscription_service.dart';
+import '../theme/app_theme.dart';
 
 class SettingsProvider extends ChangeNotifier {
   final Box _box;
@@ -14,10 +15,13 @@ class SettingsProvider extends ChangeNotifier {
   static const String _keyDailyLog = 'daily_log_enabled';
   static const String _keyDesign = 'timer_design_index';
   static const String _keyPremium = 'is_premium';
+  static const String _keyTheme = 'app_theme_type';
 
   SecureStorageService get storageService => _storageService;
 
+  // По умолчанию английский, но _loadSettings попытается определить системный
   Locale _locale = const Locale('en');
+
   bool _notificationsEnabled = false;
   bool _biometricsEnabled = false;
   bool _isTTCMode = false;
@@ -26,16 +30,17 @@ class SettingsProvider extends ChangeNotifier {
   TimerDesign _currentDesign = TimerDesign.classic;
   bool _isPremium = false;
 
-  // Геттеры
+  AppThemeType _currentTheme = AppThemeType.oceanic;
+
+  // --- Геттеры ---
   Locale get locale => _locale;
   bool get notificationsEnabled => _notificationsEnabled;
   bool get biometricsEnabled => _biometricsEnabled;
   bool get isTTCMode => _isTTCMode;
   bool get dailyLogEnabled => _dailyLogEnabled;
   TimerDesign get currentDesign => _currentDesign;
-
-  // 🔥 Геттер статуса премиума
   bool get isPremium => _isPremium;
+  AppThemeType get currentTheme => _currentTheme;
 
   SettingsProvider(this._box, this._storageService, this._notificationService) {
     _loadSettings();
@@ -56,48 +61,69 @@ class SettingsProvider extends ChangeNotifier {
   }
 
   Future<void> _loadSettings() async {
-    // Проверка на чистую установку
+    // Проверка на чистую установку (сброс данных)
     final bool appWasReset = !_box.containsKey(_keyOnboarding);
 
     if (appWasReset) {
-      // Первый запуск: очищаем всё
       await _storageService.clearAll();
-
       _isTTCMode = false;
       _notificationsEnabled = false;
       _biometricsEnabled = false;
       _dailyLogEnabled = false;
       _currentDesign = TimerDesign.classic;
       _isPremium = false;
+      _currentTheme = AppThemeType.oceanic;
+      // При сбросе язык тоже сбросится на авто-определение ниже
     } else {
-      // Обычный запуск: грузим настройки
       _notificationsEnabled = await _storageService.getNotificationsEnabled();
       _biometricsEnabled = await _storageService.getBiometricsEnabled();
       _isTTCMode = await _storageService.getTTCMode();
 
-      // Грузим настройки из Hive
       _dailyLogEnabled = _box.get(_keyDailyLog, defaultValue: false);
-
-      // 1. Сначала грузим кэшированный статус (для мгновенного UI)
       _isPremium = _box.get(_keyPremium, defaultValue: false);
 
-      // Грузим дизайн
       final savedDesignIndex = _box.get(_keyDesign);
       if (savedDesignIndex != null && savedDesignIndex is int) {
         if (savedDesignIndex >= 0 && savedDesignIndex < TimerDesign.values.length) {
           _currentDesign = TimerDesign.values[savedDesignIndex];
         }
       }
+
+      // Загрузка темы
+      final themeIndex = _box.get(_keyTheme, defaultValue: 0);
+      if (themeIndex >= 0 && themeIndex < AppThemeType.values.length) {
+        _currentTheme = AppThemeType.values[themeIndex];
+        AppTheme.setPalette(_currentTheme);
+      }
     }
 
+    // 🔥 ЛОГИКА ОПРЕДЕЛЕНИЯ ЯЗЫКА
     final langCode = await _storageService.getLanguage();
+
     if (langCode != null) {
+      // 1. Если пользователь уже выбирал язык (сохранено в SecureStorage)
       _locale = Locale(langCode);
+    } else {
+      // 2. Если это первый запуск: определяем системный язык
+      try {
+        final sysLocales = WidgetsBinding.instance.platformDispatcher.locales;
+        if (sysLocales.isNotEmpty) {
+          final sysCode = sysLocales.first.languageCode;
+
+          if (sysCode == 'ru') {
+            _locale = const Locale('ru');
+          } else {
+            // Для всех остальных языков ставим английский по умолчанию
+            _locale = const Locale('en');
+          }
+        }
+      } catch (e) {
+        debugPrint("Locale auto-detect error: $e");
+        _locale = const Locale('en');
+      }
     }
 
     notifyListeners();
-
-    // 2. 🔥 После загрузки UI — проверяем реальный статус в фоне
     _verifyPremiumStatus();
   }
 
@@ -105,22 +131,30 @@ class SettingsProvider extends ChangeNotifier {
     await _loadSettings();
   }
 
-  // --- ЛОГИКА ПОДПИСОК И ВАЛИДАЦИИ ---
+  // --- ЛОГИКА ТЕМ ---
 
-  /// Проверяем статус в RevenueCat и обновляем кэш
+  Future<void> setTheme(AppThemeType theme) async {
+    if (_currentTheme == theme) return;
+
+    _currentTheme = theme;
+    AppTheme.setPalette(theme);
+    await _box.put(_keyTheme, theme.index);
+
+    notifyListeners();
+  }
+
+  // --- ЛОГИКА ПОДПИСОК ---
+
   Future<void> _verifyPremiumStatus() async {
     try {
-      // 1. Спрашиваем сервис (это сетевой запрос)
       final bool actualStatus = await SubscriptionService.checkPremium();
 
-      // 2. Если статус изменился (купили / отменили / истек)
       if (actualStatus != _isPremium) {
         debugPrint("💎 SettingsProvider: Premium status changed: $_isPremium -> $actualStatus");
 
         _isPremium = actualStatus;
-        await _box.put(_keyPremium, _isPremium); // Обновляем кэш
+        await _box.put(_keyPremium, _isPremium);
 
-        // 3. Graceful degrade: Если премиум кончился, а стоит платный дизайн -> сброс на классику
         if (!_isPremium && _currentDesign.isPremium) {
           debugPrint("⚠️ SettingsProvider: Premium lost, resetting design to Classic");
           _currentDesign = TimerDesign.classic;
@@ -134,12 +168,11 @@ class SettingsProvider extends ChangeNotifier {
     }
   }
 
-  /// Публичный метод для ручного обновления (вызываем после покупки в Paywall или Restore)
   Future<void> refreshPremium() async {
     await _verifyPremiumStatus();
   }
 
-  // --- ЛОКАЛИЗАЦИЯ И НАСТРОЙКИ ---
+  // --- НАСТРОЙКИ ---
 
   Future<void> setLocale(Locale locale) async {
     if (_locale == locale) return;
@@ -153,7 +186,7 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setNotifications(bool value) async {
+  Future<void> setNotificationsEnabled(bool value) async {
     _notificationsEnabled = value;
     await _storageService.saveNotificationsEnabled(value);
 
@@ -166,26 +199,20 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setBiometrics(bool value) async {
+  Future<void> setBiometricsEnabled(bool value) async {
     _biometricsEnabled = value;
     await _storageService.saveBiometricsEnabled(value);
     notifyListeners();
   }
 
   Future<void> setTTCMode(bool value) async {
-    // Здесь мы просто сохраняем значение.
-    // Проверка на Премиум происходит в UI (ProfileScreen) перед вызовом этого метода.
     if (_isTTCMode == value) return;
     _isTTCMode = value;
     await _storageService.saveTTCMode(value);
     notifyListeners();
   }
 
-  // --- ЛОГИКА ДИЗАЙНОВ ---
-
-  /// Попытка установить дизайн. Возвращает true, если успешно, false - если нужен премиум.
   Future<bool> setDesign(TimerDesign design) async {
-    // 1. Если дизайн бесплатный - ставим сразу
     if (!design.isPremium) {
       _currentDesign = design;
       await _box.put(_keyDesign, design.index);
@@ -193,9 +220,6 @@ class SettingsProvider extends ChangeNotifier {
       return true;
     }
 
-    // 2. Если платный - проверяем подписку
-    // Можно дополнительно дернуть refreshPremium(), но это замедлит UI,
-    // поэтому верим текущему _isPremium
     if (design.isPremium && _isPremium) {
       _currentDesign = design;
       await _box.put(_keyDesign, design.index);
@@ -203,12 +227,10 @@ class SettingsProvider extends ChangeNotifier {
       return true;
     }
 
-    // 3. Если платный и НЕТ подписки - отказываем (UI должен показать Paywall)
     debugPrint("🔒 Design locked. Show Paywall.");
     return false;
   }
 
-  /// Ручная установка статуса (для тестов или отладки)
   Future<void> setPremiumStatus(bool status) async {
     _isPremium = status;
     await _box.put(_keyPremium, status);
@@ -220,8 +242,6 @@ class SettingsProvider extends ChangeNotifier {
 
     notifyListeners();
   }
-
-  // --- ЛОГИКА ВЕЧЕРНЕГО ЧЕК-ИНА ---
 
   Future<void> toggleDailyLogReminder(bool value) async {
     _dailyLogEnabled = value;

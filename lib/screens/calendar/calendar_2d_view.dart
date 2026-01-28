@@ -87,7 +87,7 @@ class Calendar2DView extends StatelessWidget {
                     final log = wellnessProvider.getLogForDate(date);
                     bool isPeak = log.ovulationTest == OvulationTestResult.peak || log.ovulationTest == OvulationTestResult.positive;
                     bool hasLog = wellnessProvider.hasLogForDate(date);
-                    return Positioned(bottom: 6, child: Row(mainAxisSize: MainAxisSize.min, children: [if (hasLog) const NeonMarker(color: Color(0x80333333)), if (isPeak) ...[const SizedBox(width: 2), const NeonMarker(color: TTCTheme.statusTest, isGlow: true)]]));
+                    return Positioned(bottom: 6, child: Row(mainAxisSize: MainAxisSize.min, children: [if (hasLog) const NeonMarker(color: Color(0x80333333)), if (isPeak) ...[const SizedBox(width: 2), NeonMarker(color: TTCTheme.statusTest, isGlow: true)]]));
                   }
                   return null;
                 },
@@ -95,7 +95,7 @@ class Calendar2DView extends StatelessWidget {
                 selectedBuilder: (context, day, focusedDay) => HoloDayCell(date: day, provider: cycleProvider, isSelected: true, currentCycleStart: currentCycleStart),
                 todayBuilder: (context, day, focusedDay) => HoloDayCell(date: day, provider: cycleProvider, isSelected: false, isToday: true, currentCycleStart: currentCycleStart),
               ),
-              headerStyle: HeaderStyle(formatButtonVisible: false, titleCentered: true, titleTextStyle: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary), leftChevronIcon: const Icon(Icons.chevron_left, color: AppColors.textPrimary), rightChevronIcon: const Icon(Icons.chevron_right, color: AppColors.textPrimary)),
+              headerStyle: HeaderStyle(formatButtonVisible: false, titleCentered: true, titleTextStyle: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary), leftChevronIcon: Icon(Icons.chevron_left, color: AppColors.textPrimary), rightChevronIcon: Icon(Icons.chevron_right, color: AppColors.textPrimary)),
             ),
           ),
         ),

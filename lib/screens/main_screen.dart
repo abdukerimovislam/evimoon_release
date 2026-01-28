@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'dart:ui'; // Для Blur
 import 'package:provider/provider.dart';
 
-import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../providers/cycle_provider.dart';
 import '../providers/settings_provider.dart'; // ✅ Импорт настроек
@@ -39,6 +38,17 @@ class _MainScreenState extends State<MainScreen> {
     final cyclePhase = cycleProvider.currentData.phase;
     final isTTC = settingsProvider.isTTCMode; // ✅ Проверяем режим
 
+    // ✅ Keep CycleProvider in sync with SettingsProvider.
+    // SettingsProvider controls routing (MainScreen), CycleProvider controls fertility calculations.
+    if (cycleProvider.isTTCMode != isTTC) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final cp = context.read<CycleProvider>();
+        if (cp.isTTCMode != isTTC) {
+          cp.setTTCMode(isTTC);
+        }
+      });
+    }
+
     // 🔥 ДИНАМИЧЕСКИЙ СПИСОК ЭКРАНОВ
     // Пересоздается при изменении isTTCMode
     final List<Widget> currentScreens = [
@@ -48,11 +58,11 @@ class _MainScreenState extends State<MainScreen> {
       // 2. ЦЕНТР: Выбираем экран в зависимости от режима
       isTTC ? const TTCHomeScreen() : const HomeScreen(),
 
-      SymptomLogScreen(       // 3
+      SymptomLogScreen( // 3
         date: DateTime.now(),
         isTab: true,
       ),
-      const ProfileScreen(),  // 4
+      const ProfileScreen(), // 4
     ];
 
     return Scaffold(
@@ -72,9 +82,7 @@ class _MainScreenState extends State<MainScreen> {
             Positioned(
               left: 16,
               right: 16,
-              bottom: MediaQuery.of(context).padding.bottom > 0
-                  ? MediaQuery.of(context).padding.bottom + 10
-                  : 25,
+              bottom: MediaQuery.of(context).padding.bottom > 0 ? MediaQuery.of(context).padding.bottom + 10 : 25,
               child: _CrystalNavBar(
                 currentIndex: _currentIndex,
                 isTTCMode: isTTC, // ✅ Передаем режим в навбар
@@ -100,7 +108,7 @@ class _CrystalNavBar extends StatelessWidget {
   const _CrystalNavBar({
     required this.currentIndex,
     required this.isTTCMode,
-    required this.onTap
+    required this.onTap,
   });
 
   @override
@@ -132,7 +140,6 @@ class _CrystalNavBar extends StatelessWidget {
                 isSelected: currentIndex == 0,
                 onTap: onTap,
               ),
-
               _NavBarItem(
                 icon: CupertinoIcons.graph_square,
                 index: 1,
@@ -157,7 +164,6 @@ class _CrystalNavBar extends StatelessWidget {
                 isSelected: currentIndex == 3,
                 onTap: onTap,
               ),
-
               _NavBarItem(
                 icon: CupertinoIcons.person,
                 index: 4,
@@ -199,34 +205,30 @@ class _NavBarItem extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeOutCubic,
-        padding: isCenter
-            ? const EdgeInsets.all(14)
-            : const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: isCenter ? const EdgeInsets.all(14) : const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: isSelected
             ? BoxDecoration(
-            color: isCenter ? effectiveActiveColor : effectiveActiveColor.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(22)
+          color: isCenter ? effectiveActiveColor : effectiveActiveColor.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(22),
         )
             : const BoxDecoration(color: Colors.transparent),
         child: Icon(
           isSelected ? _getSelectedIcon(icon) : icon,
           size: isCenter ? 32 : 26,
-          color: isSelected
-              ? (isCenter ? Colors.white : effectiveActiveColor)
-              : AppColors.textSecondary.withOpacity(0.6),
+          color: isSelected ? (isCenter ? Colors.white : effectiveActiveColor) : AppColors.textSecondary.withOpacity(0.6),
         ),
       ),
     );
   }
 
   IconData _getSelectedIcon(IconData icon) {
+    // Небольшая “магия” для выбранного состояния
     if (icon == CupertinoIcons.calendar) return CupertinoIcons.calendar_today;
     if (icon == CupertinoIcons.graph_square) return CupertinoIcons.graph_square_fill;
     if (icon == CupertinoIcons.drop) return CupertinoIcons.drop_fill;
-    if (icon == CupertinoIcons.person) return CupertinoIcons.person_fill;
-    if (icon == CupertinoIcons.list_bullet) return CupertinoIcons.list_bullet_indent;
-    // TTC Icons
     if (icon == CupertinoIcons.star_fill) return CupertinoIcons.star_fill;
+    if (icon == CupertinoIcons.list_bullet) return CupertinoIcons.list_bullet_indent;
+    if (icon == CupertinoIcons.person) return CupertinoIcons.person_fill;
     return icon;
   }
 }

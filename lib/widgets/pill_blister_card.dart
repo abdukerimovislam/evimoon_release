@@ -36,7 +36,7 @@ class PillBlisterCard extends StatelessWidget {
               Expanded( // Expanded предотвратит наезд текста друг на друга на узких экранах
                 child: Text(
                   packSize == 21 ? l10n.blister21 : l10n.blister28,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: AppColors.textPrimary
@@ -276,7 +276,7 @@ class _LegendItem extends StatelessWidget {
             )
         ),
         const SizedBox(width: 6),
-        Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+        Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
       ],
     );
   }

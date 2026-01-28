@@ -32,7 +32,7 @@ class ProfileSettingsList extends StatelessWidget {
               icon: CupertinoIcons.bell,
               title: l10n.prefNotifications,
               value: settings.notificationsEnabled,
-              onChanged: (v) => settings.setNotifications(v),
+              onChanged: (v) => settings.setNotificationsEnabled(v),
             ),
             const _Divider(),
             // FaceID
@@ -40,7 +40,7 @@ class ProfileSettingsList extends StatelessWidget {
               icon: CupertinoIcons.lock_shield,
               title: l10n.prefBiometrics,
               value: settings.biometricsEnabled,
-              onChanged: (v) => settings.setBiometrics(v),
+              onChanged: (v) => settings.setBiometricsEnabled(v),
             ),
             const _Divider(),
             // Режим КОК
@@ -160,7 +160,7 @@ class ProfileSectionTitle extends StatelessWidget {
       padding: const EdgeInsets.only(left: 20, bottom: 8),
       child: Text(
         title.toUpperCase(),
-        style: const TextStyle(color: AppColors.textSecondary, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+        style: TextStyle(color: AppColors.textSecondary, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2),
       ),
     );
   }
@@ -195,7 +195,7 @@ class ProfileSettingsTile extends StatelessWidget {
         decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.08), borderRadius: BorderRadius.circular(10)),
         child: Icon(icon, color: AppColors.primary, size: 22),
       ),
-      title: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+      title: Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
       trailing: trailing,
     );
   }
@@ -249,8 +249,8 @@ class ProfileSliderTile extends StatelessWidget {
             decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.08), borderRadius: BorderRadius.circular(10)),
             child: Icon(icon, color: AppColors.primary, size: 22),
           ),
-          title: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-          trailing: Text("${value.toInt()} $suffix", style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 16)),
+          title: Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+          trailing: Text("${value.toInt()} $suffix", style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 16)),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),

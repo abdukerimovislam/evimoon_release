@@ -2,7 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// Импорты (пути правильные, так как файл в widgets/)
+// Импорты
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/app_theme.dart';
 import '../../../theme/ttc_theme.dart';
@@ -17,9 +17,11 @@ class TTCChartWidget extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final List<FlSpot> spots = [];
 
+    // Базовые границы
     double minT = 36.0;
-    double maxT = 37.5;
+    double maxT = 37.0;
 
+    // 1. Преобразуем данные в точки
     for (int i = 0; i < temps.length; i++) {
       if (temps[i] != null && temps[i]! > 0) {
         final val = temps[i]!;
@@ -30,16 +32,19 @@ class TTCChartWidget extends StatelessWidget {
       }
     }
 
+    final bool isEmpty = spots.isEmpty;
+    final double maxX = temps.isEmpty ? 6.0 : (temps.length - 1).toDouble();
+
     return Container(
       width: double.infinity,
-      height: 260,
+      height: 300,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: const Color(0xFFDAC0A3).withOpacity(0.15),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
@@ -48,44 +53,46 @@ class TTCChartWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Заголовок
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                   l10n.ttcChartTitle,
                   style: GoogleFonts.manrope(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
                       color: AppColors.textPrimary
                   )
               ),
               if (spots.isNotEmpty)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
                       color: TTCTheme.cardBBT.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(10)
+                      borderRadius: BorderRadius.circular(12)
                   ),
                   child: Text(
-                    "${spots.last.y}°",
+                    "${spots.last.y.toStringAsFixed(1)}°",
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: TTCTheme.cardBBT,
-                        fontSize: 12
+                        fontSize: 14
                     ),
                   ),
                 )
             ],
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
 
+          // График
           Expanded(
-            child: spots.isEmpty
+            child: isEmpty
                 ? Center(
                 child: Text(
                     l10n.ttcChartPlaceholder,
-                    style: TextStyle(color: Colors.grey[400])
+                    style: GoogleFonts.manrope(color: Colors.grey[400])
                 )
             )
                 : LineChart(
@@ -93,45 +100,74 @@ class TTCChartWidget extends StatelessWidget {
                 gridData: FlGridData(
                   show: true,
                   drawVerticalLine: false,
-                  horizontalInterval: 0.2,
+                  horizontalInterval: 0.5,
                   getDrawingHorizontalLine: (_) => FlLine(
                       color: Colors.grey[100],
                       strokeWidth: 1
                   ),
                 ),
-                titlesData: FlTitlesData(show: false),
+
+                titlesData: FlTitlesData(
+                  show: true,
+                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 22,
+                      interval: 2,
+                      getTitlesWidget: (value, meta) {
+                        if (value % 2 != 0) return const SizedBox.shrink();
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 6.0),
+                          child: Text(
+                            "${value.toInt() + 1}",
+                            style: TextStyle(
+                                color: Colors.grey[400],
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+
                 borderData: FlBorderData(show: false),
-                minY: minT - 0.2,
-                maxY: maxT + 0.2,
+                minY: minT - 0.3,
+                maxY: maxT + 0.3,
                 minX: 0,
-                maxX: 13,
+                maxX: maxX,
+
                 lineBarsData: [
                   LineChartBarData(
                     spots: spots,
                     isCurved: true,
                     curveSmoothness: 0.35,
-                    // 🔥 ИСПРАВЛЕНИЕ 1: color вместо colors
                     color: TTCTheme.cardBBT,
-                    barWidth: 4,
+                    barWidth: 3,
                     isStrokeCapRound: true,
+
                     dotData: FlDotData(
                       show: true,
                       getDotPainter: (spot, percent, barData, index) {
                         final isLast = index == spots.length - 1;
                         return FlDotCirclePainter(
-                          radius: isLast ? 6 : 4,
+                          radius: isLast ? 6 : 3,
                           color: Colors.white,
                           strokeWidth: isLast ? 3 : 2,
                           strokeColor: TTCTheme.cardBBT,
                         );
                       },
                     ),
+
                     belowBarData: BarAreaData(
                       show: true,
-                      // 🔥 ИСПРАВЛЕНИЕ 2: gradient вместо colors
                       gradient: LinearGradient(
                         colors: [
-                          TTCTheme.cardBBT.withOpacity(0.2),
+                          TTCTheme.cardBBT.withOpacity(0.25),
                           TTCTheme.cardBBT.withOpacity(0.0)
                         ],
                         begin: Alignment.topCenter,
@@ -140,20 +176,27 @@ class TTCChartWidget extends StatelessWidget {
                     ),
                   ),
                 ],
+
+                // 🔥 ИСПРАВЛЕНИЕ ЗДЕСЬ: Используем tooltipBgColor
                 lineTouchData: LineTouchData(
                   touchTooltipData: LineTouchTooltipData(
-                    // Параметр для цвета фона тултипа
-                    tooltipBgColor: Colors.black87,
-                    tooltipRoundedRadius: 8,
+                    tooltipBgColor: Colors.black87, // Старый параметр
+                    tooltipRoundedRadius: 12,
+                    tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     getTooltipItems: (touchedSpots) {
                       return touchedSpots.map((spot) {
                         return LineTooltipItem(
-                          "${spot.y}°",
-                          const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          "${spot.y.toStringAsFixed(1)}°",
+                          GoogleFonts.manrope(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12
+                          ),
                         );
                       }).toList();
                     },
                   ),
+                  handleBuiltInTouches: true,
                 ),
               ),
             ),

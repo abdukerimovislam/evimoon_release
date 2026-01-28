@@ -263,7 +263,7 @@ class _PremiumPaywallSheetState extends State<PremiumPaywallSheet> {
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: Colors.white.withOpacity(0.8)),
             ),
-            child: const Icon(Icons.diamond_rounded, color: AppColors.primary, size: 24),
+            child: Icon(Icons.diamond_rounded, color: AppColors.primary, size: 24),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -274,7 +274,7 @@ class _PremiumPaywallSheetState extends State<PremiumPaywallSheet> {
                   l10n.paywallTitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w900,
                     color: AppColors.textPrimary,
