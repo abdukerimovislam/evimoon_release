@@ -13,6 +13,8 @@ class WellnessProvider extends ChangeNotifier {
 
   void _init() {
     try {
+      if (!_logsBox.isOpen) return; // Защита
+
       for (var key in _logsBox.keys) {
         final log = _logsBox.get(key);
         if (log is SymptomLog) {
@@ -39,7 +41,6 @@ class WellnessProvider extends ChangeNotifier {
     if (hasLogForDate(date)) {
       return _logsCache[_dateKey(date)]!;
     }
-    // Если лога нет, возвращаем пустой шаблон с дефолтными значениями 3.0
     return SymptomLog(
       date: date,
       flow: FlowIntensity.none,
@@ -51,13 +52,13 @@ class WellnessProvider extends ChangeNotifier {
       painSymptoms: [],
       moodSymptoms: [],
       symptoms: [],
-      ovulationTest: OvulationTestResult.none, // 🔥 Важно для новых фич
+      ovulationTest: OvulationTestResult.none,
     );
   }
 
-  // Помощник для получения всех логов
   List<SymptomLog> get allLogs => _logsCache.values.toList();
 
+  // ✅ FIX: Вернули метод для совместимости с ProfileScreen
   List<SymptomLog> getLogHistory() {
     return _logsCache.values.toList();
   }
@@ -75,10 +76,9 @@ class WellnessProvider extends ChangeNotifier {
 
   // --- CHART METHODS ---
 
-  /// 1. История Температуры (ББТ)
   List<MapEntry<DateTime, double>> getTemperatureHistory() {
     final entries = _logsCache.values
-        .where((log) => log.temperature != null && log.temperature! > 0)
+        .where((log) => log.temperature != null && log.temperature! > 35.0 && log.temperature! < 42.0) // Фильтр аномалий
         .map((log) => MapEntry(log.date, log.temperature!))
         .toList();
 
@@ -86,10 +86,9 @@ class WellnessProvider extends ChangeNotifier {
     return entries;
   }
 
-  /// 2. История Веса
   List<MapEntry<DateTime, double>> getWeightHistory() {
     final entries = _logsCache.values
-        .where((log) => log.weight != null && log.weight! > 0)
+        .where((log) => log.weight != null && log.weight! > 30) // Фильтр аномалий
         .map((log) => MapEntry(log.date, log.weight!))
         .toList();
 
@@ -97,44 +96,35 @@ class WellnessProvider extends ChangeNotifier {
     return entries;
   }
 
-  /// 3. Radar Data (Сравнение фаз: Фолликулярная vs Лютеиновая)
   Map<String, List<double>> calculateRadarData(CycleProvider cycle) {
     if (_logsCache.isEmpty) {
-      // Заглушка, если данных нет
       return {
         'follicular': [3.0, 3.0, 3.0, 3.0, 3.0],
         'luteal': [3.0, 3.0, 3.0, 3.0, 3.0],
       };
     }
 
-    final allLogs = getLogHistory();
+    final allLogs = _logsCache.values.toList();
     List<SymptomLog> follLogs = [];
     List<SymptomLog> lutLogs = [];
 
     for (var log in allLogs) {
       final phase = cycle.getPhaseForDate(log.date);
-
-      // Группируем логи по фазам
       if (phase == CyclePhase.follicular || phase == CyclePhase.ovulation) {
         follLogs.add(log);
-      } else {
+      } else if (phase == CyclePhase.luteal || phase == CyclePhase.menstruation) {
         lutLogs.add(log);
       }
     }
 
-    // Функция среднего арифметического
     double getAvg(List<SymptomLog> logs, int Function(SymptomLog) selector) {
       if (logs.isEmpty) return 3.0;
-
-      // Фильтруем "пустые" значения (если вдруг там 0)
       final validLogs = logs.where((l) => selector(l) > 0).toList();
       if (validLogs.isEmpty) return 3.0;
-
       final sum = validLogs.fold(0, (prev, e) => prev + selector(e));
       return sum / validLogs.length;
     }
 
-    // Возвращаем данные для радара в порядке: [Mood, Energy, Sleep, Libido, Skin]
     return {
       'follicular': [
         getAvg(follLogs, (l) => l.mood),
@@ -153,16 +143,12 @@ class WellnessProvider extends ChangeNotifier {
     };
   }
 
-  /// 4. Mood Wave Data (Для графика волны настроения)
   List<double> calculateWaveData() {
-    if (_logsCache.isEmpty) {
-      return List.filled(30, 3.0);
-    }
+    if (_logsCache.isEmpty) return List.filled(30, 3.0);
 
     List<double> moodValues = [];
     final now = DateTime.now();
 
-    // Берем последние 30 дней
     for (int i = 29; i >= 0; i--) {
       final date = now.subtract(Duration(days: i));
       if (hasLogForDate(date)) {
@@ -170,30 +156,44 @@ class WellnessProvider extends ChangeNotifier {
         if (val == 0) val = 3.0;
         moodValues.add(val);
       } else {
-        // Если данных нет, берем предыдущее значение для плавности графика
         moodValues.add(moodValues.isNotEmpty ? moodValues.last : 3.0);
       }
     }
     return moodValues;
   }
 
-  // --- 🧠 SMART ANALYTICS ---
+  // --- 🧠 SMART ANALYTICS (NEW) ---
 
-  /// Находит корреляцию между Факторами (симптомы) и Болью
+  List<String> getTopSymptomsForPhase(CyclePhase targetPhase, CycleProvider cycle) {
+    final Map<String, int> counts = {};
+
+    for (var log in _logsCache.values) {
+      // Игнорируем логи старше 3 месяцев
+      if (DateTime.now().difference(log.date).inDays > 90) continue;
+
+      if (cycle.getPhaseForDate(log.date) == targetPhase) {
+        for (var s in log.painSymptoms) counts[s] = (counts[s] ?? 0) + 1;
+        for (var s in log.symptoms) counts[s] = (counts[s] ?? 0) + 1;
+      }
+    }
+
+    if (counts.isEmpty) return [];
+
+    final sortedKeys = counts.keys.toList()
+      ..sort((a, b) => counts[b]!.compareTo(counts[a]!));
+
+    return sortedKeys.take(3).toList();
+  }
+
   List<Map<String, dynamic>> analyzeCorrelations() {
     final List<Map<String, dynamic>> insights = [];
     final logs = _logsCache.values.toList();
 
-    if (logs.length < 3) return [];
+    if (logs.length < 5) return [];
 
-    // 1. Собираем все симптомы-факторы (кроме боли)
     final Set<String> allFactors = {};
-    for (var log in logs) {
-      allFactors.addAll(log.symptoms);
-      // Можно добавить сюда и низкий сон, если он есть
-    }
+    for (var log in logs) allFactors.addAll(log.symptoms);
 
-    // 2. Проверяем каждый фактор
     for (var factor in allFactors) {
       int factorCount = 0;
       Map<String, int> painCounts = {};
@@ -204,14 +204,21 @@ class WellnessProvider extends ChangeNotifier {
           for (var pain in log.painSymptoms) {
             painCounts[pain] = (painCounts[pain] ?? 0) + 1;
           }
+          // Ищем на следующий день (Похмелье?)
+          final nextDay = log.date.add(const Duration(days: 1));
+          if (hasLogForDate(nextDay)) {
+            final nextLog = getLogForDate(nextDay);
+            for (var pain in nextLog.painSymptoms) {
+              painCounts[pain] = (painCounts[pain] ?? 0) + 1;
+            }
+          }
         }
       }
 
-      // 3. Считаем вероятность
-      if (factorCount >= 2) {
+      if (factorCount >= 3) { // Минимум 3 совпадения
         painCounts.forEach((pain, count) {
           double probability = count / factorCount;
-          if (probability > 0.5) { // Если связь > 50%
+          if (probability >= 0.6) { // Если связь >= 60%
             insights.add({
               'factor': factor,
               'symptom': pain,
@@ -230,18 +237,14 @@ class WellnessProvider extends ChangeNotifier {
   List<double?> getLast14DaysTemps() {
     final List<double?> temps = [];
     final now = DateTime.now();
-
-    // Идем от 13 дней назад до сегодня (всего 14 точек)
     for (int i = 13; i >= 0; i--) {
       final date = now.subtract(Duration(days: i));
-      final log = getLogForDate(date); // Используем существующий метод
+      final log = getLogForDate(date);
       temps.add(log.temperature);
     }
-
     return temps;
   }
 
-  // 🔥 🤰 FERTILITY INSIGHTS (Для режима планирования)
   List<Map<String, dynamic>> analyzeFertilityPatterns() {
     List<Map<String, dynamic>> patterns = [];
     final logs = _logsCache.values.toList();
@@ -256,20 +259,14 @@ class WellnessProvider extends ChangeNotifier {
 
       if (isPositiveTest) {
         positiveTests++;
-        // Проверяем высокое либидо (4 или 5) во время положительного теста
         if (log.libido >= 4) highLibidoWithTest++;
-        // Проверяем овуляторные боли
         if (log.painSymptoms.isNotEmpty) painWithTest++;
       }
     }
 
     if (positiveTests > 0) {
-      if (highLibidoWithTest > 0) {
-        patterns.add({'type': 'libido', 'count': highLibidoWithTest});
-      }
-      if (painWithTest > 0) {
-        patterns.add({'type': 'pain', 'count': painWithTest});
-      }
+      if (highLibidoWithTest > 0) patterns.add({'type': 'libido', 'count': highLibidoWithTest});
+      if (painWithTest > 0) patterns.add({'type': 'pain', 'count': painWithTest});
     }
 
     return patterns;

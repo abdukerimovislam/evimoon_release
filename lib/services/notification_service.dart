@@ -122,16 +122,17 @@ class NotificationService {
   /// 🔒 Ручной запрос прав (если пользователь отказал при старте)
   Future<bool> requestPermissions() async {
     if (Platform.isIOS) {
+      // 🔥 ИСПРАВЛЕНИЕ: Используем IOSFlutterLocalNotificationsPlugin, а не Darwin...
       final IOSFlutterLocalNotificationsPlugin? ios =
       _notificationsPlugin.resolvePlatformSpecificImplementation<
           IOSFlutterLocalNotificationsPlugin>();
 
-      final bool? result = await ios?.requestPermissions(
+      return (await ios?.requestPermissions(
         alert: true,
         badge: true,
         sound: true,
-      );
-      return result ?? false;
+      )) ??
+          false;
     }
 
     if (Platform.isAndroid) {
@@ -139,8 +140,7 @@ class NotificationService {
       _notificationsPlugin.resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin>();
 
-      final bool? result = await android?.requestNotificationsPermission();
-      return result ?? false;
+      return (await android?.requestNotificationsPermission()) ?? false;
     }
 
     return false;

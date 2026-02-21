@@ -13,7 +13,8 @@ import '../providers/wellness_provider.dart';
 // Screens
 import 'main_screen.dart';
 import 'onboarding_screen.dart';
-import 'splash/realistic_moon.dart'; // 🔥 Убедись, что этот файл создан
+import 'language_selection_screen.dart'; // 🔥 Импорт экрана выбора языка
+import 'splash/realistic_moon.dart'; // Убедитесь, что этот файл существует
 
 // L10n
 import '../l10n/app_localizations.dart';
@@ -120,10 +121,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
         x: rng.nextDouble(),
         y: rng.nextDouble(),
         size: rng.nextDouble() * 2.0 + 0.5,
-        // Разный размер
         offset: rng.nextDouble() * 2 * math.pi,
-        // Сдвиг фазы мерцания
-        speed: rng.nextDouble() * 0.8 + 0.2, // Разная скорость
+        speed: rng.nextDouble() * 0.8 + 0.2,
       ));
     }
   }
@@ -138,17 +137,20 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
   Future<void> _initializeApp() async {
     // Минимальное время показа (чтобы успеть насладиться анимацией)
-    final minTime = Future.delayed(const Duration(milliseconds: 4000));
+    final minTime = Future.delayed(const Duration(milliseconds: 3500));
 
     final logic = Future(() async {
       if (!mounted) return;
       try {
         final cycleProvider = context.read<CycleProvider>();
+        // Загружаем данные, но ошибки не крашат сплеш
         await cycleProvider.reload();
+
         if (!mounted) return;
 
+        // Перезагружаем остальные провайдеры
         context.read<WellnessProvider>().reload();
-        context.read<SettingsProvider>().reload();
+        await context.read<SettingsProvider>().reload(); // Ждем настройки
 
         // Рассчитываем фазу, чтобы луна соответствовала реальному циклу
         if (mounted) _calculateTargetPhase(cycleProvider);
@@ -189,14 +191,25 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
   void _navigateToNext() {
     final settings = context.read<SettingsProvider>();
-    Widget next = settings.hasSeenOnboarding
-        ? const MainScreen()
-        : const OnboardingScreen();
+
+    // 🔥 ЛОГИКА НАВИГАЦИИ (Язык -> Онбординг -> Главная)
+    Widget nextScreen;
+
+    if (!settings.isLanguageExplicitlySet) {
+      // 1. Если язык не выбран -> Выбор языка
+      nextScreen = const LanguageSelectionScreen();
+    } else if (!settings.hasSeenOnboarding) {
+      // 2. Если язык есть, но онбординг не пройден -> Онбординг
+      nextScreen = const OnboardingScreen();
+    } else {
+      // 3. Иначе -> Главный экран
+      nextScreen = const MainScreen();
+    }
 
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         transitionDuration: const Duration(milliseconds: 1500),
-        pageBuilder: (_, __, ___) => next,
+        pageBuilder: (_, __, ___) => nextScreen,
         transitionsBuilder: (_, anim, __, child) {
           // Плавное исчезновение (Fade + Scale)
           return FadeTransition(
@@ -224,20 +237,18 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    // Прозрачный статус-бар для полного погружения
+    // Прозрачный статус-бар
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light.copyWith(
       statusBarColor: Colors.transparent,
     ));
 
     final l10n = AppLocalizations.of(context)!;
-    final size = MediaQuery
-        .of(context)
-        .size;
+    final size = MediaQuery.of(context).size;
     final double moonContainerSize = (size.width * 0.55).clamp(160.0, 280.0);
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
-      // 🔥 ИСПРАВЛЕНИЕ: Используем SizedBox.expand, чтобы фон занял ВЕСЬ экран
+      // Фон на весь экран
       body: SizedBox.expand(
         child: Container(
           decoration: const BoxDecoration(
@@ -261,7 +272,6 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                   animation: _breathingController,
                   builder: (context, child) {
                     return CustomPaint(
-                      // Передаем size, чтобы рисовальщик знал границы экрана
                       size: Size.infinite,
                       painter: StarPainter(_stars, _breathingController.value),
                     );
@@ -269,12 +279,11 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                 ),
               ),
 
-              // 2. ЦЕНТРАЛЬНАЯ КОМПОЗИЦИЯ (Луна + Текст)
+              // 2. ЦЕНТРАЛЬНАЯ КОМПОЗИЦИЯ
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.max, // 🔥 Растягиваем колонку
+                mainAxisSize: MainAxisSize.max,
                 children: [
-                  // ... (Код луны и анимации без изменений) ...
                   AnimatedBuilder(
                     animation: Listenable.merge([
                       _entranceController,
@@ -282,11 +291,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                       _syncController
                     ]),
                     builder: (context, child) {
-                      // ... (тут код анимации луны, он правильный) ...
-                      // Для краткости я его свернул, но он должен остаться как был
                       double breath = _breathingController.value;
-                      double breathScale = 1.0 +
-                          (math.sin(breath * 2 * math.pi) * 0.02);
+                      double breathScale = 1.0 + (math.sin(breath * 2 * math.pi) * 0.02);
                       double opacity = _fadeAnimation.value;
                       double currentPhase = _phaseAnimation.value;
 
@@ -308,10 +314,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                                     shape: BoxShape.circle,
                                     gradient: RadialGradient(
                                       colors: [
-                                        Colors.white.withOpacity(
-                                            0.12 * opacity),
-                                        const Color(0xFF818CF8).withOpacity(
-                                            0.05 * opacity),
+                                        Colors.white.withOpacity(0.12 * opacity),
+                                        const Color(0xFF818CF8).withOpacity(0.05 * opacity),
                                         Colors.transparent
                                       ],
                                       stops: const [0.0, 0.5, 1.0],
@@ -325,18 +329,16 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     boxShadow: [
-                                      BoxShadow(color: const Color(0xFFA5B4FC)
-                                          .withOpacity(0.3 * opacity),
+                                      BoxShadow(color: const Color(0xFFA5B4FC).withOpacity(0.3 * opacity),
                                           blurRadius: 60,
                                           spreadRadius: -5),
-                                      BoxShadow(color: Colors.white.withOpacity(
-                                          0.15 * opacity),
+                                      BoxShadow(color: Colors.white.withOpacity(0.15 * opacity),
                                           blurRadius: 30,
                                           spreadRadius: -10),
                                     ],
                                   ),
                                 ),
-                                // C. Луна
+                                // C. Реалистичная луна (Виджет)
                                 Hero(
                                   tag: 'moon_hero',
                                   child: RealisticMoon(
@@ -353,7 +355,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
                   const SizedBox(height: 50),
 
-                  // ... (Код текста без изменений) ...
+                  // ТЕКСТ
                   SlideTransition(
                     position: _textSlide,
                     child: FadeTransition(
@@ -376,8 +378,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                               )
                           ),
                           const SizedBox(height: 16),
-                          Container(width: 30, height: 1, color: Colors.white
-                              .withOpacity(0.2)),
+                          Container(width: 30, height: 1, color: Colors.white.withOpacity(0.2)),
                           const SizedBox(height: 16),
                           Text(
                             l10n.splashSlogan,
@@ -417,9 +418,7 @@ class StarPainter extends CustomPainter {
     final paint = Paint()..style = PaintingStyle.fill;
 
     for (var star in stars) {
-      // Формула мерцания: синус с индивидуальной скоростью и сдвигом
       double flicker = math.sin((animationValue * 2 * math.pi * star.speed) + star.offset);
-      // Диапазон прозрачности: 0.1 .. 0.8
       double opacity = 0.45 + (flicker * 0.35);
 
       paint.color = Colors.white.withOpacity(opacity.clamp(0.0, 1.0));

@@ -5,11 +5,13 @@ import 'package:provider/provider.dart';
 import 'dart:ui'; // ImageFilter
 import 'package:google_fonts/google_fonts.dart';
 
+
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart' hide GlassContainer;
 import '../models/cycle_model.dart';
 import '../providers/cycle_provider.dart';
 import '../providers/settings_provider.dart';
+
 
 import '../widgets/cycle_timer_selector.dart';
 import '../widgets/design_selector_sheet.dart';
@@ -21,40 +23,59 @@ import '../widgets/ai_confidence_card.dart';
 import '../widgets/premium_paywall_sheet.dart';
 import '../widgets/subscription_status_sheet.dart';
 import '../widgets/mesh_background.dart';
-import '../widgets/last_cycle_badge.dart'; // 🔥 Import LastCycleBadge
+import '../widgets/last_cycle_badge.dart';
 import '../widgets/mode_switcher.dart';
+
 
 import '../utils/responsive.dart';
 
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
+
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
-    // ✅ HomeScreen renders only the standard cycle tracking view.
+    // HomeScreen renders only the standard cycle tracking view.
     // TTC routing is handled by MainScreen via SettingsProvider.isTTCMode.
     final cycleProvider = context.watch<CycleProvider>();
+
+
+    // Защита от нулевого состояния
+    if (!cycleProvider.isLoaded) {
+      return const Scaffold(body: Center(child: CupertinoActivityIndicator()));
+    }
+
+
     return _buildStandardScreen(context, cycleProvider);
   }
 
+
   Widget _buildStandardScreen(BuildContext context, CycleProvider cycleProvider) {
     final settings = context.watch<SettingsProvider>();
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+
+
+    if (l10n == null) return const SizedBox.shrink();
+
 
     final bool isPeriodActive = cycleProvider.currentData.phase == CyclePhase.menstruation;
     final bool isCOC = cycleProvider.isCOCEnabled;
     final bool isPremium = settings.isPremium;
+
 
     final controlBar = SmartControlBar(
       isPeriodActive: isPeriodActive,
       isCOC: isCOC,
       onMainAction: () => _handleMainAction(context, cycleProvider, l10n),
     );
+
 
     return MeshCycleBackground(
       phase: cycleProvider.currentData.phase,
@@ -75,20 +96,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                   child: FlexibleSpaceBar(
                     titlePadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                    title: GestureDetector(
-                      onLongPress: () {
-                        // Скрытый способ (оставил на всякий случай)
-                        HapticFeedback.heavyImpact();
-                        final newStatus = !settings.isPremium;
-                        context.read<SettingsProvider>().setPremiumStatus(newStatus);
-                      },
-                      child: Text(
-                        _getGreeting(context),
-                        style: GoogleFonts.inter(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w700,
-                          fontSize: Responsive.fontSize(context, 20),
-                        ),
+                    // 🔥 ИСПРАВЛЕНО: Убран GestureDetector с onLongPress (backdoor)
+                    title: Text(
+                      _getGreeting(context),
+                      style: GoogleFonts.inter(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w700,
+                        fontSize: Responsive.fontSize(context, 20),
                       ),
                     ),
                   ),
@@ -104,28 +118,8 @@ class _HomeScreenState extends State<HomeScreen> {
             SliverToBoxAdapter(
               child: Column(
                 children: [
-                  // 🛠️ ВРЕМЕННАЯ КНОПКА ДЛЯ ТЕСТА PREMUIM
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: TextButton.icon(
-                      onPressed: () {
-                        HapticFeedback.mediumImpact();
-                        final newStatus = !settings.isPremium;
-                        context.read<SettingsProvider>().setPremiumStatus(newStatus);
-                      },
-                      icon: Icon(isPremium ? Icons.lock_open : Icons.lock, size: 16, color: isPremium ? Colors.green : Colors.red),
-                      label: Text(
-                        isPremium ? "DEV: PRO ACTIVE" : "DEV: ENABLE PRO",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      style: TextButton.styleFrom(
-                        backgroundColor: Colors.white.withOpacity(0.5),
-                        foregroundColor: AppColors.textPrimary,
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      ),
-                    ),
-                  ),
                   const SizedBox(height: 8),
+
 
                   if (!isCOC)
                     Padding(
@@ -137,9 +131,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
 
+
                   const SizedBox(height: 20),
 
-                  // ТАЙМЕР ЦИКЛА
+
+                  // CYCLE TIMER
                   SizedBox(
                     width: 320,
                     height: 320,
@@ -156,26 +152,33 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
 
-                  // 🔥 ПЛАШКА "ПРОШЛЫЙ ЦИКЛ" (ПЕРЕМЕЩЕНА СЮДА)
+
+                  // LAST CYCLE BADGE
                   if (!isCOC) ...[
-                    const SizedBox(height: 24), // Отступ от таймера
+                    const SizedBox(height: 24),
                     const Center(child: LastCycleBadge()),
                   ],
 
+
                   const SizedBox(height: 32),
+
 
                   if (isCOC) ...[
                     const PillWidget(),
                     const SizedBox(height: 24),
                   ],
 
+
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: controlBar,
                   ),
 
+
                   const SizedBox(height: 32),
 
+
+                  // AI CONFIDENCE
                   if (!isCOC) ...[
                     if (!isPremium)
                       _buildLockedAICard(context, l10n)
@@ -194,6 +197,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 24),
                   ],
 
+
+                  // TIMELINE / BLISTER
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: VisionCard(
@@ -202,6 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: isCOC ? const PillBlisterCard() : const CycleTimelineWidget(),
                     ),
                   ),
+
 
                   const SizedBox(height: 120),
                 ],
@@ -213,7 +219,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+
   // --- UI COMPONENTS ---
+
 
   Widget _buildPremiumBadge(BuildContext context, bool isPremium, AppLocalizations l10n) {
     return GestureDetector(
@@ -228,7 +236,9 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          gradient: isPremium ? LinearGradient(colors: [Colors.amber.shade300, Colors.amber.shade600]) : LinearGradient(colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)]),
+          gradient: isPremium
+              ? LinearGradient(colors: [Colors.amber.shade300, Colors.amber.shade600])
+              : LinearGradient(colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)]),
           borderRadius: BorderRadius.circular(24),
           boxShadow: [BoxShadow(color: (isPremium ? Colors.amber : AppColors.primary).withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4))],
         ),
@@ -246,6 +256,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
 
   Widget _buildLockedAICard(BuildContext context, AppLocalizations l10n) {
     return GestureDetector(
@@ -289,6 +300,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+
   Widget _buildDesignButton(BuildContext context) {
     return GestureDetector(
       onTap: () {
@@ -315,12 +327,15 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // --- ЛОГИКА ---
+
+  // --- LOGIC ---
+
 
   void _handleMainAction(BuildContext context, CycleProvider provider, AppLocalizations l10n) {
     HapticFeedback.mediumImpact();
     final bool isCOCNow = provider.isCOCEnabled;
     final bool isPeriodNow = provider.currentData.phase == CyclePhase.menstruation;
+
 
     if (isCOCNow) {
       _showConfirmationDialog(
@@ -338,6 +353,7 @@ class _HomeScreenState extends State<HomeScreen> {
           title: l10n.dialogEndTitle,
           body: l10n.dialogEndBody,
           isDestructive: false,
+          confirmText: l10n.btnPeriodEnd,
           onConfirm: () async {
             HapticFeedback.heavyImpact();
             await provider.endCurrentPeriod();
@@ -349,6 +365,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+
   void _showStartPeriodDialog(BuildContext context, CycleProvider cycle, AppLocalizations l10n) {
     showModalBottomSheet(
       context: context,
@@ -359,99 +376,111 @@ class _HomeScreenState extends State<HomeScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.dialogPeriodStartTitle,
-              style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () async {
-                  Navigator.pop(ctx);
-                  HapticFeedback.mediumImpact();
-                  await cycle.setSpecificCycleStartDate(DateTime.now());
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.menstruation,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                  elevation: 0,
-                ),
-                child: Text(
-                  l10n.btnToday,
-                  style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-                ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.dialogPeriodStartTitle,
+                style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
               ),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () async {
-                  Navigator.pop(ctx);
-                  HapticFeedback.mediumImpact();
-                  await cycle.setSpecificCycleStartDate(DateTime.now().subtract(const Duration(days: 1)));
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.menstruation.withOpacity(0.1),
-                  foregroundColor: AppColors.menstruation,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                  elevation: 0,
-                ),
-                child: Text(
-                  l10n.btnYesterday,
-                  style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: TextButton.icon(
-                onPressed: () async {
-                  Navigator.pop(ctx);
-                  final DateTime? picked = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime.now().subtract(const Duration(days: 60)),
-                    lastDate: DateTime.now(),
-                    builder: (context, child) {
-                      return Theme(
-                        data: Theme.of(context).copyWith(
-                          colorScheme: ColorScheme.light(
-                            primary: AppColors.menstruation,
-                            onPrimary: Colors.white,
-                            onSurface: AppColors.textPrimary,
-                          ),
-                        ),
-                        child: child!,
-                      );
-                    },
-                  );
-                  if (picked != null) {
+              const SizedBox(height: 24),
+
+
+              // TODAY
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    Navigator.pop(ctx);
                     HapticFeedback.mediumImpact();
-                    await cycle.setSpecificCycleStartDate(picked);
-                  }
-                },
-                icon: Icon(Icons.calendar_month_rounded, color: AppColors.textSecondary),
-                label: Text(
-                  l10n.btnPickDate,
-                  style: GoogleFonts.inter(color: AppColors.textSecondary, fontWeight: FontWeight.w600, fontSize: 16),
+                    await cycle.setSpecificCycleStartDate(DateTime.now());
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.menstruation,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    l10n.btnToday,
+                    style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-          ],
+              const SizedBox(height: 12),
+
+
+              // YESTERDAY
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    Navigator.pop(ctx);
+                    HapticFeedback.mediumImpact();
+                    await cycle.setSpecificCycleStartDate(DateTime.now().subtract(const Duration(days: 1)));
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.menstruation.withOpacity(0.1),
+                    foregroundColor: AppColors.menstruation,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    l10n.btnYesterday,
+                    style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+
+              // CUSTOM DATE
+              SizedBox(
+                width: double.infinity,
+                child: TextButton.icon(
+                  onPressed: () async {
+                    Navigator.pop(ctx);
+                    final DateTime? picked = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime.now().subtract(const Duration(days: 60)),
+                      lastDate: DateTime.now(),
+                      builder: (context, child) {
+                        return Theme(
+                          data: Theme.of(context).copyWith(
+                            colorScheme: ColorScheme.light(
+                              primary: AppColors.menstruation,
+                              onPrimary: Colors.white,
+                              onSurface: AppColors.textPrimary,
+                            ),
+                          ),
+                          child: child!,
+                        );
+                      },
+                    );
+                    if (picked != null) {
+                      HapticFeedback.mediumImpact();
+                      await cycle.setSpecificCycleStartDate(picked);
+                    }
+                  },
+                  icon: Icon(Icons.calendar_month_rounded, color: AppColors.textSecondary),
+                  label: Text(
+                    l10n.btnPickDate,
+                    style: GoogleFonts.inter(color: AppColors.textSecondary, fontWeight: FontWeight.w600, fontSize: 16),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );
   }
+
 
   void _showConfirmationDialog(
       BuildContext context, {
@@ -486,19 +515,21 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+
   void _showConfidenceDetails(BuildContext context, CycleProvider provider) {
     HapticFeedback.mediumImpact();
     final confidence = provider.aiConfidence;
     if (confidence == null) return;
 
+
     final l10n = AppLocalizations.of(context)!;
 
-    // Определяем цвет и текст в зависимости от уровня
+
     Color statusColor;
     String statusText;
     String description;
 
-    // score приходит 0.0 - 1.0
+
     if (confidence.score >= 0.8) {
       statusColor = Colors.green;
       statusText = l10n.aiStatusHigh;
@@ -513,104 +544,69 @@ class _HomeScreenState extends State<HomeScreen> {
       description = l10n.aiDescLow;
     }
 
+
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // 🔥 Разрешаем шторке занимать больше места
+      isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
         ),
-        // Ограничиваем высоту (чтобы не улетала в самый верх), но даем скролл
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.85,
-        ),
+        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.85),
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 40), // Нижний отступ побольше
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Индикатор-ручка
               Container(
                 width: 40, height: 4,
                 decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
               ),
               const SizedBox(height: 24),
 
-              // Иконка
+
               Container(
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
+                decoration: BoxDecoration(color: statusColor.withOpacity(0.1), shape: BoxShape.circle),
                 child: Icon(Icons.auto_awesome, color: statusColor, size: 32),
               ),
               const SizedBox(height: 16),
 
-              Text(
-                statusText,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary
-                ),
-              ),
+
+              Text(statusText, textAlign: TextAlign.center, style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
               const SizedBox(height: 8),
 
-              // Проценты
-              Text(
-                "${(confidence.score * 100).toInt()}% ${l10n.aiConfidenceScore}",
-                style: GoogleFonts.inter(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: statusColor
-                ),
-              ),
+
+              Text("${(confidence.score * 100).toInt()}% ${l10n.aiConfidenceScore}", style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600, color: statusColor)),
+
 
               const SizedBox(height: 24),
 
-              // Описание причин
+
               Container(
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.background,
-                  borderRadius: BorderRadius.circular(20),
-                ),
+                decoration: BoxDecoration(color: AppColors.background, borderRadius: BorderRadius.circular(20)),
                 child: Column(
                   children: [
-                    _buildDetailRow(
-                        Icons.history,
-                        l10n.aiLabelHistory,
-                        "${provider.history.length} ${l10n.aiSuffixCycles}"
-                    ),
+                    _buildDetailRow(Icons.history, l10n.aiLabelHistory, "${provider.history.length} ${l10n.aiSuffixCycles}"),
                     const Divider(height: 24),
-                    // Используем данные из движка
-                    _buildDetailRow(
-                        Icons.waves,
-                        l10n.aiLabelVariation,
-                        "±${confidence.stdDevDays.toStringAsFixed(1)} ${l10n.aiSuffixDays}"
-                    ),
+                    _buildDetailRow(Icons.waves, l10n.aiLabelVariation, "±${confidence.stdDevDays.toStringAsFixed(1)} ${l10n.aiSuffixDays}"),
                   ],
                 ),
               ),
 
+
               const SizedBox(height: 24),
 
-              Text(
-                description,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                    fontSize: 14,
-                    height: 1.5,
-                    color: AppColors.textSecondary
-                ),
-              ),
+
+              Text(description, textAlign: TextAlign.center, style: GoogleFonts.inter(fontSize: 14, height: 1.5, color: AppColors.textSecondary)),
+
 
               const SizedBox(height: 32),
+
 
               SizedBox(
                 width: double.infinity,
@@ -623,10 +619,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                     elevation: 0,
                   ),
-                  child: Text(
-                      l10n.btnGotIt,
-                      style: const TextStyle(fontWeight: FontWeight.bold)
-                  ),
+                  child: Text(l10n.btnGotIt, style: const TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ),
             ],
@@ -634,17 +627,19 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
-
   }
+
 
   String _getGreeting(BuildContext context) {
     final h = DateTime.now().hour;
-    final l = AppLocalizations.of(context)!;
+    final l = AppLocalizations.of(context);
+    if (l == null) return "Hello";
     if (h < 12) return l.greetMorning;
     if (h < 17) return l.greetAfternoon;
     return l.greetEvening;
   }
 }
+
 
 Widget _buildDetailRow(IconData icon, String label, String value) {
   return Row(
@@ -652,30 +647,20 @@ Widget _buildDetailRow(IconData icon, String label, String value) {
       Icon(icon, size: 20, color: AppColors.textSecondary),
       const SizedBox(width: 12),
       Expanded(
-        child: Text(
-            label,
-            style: GoogleFonts.inter(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w600
-            )
-        ),
+        child: Text(label, style: GoogleFonts.inter(color: AppColors.textPrimary, fontWeight: FontWeight.w600)),
       ),
-      Text(
-          value,
-          style: GoogleFonts.inter(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.bold
-          )
-      ),
+      Text(value, style: GoogleFonts.inter(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
     ],
   );
 }
+
 
 class SmartControlBar extends StatelessWidget {
   final bool isPeriodActive;
   final bool isCOC;
   final VoidCallback onMainAction;
   const SmartControlBar({super.key, required this.isPeriodActive, required this.onMainAction, this.isCOC = false});
+
 
   @override
   Widget build(BuildContext context) {
@@ -685,6 +670,7 @@ class SmartControlBar extends StatelessWidget {
     String btnText = isCOC ? l10n.btnStartNewPack : (isPeriodActive ? l10n.btnPeriodEnd : l10n.btnPeriodStart);
     IconData btnIcon = isCOC ? Icons.restart_alt_rounded : (isPeriodActive ? Icons.check_rounded : Icons.water_drop_rounded);
     Color contentColor = (isCOC || isPeriodActive) ? AppColors.textPrimary : Colors.white;
+
 
     return GestureDetector(
       onTap: onMainAction,
@@ -722,5 +708,5 @@ class SmartControlBar extends StatelessWidget {
       ),
     );
   }
-
 }
+

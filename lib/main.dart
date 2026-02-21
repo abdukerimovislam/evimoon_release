@@ -1,7 +1,11 @@
+import 'dart:async';
+import 'dart:ui' show PlatformDispatcher;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
@@ -30,74 +34,117 @@ import 'services/subscription_service.dart';
 import 'screens/splash_screen.dart';
 import 'screens/main_screen.dart';
 import 'screens/profile/profile_screen.dart';
+import 'screens/onboarding_screen.dart'; // 🔥 Добавлен импорт
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
-  // 1. Биндинг
-  WidgetsFlutterBinding.ensureInitialized();
+  // 🔥 УБРАНО ОТСЮДА: WidgetsFlutterBinding.ensureInitialized();
+  // (Оно должно быть внутри зоны, см. ниже)
 
-  // 2. Инициализация критических сервисов (до Hive)
-  await SubscriptionService.init();
-  final storageService = SecureStorageService();
+  // ✅ Global error handling (production sanity)
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    debugPrint('🔥 FlutterError: ${details.exceptionAsString()}');
+    debugPrint('📍 Stack: ${details.stack}');
+  };
 
-  // 3. Настройка UI (Система)
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.dark,
-    systemNavigationBarColor: Colors.transparent,
-  ));
-  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+  PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
+    debugPrint('🔥 Unhandled PlatformDispatcher error: $error');
+    debugPrint('📍 Stack: $stack');
+    return true; // handled
+  };
 
-  // 4. Инициализация Hive
-  await Hive.initFlutter();
+  await runZonedGuarded(() async {
+    // 🔥 ВАЖНО: Инициализация биндингов внутри зоны для избежания "Zone Mismatch"
+    WidgetsFlutterBinding.ensureInitialized();
 
-  // 🔥 РЕГИСТРАЦИЯ АДАПТЕРОВ
+    // 1) Critical services
+    await SubscriptionService.init();
+    final storageService = SecureStorageService();
+
+    // 2) System UI
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.transparent,
+    ));
+    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
+    // 3) Hive init
+    await Hive.initFlutter();
+
+    // 4) Register adapters (safe)
+    try {
+      if (!Hive.isAdapterRegistered(0)) Hive.registerAdapter(CycleModelAdapter());
+      if (!Hive.isAdapterRegistered(1)) Hive.registerAdapter(SymptomLogAdapter());
+      if (!Hive.isAdapterRegistered(2)) Hive.registerAdapter(PersonalModelAdapter());
+      if (!Hive.isAdapterRegistered(3)) Hive.registerAdapter(FlowIntensityAdapter());
+      if (!Hive.isAdapterRegistered(4)) Hive.registerAdapter(CyclePhaseAdapter());
+      if (!Hive.isAdapterRegistered(5)) Hive.registerAdapter(OvulationTestResultAdapter());
+      if (!Hive.isAdapterRegistered(6)) Hive.registerAdapter(CervicalMucusTypeAdapter());
+    } catch (e) {
+      debugPrint("⚠️ Hive Adapter Registration Warning: $e");
+    }
+
+    // 5) Open boxes safely
+    final settingsBox = await _openBoxSafely('settings');
+    final cycleBox = await _openBoxSafely('cycles');
+    final wellnessBox = await _openBoxSafely('symptom_logs');
+    final cocBox = await _openBoxSafely('coc_settings');
+
+    // 6) Notifications
+    final notificationService = NotificationService();
+    await notificationService.init(
+      onNotificationTap: (payload) {
+        debugPrint("🚀 Notification Payload: $payload");
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (payload == NotificationService.payloadCOC) {
+            navigatorKey.currentState?.pushNamed('/profile');
+          } else if (payload == NotificationService.payloadCalendar) {
+            navigatorKey.currentState?.pushNamed('/calendar');
+          }
+        });
+      },
+    );
+
+    runApp(EviMoonAppRoot(
+      settingsBox: settingsBox,
+      cycleBox: cycleBox,
+      wellnessBox: wellnessBox,
+      cocBox: cocBox,
+      storageService: storageService,
+      notificationService: notificationService,
+    ));
+  }, (Object error, StackTrace stack) {
+    debugPrint('🔥 Uncaught zoned error: $error');
+    debugPrint('📍 Stack: $stack');
+  });
+}
+
+/// Opens Hive box safely to prevent crash loops on corrupted data
+Future<Box> _openBoxSafely(String name) async {
   try {
-    if (!Hive.isAdapterRegistered(0)) Hive.registerAdapter(CycleModelAdapter());
-    if (!Hive.isAdapterRegistered(1)) Hive.registerAdapter(SymptomLogAdapter());
-    if (!Hive.isAdapterRegistered(2)) Hive.registerAdapter(PersonalModelAdapter());
-    if (!Hive.isAdapterRegistered(3)) Hive.registerAdapter(FlowIntensityAdapter());
-    if (!Hive.isAdapterRegistered(4)) Hive.registerAdapter(CyclePhaseAdapter());
-    if (!Hive.isAdapterRegistered(5)) Hive.registerAdapter(OvulationTestResultAdapter());
-    if (!Hive.isAdapterRegistered(6)) Hive.registerAdapter(CervicalMucusTypeAdapter());
+    return await Hive.openBox(name);
   } catch (e) {
-    debugPrint("⚠️ Hive Adapter Registration Warning: $e");
+    debugPrint("🔥 Hive openBox failed for '$name': $e");
+    debugPrint("🧯 Attempting recovery: delete only '$name' box and reopen...");
+
+    try {
+      final exists = await Hive.boxExists(name);
+      if (exists) {
+        await Hive.deleteBoxFromDisk(name);
+      }
+      return await Hive.openBox(name);
+    } catch (e2) {
+      debugPrint("❌ Hive recovery failed for '$name': $e2");
+      rethrow;
+    }
   }
-
-  // 5. Открытие боксов
-  final settingsBox = await Hive.openBox('settings');
-  final cycleBox = await Hive.openBox('cycles');
-  final wellnessBox = await Hive.openBox('symptom_logs');
-  final cocBox = await Hive.openBox('coc_settings');
-
-  // 6. Уведомления
-  final notificationService = NotificationService();
-  await notificationService.init(
-    onNotificationTap: (payload) {
-      debugPrint("🚀 Notification Payload: $payload");
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (payload == NotificationService.payloadCOC) {
-          navigatorKey.currentState?.pushNamed('/profile');
-        } else if (payload == NotificationService.payloadCalendar) {
-          navigatorKey.currentState?.pushNamed('/calendar');
-        }
-      });
-    },
-  );
-
-  runApp(EviMoonAppRoot(
-    settingsBox: settingsBox,
-    cycleBox: cycleBox,
-    wellnessBox: wellnessBox,
-    cocBox: cocBox,
-    storageService: storageService,
-    notificationService: notificationService,
-  ));
 }
 
 class EviMoonAppRoot extends StatelessWidget {
@@ -164,18 +211,20 @@ class EviMoonApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
 
-      // Локализация из провайдера
       locale: settings.locale,
 
       supportedLocales: const [
         Locale('en'), // English
         Locale('ru'), // Русский
+        Locale('es'), // Español
+        Locale('de'), // Deutsch
+        Locale('pt'), // Português
+        Locale('tr'), // 🔥 ДОБАВЛЕНО: Türkçe
+        Locale('pl'), // 🔥 ДОБАВЛЕНО: Polski
       ],
 
-      // Логика подбора локали (на случай если в settings еще пусто)
       localeResolutionCallback: (deviceLocale, supportedLocales) {
         if (deviceLocale == null) return supportedLocales.first;
-
         for (var locale in supportedLocales) {
           if (locale.languageCode == deviceLocale.languageCode) {
             return locale;
@@ -197,6 +246,8 @@ class EviMoonApp extends StatelessWidget {
           body: SafeArea(child: ProfileScreen()),
         ),
         '/calendar': (context) => const MainScreen(),
+        // 🔥 Добавлен маршрут для Онбординга (используется в Splash)
+        '/onboarding': (context) => const OnboardingScreen(),
       },
       home: const AuthGuard(child: SplashScreen()),
     );
@@ -217,12 +268,12 @@ class _AuthGuardState extends State<AuthGuard> {
   @override
   void initState() {
     super.initState();
-    _checkAuth();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAuth();
+    });
   }
 
   Future<void> _checkAuth() async {
-    await Future.delayed(Duration.zero);
-
     if (!mounted) return;
 
     final settings = context.read<SettingsProvider>();
@@ -240,13 +291,13 @@ class _AuthGuardState extends State<AuthGuard> {
     final auth = AuthService();
     final bool canCheck = await auth.canCheckBiometrics;
 
-    // Используем локализацию для сообщения биометрии
-    // (понадобится доступ к context внутри, но здесь это асинхронный вызов)
-    // Для системного диалога iOS/Android строки берутся из Info.plist/Manifest или системных настроек,
-    // но message можно передать.
-
     if (canCheck) {
-      final bool success = await auth.authenticate("Unlock EviMoon"); // Тут можно тоже использовать l10n
+      // Используем безопасный доступ к локализации или хардкод для системного диалога
+      // (так как context может быть еще не полностью готов для локализации в initState)
+      final reason = "Scan to unlock EviMoon";
+
+      final bool success = await auth.authenticate(reason);
+
       if (mounted) {
         setState(() {
           _isAuthenticated = success;
@@ -266,33 +317,39 @@ class _AuthGuardState extends State<AuthGuard> {
   @override
   Widget build(BuildContext context) {
     if (_isChecking) {
-      return const Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(child: CupertinoActivityIndicator()),
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: const Center(child: CupertinoActivityIndicator()),
       );
     }
 
-    // 🔥 УБРАН ХАРДКОД
-    // Получаем локализацию
     final l10n = AppLocalizations.of(context);
 
     return _isAuthenticated
         ? widget.child
         : Scaffold(
+      backgroundColor: AppColors.background,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.lock_outline, size: 64, color: AppColors.primary),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             Text(
               l10n?.authLockedTitle ?? "EviMoon Locked",
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: GoogleFonts.manrope(
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textPrimary,
+              ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 32),
             CupertinoButton.filled(
               onPressed: _checkAuth,
-              child: Text(l10n?.authUnlockBtn ?? "Unlock"),
+              child: Text(
+                l10n?.authUnlockBtn ?? "Unlock",
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         ),

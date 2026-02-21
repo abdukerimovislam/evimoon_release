@@ -16,10 +16,18 @@ class SettingsProvider extends ChangeNotifier {
   static const String _keyDesign = 'timer_design_index';
   static const String _keyPremium = 'is_premium';
   static const String _keyTheme = 'app_theme_type';
+  static const String _keyLanguage = 'language_code';
+
+  // Новые ключи для профиля
+  static const String _keyUserName = 'user_name';
+  static const String _keyUserAvatar = 'user_avatar';
+
+  // 🔥 Ключи для синхронизации с COCProvider и CycleProvider
+  static const String _keyCOCActive = 'coc_active_count';
+  static const String _keyCOCBreak = 'coc_break_days';
 
   SecureStorageService get storageService => _storageService;
 
-  // По умолчанию английский, но _loadSettings попытается определить системный
   Locale _locale = const Locale('en');
 
   bool _notificationsEnabled = false;
@@ -30,7 +38,11 @@ class SettingsProvider extends ChangeNotifier {
   TimerDesign _currentDesign = TimerDesign.classic;
   bool _isPremium = false;
 
-  AppThemeType _currentTheme = AppThemeType.oceanic;
+  // ✅ ИСПРАВЛЕНО: Тема по умолчанию - Oceanic
+  AppThemeType _currentTheme = AppThemeType.digital;
+
+  String _userName = "User";
+  String _userAvatar = "👩";
 
   // --- Геттеры ---
   Locale get locale => _locale;
@@ -41,6 +53,17 @@ class SettingsProvider extends ChangeNotifier {
   TimerDesign get currentDesign => _currentDesign;
   bool get isPremium => _isPremium;
   AppThemeType get currentTheme => _currentTheme;
+
+  String get userName => _userName;
+  String get userAvatar => _userAvatar;
+
+  // Геттеры для КОК (чтобы UI настроек мог их читать)
+  int get cocActivePills => _box.get(_keyCOCActive, defaultValue: 21);
+  int get cocBreakDays => _box.get(_keyCOCBreak, defaultValue: 7);
+
+  // 🔥 ВАЖНО: Проверка, выбрал ли пользователь язык явно
+  // Используется в SplashScreen для навигации
+  bool get isLanguageExplicitlySet => _box.containsKey(_keyLanguage);
 
   SettingsProvider(this._box, this._storageService, this._notificationService) {
     _loadSettings();
@@ -61,7 +84,6 @@ class SettingsProvider extends ChangeNotifier {
   }
 
   Future<void> _loadSettings() async {
-    // Проверка на чистую установку (сброс данных)
     final bool appWasReset = !_box.containsKey(_keyOnboarding);
 
     if (appWasReset) {
@@ -72,8 +94,10 @@ class SettingsProvider extends ChangeNotifier {
       _dailyLogEnabled = false;
       _currentDesign = TimerDesign.classic;
       _isPremium = false;
+      // ✅ ИСПРАВЛЕНО: Сброс на Oceanic
       _currentTheme = AppThemeType.oceanic;
-      // При сбросе язык тоже сбросится на авто-определение ниже
+      _userName = "User";
+      _userAvatar = "👩";
     } else {
       _notificationsEnabled = await _storageService.getNotificationsEnabled();
       _biometricsEnabled = await _storageService.getBiometricsEnabled();
@@ -82,6 +106,9 @@ class SettingsProvider extends ChangeNotifier {
       _dailyLogEnabled = _box.get(_keyDailyLog, defaultValue: false);
       _isPremium = _box.get(_keyPremium, defaultValue: false);
 
+      _userName = _box.get(_keyUserName, defaultValue: "User");
+      _userAvatar = _box.get(_keyUserAvatar, defaultValue: "👩");
+
       final savedDesignIndex = _box.get(_keyDesign);
       if (savedDesignIndex != null && savedDesignIndex is int) {
         if (savedDesignIndex >= 0 && savedDesignIndex < TimerDesign.values.length) {
@@ -89,7 +116,6 @@ class SettingsProvider extends ChangeNotifier {
         }
       }
 
-      // Загрузка темы
       final themeIndex = _box.get(_keyTheme, defaultValue: 0);
       if (themeIndex >= 0 && themeIndex < AppThemeType.values.length) {
         _currentTheme = AppThemeType.values[themeIndex];
@@ -97,29 +123,35 @@ class SettingsProvider extends ChangeNotifier {
       }
     }
 
-    // 🔥 ЛОГИКА ОПРЕДЕЛЕНИЯ ЯЗЫКА
-    final langCode = await _storageService.getLanguage();
+    // 1. Пытаемся загрузить язык из Hive
+    final savedLang = _box.get(_keyLanguage) as String?;
 
-    if (langCode != null) {
-      // 1. Если пользователь уже выбирал язык (сохранено в SecureStorage)
-      _locale = Locale(langCode);
+    if (savedLang != null) {
+      _locale = Locale(savedLang);
     } else {
-      // 2. Если это первый запуск: определяем системный язык
-      try {
-        final sysLocales = WidgetsBinding.instance.platformDispatcher.locales;
-        if (sysLocales.isNotEmpty) {
-          final sysCode = sysLocales.first.languageCode;
+      // 2. Если в Hive нет, пробуем SecureStorage (миграция старых пользователей)
+      final secureLang = await _storageService.getLanguage();
+      if (secureLang != null) {
+        _locale = Locale(secureLang);
+        await _box.put(_keyLanguage, secureLang); // Мигрируем в Hive
+      } else {
+        // 3. Авто-определение языка системы (только для дефолта, пока юзер не выберет)
+        try {
+          final sysLocales = WidgetsBinding.instance.platformDispatcher.locales;
+          if (sysLocales.isNotEmpty) {
+            final sysCode = sysLocales.first.languageCode;
 
-          if (sysCode == 'ru') {
-            _locale = const Locale('ru');
-          } else {
-            // Для всех остальных языков ставим английский по умолчанию
-            _locale = const Locale('en');
+            // ✅ ИСПРАВЛЕНО: 'br' -> 'pt' (код языка португальский)
+            if (['ru', 'es', 'de', 'pt', 'tr', 'pl'].contains(sysCode)) {
+              _locale = Locale(sysCode);
+            } else {
+              _locale = const Locale('en');
+            }
           }
+        } catch (e) {
+          debugPrint("Locale auto-detect error: $e");
+          _locale = const Locale('en');
         }
-      } catch (e) {
-        debugPrint("Locale auto-detect error: $e");
-        _locale = const Locale('en');
       }
     }
 
@@ -131,15 +163,27 @@ class SettingsProvider extends ChangeNotifier {
     await _loadSettings();
   }
 
+  // --- ПРОФИЛЬ ---
+
+  Future<void> setUserName(String name) async {
+    _userName = name;
+    await _box.put(_keyUserName, name);
+    notifyListeners();
+  }
+
+  Future<void> setUserAvatar(String avatar) async {
+    _userAvatar = avatar;
+    await _box.put(_keyUserAvatar, avatar);
+    notifyListeners();
+  }
+
   // --- ЛОГИКА ТЕМ ---
 
   Future<void> setTheme(AppThemeType theme) async {
     if (_currentTheme == theme) return;
-
     _currentTheme = theme;
     AppTheme.setPalette(theme);
     await _box.put(_keyTheme, theme.index);
-
     notifyListeners();
   }
 
@@ -151,7 +195,6 @@ class SettingsProvider extends ChangeNotifier {
 
       if (actualStatus != _isPremium) {
         debugPrint("💎 SettingsProvider: Premium status changed: $_isPremium -> $actualStatus");
-
         _isPremium = actualStatus;
         await _box.put(_keyPremium, _isPremium);
 
@@ -160,7 +203,6 @@ class SettingsProvider extends ChangeNotifier {
           _currentDesign = TimerDesign.classic;
           await _box.put(_keyDesign, TimerDesign.classic.index);
         }
-
         notifyListeners();
       }
     } catch (e) {
@@ -177,11 +219,11 @@ class SettingsProvider extends ChangeNotifier {
   Future<void> setLocale(Locale locale) async {
     if (_locale == locale) return;
     _locale = locale;
-    await _storageService.saveLanguage(locale.languageCode);
 
-    if (_dailyLogEnabled) {
-      await toggleDailyLogReminder(true);
-    }
+    // Сохраняем в Hive (это делает isLanguageExplicitlySet = true)
+    await _box.put(_keyLanguage, locale.languageCode);
+    // И в SecureStorage для надежности
+    await _storageService.saveLanguage(locale.languageCode);
 
     notifyListeners();
   }
@@ -190,11 +232,10 @@ class SettingsProvider extends ChangeNotifier {
     _notificationsEnabled = value;
     await _storageService.saveNotificationsEnabled(value);
 
-    if (!value && _dailyLogEnabled) {
+    if (!value) {
       await _notificationService.cancelAll();
-    } else if (value && _dailyLogEnabled) {
-      await toggleDailyLogReminder(true);
     }
+    // Если включили - UI должен вызвать CycleProvider.rescheduleNotifications()
 
     notifyListeners();
   }
@@ -209,6 +250,13 @@ class SettingsProvider extends ChangeNotifier {
     if (_isTTCMode == value) return;
     _isTTCMode = value;
     await _storageService.saveTTCMode(value);
+    notifyListeners();
+  }
+
+  // 🔥 Новое: Настройка таблеток через глобальные настройки
+  Future<void> setCOCSettings(int active, int brk) async {
+    await _box.put(_keyCOCActive, active);
+    await _box.put(_keyCOCBreak, brk);
     notifyListeners();
   }
 
@@ -246,20 +294,6 @@ class SettingsProvider extends ChangeNotifier {
   Future<void> toggleDailyLogReminder(bool value) async {
     _dailyLogEnabled = value;
     await _box.put(_keyDailyLog, value);
-
-    if (value && _notificationsEnabled) {
-      final isRu = _locale.languageCode == 'ru';
-
-      await _notificationService.scheduleDailyNotification(
-        id: 888,
-        title: isRu ? "Как прошел день? 📝" : "Daily Check-in 📝",
-        body: isRu ? "Отметь симптомы для точного прогноза" : "How are you feeling today? Log your symptoms.",
-        time: const TimeOfDay(hour: 20, minute: 0),
-      );
-    } else {
-      await _notificationService.cancelNotification(888);
-    }
-
     notifyListeners();
   }
 
@@ -269,5 +303,24 @@ class SettingsProvider extends ChangeNotifier {
     } else {
       setLocale(const Locale('en'));
     }
+  }
+
+  // 🔥 Новое: Полный сброс данных (Danger Zone)
+  Future<void> wipeData() async {
+    await _box.clear();
+    await _storageService.clearAll();
+
+    // Сбрасываем переменные в памяти
+    _isTTCMode = false;
+    _notificationsEnabled = false;
+    _biometricsEnabled = false;
+    _dailyLogEnabled = false;
+    _currentDesign = TimerDesign.classic;
+    _isPremium = false;
+    _userName = "User";
+    _userAvatar = "👩";
+
+    await _loadSettings(); // Перезагружаем дефолты
+    notifyListeners();
   }
 }

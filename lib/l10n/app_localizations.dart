@@ -5,8 +5,13 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
+import 'app_localizations_de.dart';
 import 'app_localizations_en.dart';
+import 'app_localizations_es.dart';
+import 'app_localizations_pl.dart';
+import 'app_localizations_pt.dart';
 import 'app_localizations_ru.dart';
+import 'app_localizations_tr.dart';
 
 // ignore_for_file: type=lint
 
@@ -91,8 +96,13 @@ abstract class AppLocalizations {
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
+    Locale('de'),
     Locale('en'),
-    Locale('ru')
+    Locale('es'),
+    Locale('pl'),
+    Locale('pt'),
+    Locale('ru'),
+    Locale('tr')
   ];
 
   /// No description provided for @appTitle.
@@ -131,6 +141,30 @@ abstract class AppLocalizations {
   /// **'Profile'**
   String get tabProfile;
 
+  /// No description provided for @navHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get navHome;
+
+  /// No description provided for @navSymptoms.
+  ///
+  /// In en, this message translates to:
+  /// **'Symptoms'**
+  String get navSymptoms;
+
+  /// No description provided for @navCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get navCalendar;
+
+  /// No description provided for @navProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get navProfile;
+
   /// No description provided for @phaseMenstruation.
   ///
   /// In en, this message translates to:
@@ -155,11 +189,65 @@ abstract class AppLocalizations {
   /// **'Luteal Phase'**
   String get phaseLuteal;
 
+  /// No description provided for @phaseLate.
+  ///
+  /// In en, this message translates to:
+  /// **'Late'**
+  String get phaseLate;
+
+  /// No description provided for @phaseShortMens.
+  ///
+  /// In en, this message translates to:
+  /// **'MENS'**
+  String get phaseShortMens;
+
+  /// No description provided for @phaseShortFoll.
+  ///
+  /// In en, this message translates to:
+  /// **'FOLL'**
+  String get phaseShortFoll;
+
+  /// No description provided for @phaseShortOvul.
+  ///
+  /// In en, this message translates to:
+  /// **'OVUL'**
+  String get phaseShortOvul;
+
+  /// No description provided for @phaseShortLut.
+  ///
+  /// In en, this message translates to:
+  /// **'LUT'**
+  String get phaseShortLut;
+
+  /// No description provided for @phaseStatusMenstruation.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to rest & recharge'**
+  String get phaseStatusMenstruation;
+
+  /// No description provided for @phaseStatusFollicular.
+  ///
+  /// In en, this message translates to:
+  /// **'Energy is rising'**
+  String get phaseStatusFollicular;
+
+  /// No description provided for @phaseStatusOvulation.
+  ///
+  /// In en, this message translates to:
+  /// **'You are glowing today'**
+  String get phaseStatusOvulation;
+
+  /// No description provided for @phaseStatusLuteal.
+  ///
+  /// In en, this message translates to:
+  /// **'Be gentle with yourself'**
+  String get phaseStatusLuteal;
+
   /// No description provided for @dayOfCycle.
   ///
   /// In en, this message translates to:
   /// **'Day {day}'**
-  String dayOfCycle(Object day);
+  String dayOfCycle(int day);
 
   /// No description provided for @editPeriod.
   ///
@@ -173,22 +261,28 @@ abstract class AppLocalizations {
   /// **'Log Symptoms'**
   String get logSymptoms;
 
+  /// No description provided for @logSymptomsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Symptoms'**
+  String get logSymptomsTitle;
+
   /// No description provided for @predictionText.
   ///
   /// In en, this message translates to:
   /// **'Period in {days} days'**
-  String predictionText(Object days);
+  String predictionText(int days);
 
   /// No description provided for @chanceOfPregnancy.
   ///
   /// In en, this message translates to:
-  /// **'High chance of getting pregnant'**
+  /// **'High chance'**
   String get chanceOfPregnancy;
 
   /// No description provided for @lowChance.
   ///
   /// In en, this message translates to:
-  /// **'Low chance of getting pregnant'**
+  /// **'Low chance'**
   String get lowChance;
 
   /// No description provided for @wellnessHeader.
@@ -196,6 +290,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Wellness & Mood'**
   String get wellnessHeader;
+
+  /// No description provided for @lblFlowAndLove.
+  ///
+  /// In en, this message translates to:
+  /// **'Flow & Intimacy'**
+  String get lblFlowAndLove;
+
+  /// No description provided for @lblBodyMind.
+  ///
+  /// In en, this message translates to:
+  /// **'Body & Mind'**
+  String get lblBodyMind;
 
   /// No description provided for @btnCheckIn.
   ///
@@ -215,29 +321,29 @@ abstract class AppLocalizations {
   /// **'Log your symptoms for better insights.'**
   String get symptomSubHeader;
 
+  /// No description provided for @msgSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved!'**
+  String get msgSaved;
+
+  /// No description provided for @msgSavedNoPop.
+  ///
+  /// In en, this message translates to:
+  /// **'Symptoms updated successfully'**
+  String get msgSavedNoPop;
+
   /// No description provided for @catFlow.
   ///
   /// In en, this message translates to:
   /// **'Flow'**
   String get catFlow;
 
-  /// No description provided for @catPain.
+  /// No description provided for @logFlow.
   ///
   /// In en, this message translates to:
-  /// **'Pain'**
-  String get catPain;
-
-  /// No description provided for @catMood.
-  ///
-  /// In en, this message translates to:
-  /// **'Mood'**
-  String get catMood;
-
-  /// No description provided for @catSleep.
-  ///
-  /// In en, this message translates to:
-  /// **'Sleep'**
-  String get catSleep;
+  /// **'Flow Intensity'**
+  String get logFlow;
 
   /// No description provided for @flowLight.
   ///
@@ -256,6 +362,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Heavy'**
   String get flowHeavy;
+
+  /// No description provided for @catPain.
+  ///
+  /// In en, this message translates to:
+  /// **'Pain'**
+  String get catPain;
+
+  /// No description provided for @logPain.
+  ///
+  /// In en, this message translates to:
+  /// **'Pain'**
+  String get logPain;
 
   /// No description provided for @painNone.
   ///
@@ -280,6 +398,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back Pain'**
   String get painBack;
+
+  /// No description provided for @catMood.
+  ///
+  /// In en, this message translates to:
+  /// **'Mood'**
+  String get catMood;
+
+  /// No description provided for @logMood.
+  ///
+  /// In en, this message translates to:
+  /// **'Mood'**
+  String get logMood;
 
   /// No description provided for @moodHappy.
   ///
@@ -311,11 +441,203 @@ abstract class AppLocalizations {
   /// **'Irritated'**
   String get moodIrritated;
 
+  /// No description provided for @catSleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep'**
+  String get catSleep;
+
+  /// No description provided for @logSleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep Quality'**
+  String get logSleep;
+
+  /// No description provided for @logNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get logNotes;
+
+  /// No description provided for @hintNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a note...'**
+  String get hintNotes;
+
+  /// No description provided for @logVitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Vitals'**
+  String get logVitals;
+
+  /// No description provided for @lblTemp.
+  ///
+  /// In en, this message translates to:
+  /// **'Temperature'**
+  String get lblTemp;
+
+  /// No description provided for @lblWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get lblWeight;
+
+  /// No description provided for @logSkin.
+  ///
+  /// In en, this message translates to:
+  /// **'Skin'**
+  String get logSkin;
+
+  /// No description provided for @symptomAcne.
+  ///
+  /// In en, this message translates to:
+  /// **'Acne'**
+  String get symptomAcne;
+
+  /// No description provided for @symptomNausea.
+  ///
+  /// In en, this message translates to:
+  /// **'Nausea'**
+  String get symptomNausea;
+
+  /// No description provided for @symptomBloating.
+  ///
+  /// In en, this message translates to:
+  /// **'Bloating'**
+  String get symptomBloating;
+
+  /// No description provided for @logLibido.
+  ///
+  /// In en, this message translates to:
+  /// **'Libido'**
+  String get logLibido;
+
+  /// No description provided for @lblIntimacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Intimacy'**
+  String get lblIntimacy;
+
+  /// No description provided for @hadSex.
+  ///
+  /// In en, this message translates to:
+  /// **'Had Sex'**
+  String get hadSex;
+
+  /// No description provided for @protectedSex.
+  ///
+  /// In en, this message translates to:
+  /// **'Protected'**
+  String get protectedSex;
+
+  /// No description provided for @lblLifestyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifestyle'**
+  String get lblLifestyle;
+
+  /// No description provided for @lblLifestyleHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifestyle Factors'**
+  String get lblLifestyleHeader;
+
+  /// No description provided for @factorStress.
+  ///
+  /// In en, this message translates to:
+  /// **'Stress'**
+  String get factorStress;
+
+  /// No description provided for @factorAlcohol.
+  ///
+  /// In en, this message translates to:
+  /// **'Alcohol'**
+  String get factorAlcohol;
+
+  /// No description provided for @factorTravel.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel'**
+  String get factorTravel;
+
+  /// No description provided for @factorSport.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercise'**
+  String get factorSport;
+
+  /// No description provided for @lblEnergy.
+  ///
+  /// In en, this message translates to:
+  /// **'Energy'**
+  String get lblEnergy;
+
+  /// No description provided for @lblMood.
+  ///
+  /// In en, this message translates to:
+  /// **'Mood'**
+  String get lblMood;
+
   /// No description provided for @btnSave.
   ///
   /// In en, this message translates to:
   /// **'Save'**
   String get btnSave;
+
+  /// No description provided for @btnCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get btnCancel;
+
+  /// No description provided for @btnConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get btnConfirm;
+
+  /// No description provided for @btnNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get btnNext;
+
+  /// No description provided for @btnStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Started'**
+  String get btnStart;
+
+  /// No description provided for @btnDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get btnDelete;
+
+  /// No description provided for @btnOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Understood'**
+  String get btnOk;
+
+  /// No description provided for @tapToClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to close'**
+  String get tapToClose;
+
+  /// No description provided for @btnSaveSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Settings'**
+  String get btnSaveSettings;
+
+  /// No description provided for @dialogCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get dialogCancel;
 
   /// No description provided for @legendPeriod.
   ///
@@ -335,17 +657,71 @@ abstract class AppLocalizations {
   /// **'Ovulation'**
   String get legendOvulation;
 
+  /// No description provided for @legendFollicular.
+  ///
+  /// In en, this message translates to:
+  /// **'Follicular'**
+  String get legendFollicular;
+
+  /// No description provided for @legendLuteal.
+  ///
+  /// In en, this message translates to:
+  /// **'Luteal'**
+  String get legendLuteal;
+
+  /// No description provided for @legendPredictedPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Predicted'**
+  String get legendPredictedPeriod;
+
   /// No description provided for @calendarHeader.
   ///
   /// In en, this message translates to:
   /// **'Your History'**
   String get calendarHeader;
 
+  /// No description provided for @lblPreviousCycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous Cycle'**
+  String get lblPreviousCycle;
+
+  /// No description provided for @lblNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No Data'**
+  String get lblNoData;
+
+  /// No description provided for @lblNoSymptoms.
+  ///
+  /// In en, this message translates to:
+  /// **'No symptoms logged.'**
+  String get lblNoSymptoms;
+
   /// No description provided for @insightsTitle.
   ///
   /// In en, this message translates to:
   /// **'Trends & Insights'**
   String get insightsTitle;
+
+  /// No description provided for @insightsOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get insightsOverview;
+
+  /// No description provided for @insightsHealth.
+  ///
+  /// In en, this message translates to:
+  /// **'Health'**
+  String get insightsHealth;
+
+  /// No description provided for @insightsPatterns.
+  ///
+  /// In en, this message translates to:
+  /// **'Patterns'**
+  String get insightsPatterns;
 
   /// No description provided for @chartCycleLength.
   ///
@@ -358,18 +734,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Last 6 months'**
   String get chartSubtitle;
-
-  /// No description provided for @insightTipTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Tip of the Day'**
-  String get insightTipTitle;
-
-  /// No description provided for @insightTipBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Energy levels drop during the luteal phase. It\'s a great time for yoga and sleeping in.'**
-  String get insightTipBody;
 
   /// No description provided for @topSymptoms.
   ///
@@ -389,11 +753,299 @@ abstract class AppLocalizations {
   /// **'You frequently log headaches before your period. Try hydrating more 2 days prior.'**
   String get patternBody;
 
+  /// No description provided for @insightPhasesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cycle Phases'**
+  String get insightPhasesTitle;
+
+  /// No description provided for @insightPhasesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Typical duration breakdown'**
+  String get insightPhasesSubtitle;
+
+  /// No description provided for @insightMoodTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mood by Phase'**
+  String get insightMoodTitle;
+
+  /// No description provided for @insightMoodSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Average mood intensity'**
+  String get insightMoodSubtitle;
+
+  /// No description provided for @insightVitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Body Vitals'**
+  String get insightVitals;
+
+  /// No description provided for @insightVitalsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Temperature & Weight tracking'**
+  String get insightVitalsSub;
+
+  /// No description provided for @insightBodyBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Body Balance'**
+  String get insightBodyBalance;
+
+  /// No description provided for @insightBodyBalanceSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Follicular (Purple) vs Luteal (Orange)'**
+  String get insightBodyBalanceSub;
+
+  /// No description provided for @insightMoodFlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Mood Flow'**
+  String get insightMoodFlow;
+
+  /// No description provided for @insightMoodFlowSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent 30 days trend'**
+  String get insightMoodFlowSub;
+
+  /// No description provided for @insightCorrelationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart Patterns'**
+  String get insightCorrelationTitle;
+
+  /// No description provided for @insightCorrelationSub.
+  ///
+  /// In en, this message translates to:
+  /// **'How your lifestyle affects your body'**
+  String get insightCorrelationSub;
+
+  /// No description provided for @insightPatternText.
+  ///
+  /// In en, this message translates to:
+  /// **'When you log {factor}, you experience {symptom} in {percent}% of cases.'**
+  String insightPatternText(String factor, String symptom, int percent);
+
+  /// No description provided for @insightCycleDNA.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Cycle DNA'**
+  String get insightCycleDNA;
+
+  /// No description provided for @insightDNASub.
+  ///
+  /// In en, this message translates to:
+  /// **'Follicular vs Luteal Persona'**
+  String get insightDNASub;
+
+  /// No description provided for @insightAvgCycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg Cycle'**
+  String get insightAvgCycle;
+
+  /// No description provided for @insightAvgPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg Period'**
+  String get insightAvgPeriod;
+
+  /// No description provided for @unitDaysShort.
+  ///
+  /// In en, this message translates to:
+  /// **'d'**
+  String get unitDaysShort;
+
+  /// No description provided for @daysUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'days'**
+  String get daysUnit;
+
+  /// No description provided for @paramEnergy.
+  ///
+  /// In en, this message translates to:
+  /// **'Energy'**
+  String get paramEnergy;
+
+  /// No description provided for @paramLibido.
+  ///
+  /// In en, this message translates to:
+  /// **'Libido'**
+  String get paramLibido;
+
+  /// No description provided for @paramSkin.
+  ///
+  /// In en, this message translates to:
+  /// **'Skin'**
+  String get paramSkin;
+
+  /// No description provided for @paramFocus.
+  ///
+  /// In en, this message translates to:
+  /// **'Focus'**
+  String get paramFocus;
+
+  /// No description provided for @predTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Forecast'**
+  String get predTitle;
+
+  /// No description provided for @predSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on your cycle & sleep patterns'**
+  String get predSubtitle;
+
+  /// No description provided for @recHighEnergy.
+  ///
+  /// In en, this message translates to:
+  /// **'Great day for heavy tasks or workouts!'**
+  String get recHighEnergy;
+
+  /// No description provided for @recLowEnergy.
+  ///
+  /// In en, this message translates to:
+  /// **'Take it easy. Prioritize rest today.'**
+  String get recLowEnergy;
+
+  /// No description provided for @recNormalEnergy.
+  ///
+  /// In en, this message translates to:
+  /// **'Maintain a steady pace.'**
+  String get recNormalEnergy;
+
+  /// No description provided for @msgFeedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Is {metric} really {status} today?'**
+  String msgFeedback(String metric, String status);
+
+  /// No description provided for @statusLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get statusLow;
+
+  /// No description provided for @statusHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get statusHigh;
+
+  /// No description provided for @statusNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get statusNormal;
+
+  /// No description provided for @stateLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get stateLow;
+
+  /// No description provided for @stateMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get stateMedium;
+
+  /// No description provided for @stateHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get stateHigh;
+
+  /// No description provided for @feedbackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback'**
+  String get feedbackTitle;
+
+  /// No description provided for @feedbackQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Is your {metric} really {status} today?'**
+  String feedbackQuestion(String metric, String status);
+
+  /// No description provided for @btnYesCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, correct'**
+  String get btnYesCorrect;
+
+  /// No description provided for @btnNoWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'No, it\'s wrong'**
+  String get btnNoWrong;
+
+  /// No description provided for @btnWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong'**
+  String get btnWrong;
+
+  /// No description provided for @btnAdjust.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust'**
+  String get btnAdjust;
+
+  /// No description provided for @predMismatchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Feeling different?'**
+  String get predMismatchTitle;
+
+  /// No description provided for @predMismatchBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap an icon to adjust the advice.'**
+  String get predMismatchBody;
+
+  /// No description provided for @predInsightHormones.
+  ///
+  /// In en, this message translates to:
+  /// **'Hormones: {hormone} is rising.'**
+  String predInsightHormones(String hormone);
+
+  /// No description provided for @hormoneEstrogen.
+  ///
+  /// In en, this message translates to:
+  /// **'Estrogen'**
+  String get hormoneEstrogen;
+
+  /// No description provided for @hormoneProgesterone.
+  ///
+  /// In en, this message translates to:
+  /// **'Progesterone'**
+  String get hormoneProgesterone;
+
+  /// No description provided for @hormoneReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Hormonal Reset'**
+  String get hormoneReset;
+
   /// No description provided for @profileTitle.
   ///
   /// In en, this message translates to:
-  /// **'Profile & Settings'**
+  /// **'Profile'**
   String get profileTitle;
+
+  /// No description provided for @lblUser.
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get lblUser;
 
   /// No description provided for @sectionGeneral.
   ///
@@ -401,11 +1053,41 @@ abstract class AppLocalizations {
   /// **'General'**
   String get sectionGeneral;
 
+  /// No description provided for @settingsGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get settingsGeneral;
+
   /// No description provided for @sectionSecurity.
   ///
   /// In en, this message translates to:
-  /// **'Security & Privacy'**
+  /// **'Security'**
   String get sectionSecurity;
+
+  /// No description provided for @sectionData.
+  ///
+  /// In en, this message translates to:
+  /// **'Data Management'**
+  String get sectionData;
+
+  /// No description provided for @settingsData.
+  ///
+  /// In en, this message translates to:
+  /// **'Data Management'**
+  String get settingsData;
+
+  /// No description provided for @sectionBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup'**
+  String get sectionBackup;
+
+  /// No description provided for @sectionAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get sectionAbout;
 
   /// No description provided for @lblLanguage.
   ///
@@ -413,29 +1095,167 @@ abstract class AppLocalizations {
   /// **'Language'**
   String get lblLanguage;
 
+  /// No description provided for @settingsLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settingsLanguage;
+
   /// No description provided for @lblNotifications.
   ///
   /// In en, this message translates to:
   /// **'Notifications'**
   String get lblNotifications;
 
+  /// No description provided for @settingsNotifs.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get settingsNotifs;
+
   /// No description provided for @lblBiometrics.
   ///
   /// In en, this message translates to:
-  /// **'FaceID / TouchID'**
+  /// **'Biometrics'**
   String get lblBiometrics;
+
+  /// No description provided for @settingsBiometrics.
+  ///
+  /// In en, this message translates to:
+  /// **'FaceID / TouchID'**
+  String get settingsBiometrics;
 
   /// No description provided for @lblExport.
   ///
   /// In en, this message translates to:
-  /// **'Export Data (PDF/CSV)'**
+  /// **'Export PDF'**
   String get lblExport;
+
+  /// No description provided for @settingsExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Download PDF Report'**
+  String get settingsExport;
 
   /// No description provided for @lblDeleteAccount.
   ///
   /// In en, this message translates to:
-  /// **'Delete All Data'**
+  /// **'Delete Account'**
   String get lblDeleteAccount;
+
+  /// No description provided for @settingsReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset All Data'**
+  String get settingsReset;
+
+  /// No description provided for @settingsTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'App Theme'**
+  String get settingsTheme;
+
+  /// No description provided for @settingsDailyLog.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Check-in (20:00)'**
+  String get settingsDailyLog;
+
+  /// No description provided for @settingsSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Support & Feedback'**
+  String get settingsSupport;
+
+  /// No description provided for @btnExportPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Download PDF Report'**
+  String get btnExportPdf;
+
+  /// No description provided for @btnBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup Data'**
+  String get btnBackup;
+
+  /// No description provided for @btnSaveBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Backup'**
+  String get btnSaveBackup;
+
+  /// No description provided for @btnRestoreBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from File'**
+  String get btnRestoreBackup;
+
+  /// No description provided for @btnContactSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Support'**
+  String get btnContactSupport;
+
+  /// No description provided for @btnRateApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate EviMoon'**
+  String get btnRateApp;
+
+  /// No description provided for @themeOceanic.
+  ///
+  /// In en, this message translates to:
+  /// **'Oceanic'**
+  String get themeOceanic;
+
+  /// No description provided for @themeNature.
+  ///
+  /// In en, this message translates to:
+  /// **'Nature'**
+  String get themeNature;
+
+  /// No description provided for @themeVelvet.
+  ///
+  /// In en, this message translates to:
+  /// **'Velvet'**
+  String get themeVelvet;
+
+  /// No description provided for @themeDigital.
+  ///
+  /// In en, this message translates to:
+  /// **'Digital'**
+  String get themeDigital;
+
+  /// No description provided for @themeActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get themeActive;
+
+  /// No description provided for @selectThemeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Theme'**
+  String get selectThemeTitle;
+
+  /// No description provided for @prefNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get prefNotifications;
+
+  /// No description provided for @prefBiometrics.
+  ///
+  /// In en, this message translates to:
+  /// **'FaceID / TouchID'**
+  String get prefBiometrics;
+
+  /// No description provided for @prefCOC.
+  ///
+  /// In en, this message translates to:
+  /// **'Contraceptive Pill Mode'**
+  String get prefCOC;
 
   /// No description provided for @descDelete.
   ///
@@ -461,17 +1281,59 @@ abstract class AppLocalizations {
   /// **'Delete'**
   String get actionDelete;
 
-  /// No description provided for @btnNext.
+  /// No description provided for @dialogResetTitle.
   ///
   /// In en, this message translates to:
-  /// **'Next'**
-  String get btnNext;
+  /// **'Reset Everything?'**
+  String get dialogResetTitle;
 
-  /// No description provided for @btnStart.
+  /// No description provided for @dialogResetBody.
   ///
   /// In en, this message translates to:
-  /// **'Get Started'**
-  String get btnStart;
+  /// **'This will delete all your data permanently. This action cannot be undone.'**
+  String get dialogResetBody;
+
+  /// No description provided for @dialogResetConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get dialogResetConfirm;
+
+  /// No description provided for @dialogRestoreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore Data?'**
+  String get dialogRestoreTitle;
+
+  /// No description provided for @dialogRestoreBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This will overwrite your current data with the backup file. Are you sure?'**
+  String get dialogRestoreBody;
+
+  /// No description provided for @btnRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get btnRestore;
+
+  /// No description provided for @msgRestoreSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Data restored successfully!'**
+  String get msgRestoreSuccess;
+
+  /// No description provided for @backupSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'EviMoon Backup'**
+  String get backupSubject;
+
+  /// No description provided for @backupBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup data for EviMoon app created on {date}'**
+  String backupBody(String date);
 
   /// No description provided for @greetMorning.
   ///
@@ -490,78 +1352,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Good evening'**
   String get greetEvening;
-
-  /// No description provided for @phaseStatusMenstruation.
-  ///
-  /// In en, this message translates to:
-  /// **'Time to rest & recharge'**
-  String get phaseStatusMenstruation;
-
-  /// No description provided for @phaseStatusFollicular.
-  ///
-  /// In en, this message translates to:
-  /// **'Energy is rising'**
-  String get phaseStatusFollicular;
-
-  /// No description provided for @phaseStatusOvulation.
-  ///
-  /// In en, this message translates to:
-  /// **'You are glowing today'**
-  String get phaseStatusOvulation;
-
-  /// No description provided for @phaseStatusLuteal.
-  ///
-  /// In en, this message translates to:
-  /// **'Be gentle with yourself'**
-  String get phaseStatusLuteal;
-
-  /// No description provided for @notifPeriodTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Cycle Update'**
-  String get notifPeriodTitle;
-
-  /// No description provided for @notifPeriodBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Your period is likely to start in 2 days. Get ready!'**
-  String get notifPeriodBody;
-
-  /// No description provided for @notifOvulationTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Fertility Window'**
-  String get notifOvulationTitle;
-
-  /// No description provided for @notifOvulationBody.
-  ///
-  /// In en, this message translates to:
-  /// **'High chance of fertility today. You are glowing! 🌸'**
-  String get notifOvulationBody;
-
-  /// No description provided for @phaseLate.
-  ///
-  /// In en, this message translates to:
-  /// **'Late'**
-  String get phaseLate;
-
-  /// No description provided for @sectionCycle.
-  ///
-  /// In en, this message translates to:
-  /// **'Cycle Settings'**
-  String get sectionCycle;
-
-  /// No description provided for @lblCycleLength.
-  ///
-  /// In en, this message translates to:
-  /// **'Cycle Length'**
-  String get lblCycleLength;
-
-  /// No description provided for @lblPeriodLength.
-  ///
-  /// In en, this message translates to:
-  /// **'Period Length'**
-  String get lblPeriodLength;
 
   /// No description provided for @authLockedTitle.
   ///
@@ -587,16 +1377,34 @@ abstract class AppLocalizations {
   /// **'Biometrics not available on device'**
   String get authNotAvailable;
 
+  /// No description provided for @authBiometricsReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm to enable biometrics'**
+  String get authBiometricsReason;
+
+  /// No description provided for @msgBiometricsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometrics not available on this device'**
+  String get msgBiometricsError;
+
   /// No description provided for @pdfReportTitle.
   ///
   /// In en, this message translates to:
   /// **'EviMoon Health Report'**
   String get pdfReportTitle;
 
+  /// No description provided for @pdfReportSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Gynecological & Cycle History'**
+  String get pdfReportSubtitle;
+
   /// No description provided for @pdfCycleHistory.
   ///
   /// In en, this message translates to:
-  /// **'Cycle History Summary'**
+  /// **'Cycle History'**
   String get pdfCycleHistory;
 
   /// No description provided for @pdfHeaderStart.
@@ -608,13 +1416,13 @@ abstract class AppLocalizations {
   /// No description provided for @pdfHeaderEnd.
   ///
   /// In en, this message translates to:
-  /// **'Predicted End'**
+  /// **'End Date'**
   String get pdfHeaderEnd;
 
   /// No description provided for @pdfHeaderLength.
   ///
   /// In en, this message translates to:
-  /// **'Length (Days)'**
+  /// **'Length'**
   String get pdfHeaderLength;
 
   /// No description provided for @pdfCurrent.
@@ -626,7 +1434,7 @@ abstract class AppLocalizations {
   /// No description provided for @pdfGenerated.
   ///
   /// In en, this message translates to:
-  /// **'Generated'**
+  /// **'Date'**
   String get pdfGenerated;
 
   /// No description provided for @pdfPage.
@@ -635,11 +1443,131 @@ abstract class AppLocalizations {
   /// **'Page'**
   String get pdfPage;
 
+  /// No description provided for @pdfPatient.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient'**
+  String get pdfPatient;
+
+  /// No description provided for @pdfClinicalSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Clinical Summary'**
+  String get pdfClinicalSummary;
+
+  /// No description provided for @pdfDetailedLogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Detailed Logs'**
+  String get pdfDetailedLogs;
+
+  /// No description provided for @pdfAvgCycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg Cycle Length'**
+  String get pdfAvgCycle;
+
+  /// No description provided for @pdfAvgPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg Period'**
+  String get pdfAvgPeriod;
+
+  /// No description provided for @pdfPainReported.
+  ///
+  /// In en, this message translates to:
+  /// **'Pain Reported'**
+  String get pdfPainReported;
+
+  /// No description provided for @pdfTableDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get pdfTableDate;
+
+  /// No description provided for @pdfTableCD.
+  ///
+  /// In en, this message translates to:
+  /// **'CD'**
+  String get pdfTableCD;
+
+  /// No description provided for @pdfTableSymptoms.
+  ///
+  /// In en, this message translates to:
+  /// **'Symptoms'**
+  String get pdfTableSymptoms;
+
+  /// No description provided for @pdfTableBBT.
+  ///
+  /// In en, this message translates to:
+  /// **'BBT'**
+  String get pdfTableBBT;
+
+  /// No description provided for @pdfTableNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get pdfTableNotes;
+
+  /// No description provided for @pdfFlowShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Flow'**
+  String get pdfFlowShort;
+
+  /// No description provided for @unitDays.
+  ///
+  /// In en, this message translates to:
+  /// **'days'**
+  String get unitDays;
+
+  /// No description provided for @pdfDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'DISCLAIMER: This report is generated by EviMoon based on user-inputted data. It does not constitute a medical diagnosis.'**
+  String get pdfDisclaimer;
+
+  /// No description provided for @msgExportError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not generate PDF'**
+  String get msgExportError;
+
+  /// No description provided for @msgExportEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No data to export.'**
+  String get msgExportEmpty;
+
+  /// No description provided for @dialogDataInsufficientTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Insufficient Data'**
+  String get dialogDataInsufficientTitle;
+
+  /// No description provided for @dialogDataInsufficientBody.
+  ///
+  /// In en, this message translates to:
+  /// **'To generate a clinical report, we need at least 2 days of logs.'**
+  String get dialogDataInsufficientBody;
+
   /// No description provided for @dayTitle.
   ///
   /// In en, this message translates to:
   /// **'Day'**
   String get dayTitle;
+
+  /// No description provided for @insightTipTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip of the Day'**
+  String get insightTipTitle;
+
+  /// No description provided for @insightTipBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Energy levels drop during the luteal phase. It\'s a great time for yoga.'**
+  String get insightTipBody;
 
   /// No description provided for @insightMenstruationTitle.
   ///
@@ -701,1404 +1629,6 @@ abstract class AppLocalizations {
   /// **'Reduce stress and maintain healthy diet.'**
   String get insightLateSubtitle;
 
-  /// No description provided for @lblEnergy.
-  ///
-  /// In en, this message translates to:
-  /// **'Energy'**
-  String get lblEnergy;
-
-  /// No description provided for @lblMood.
-  ///
-  /// In en, this message translates to:
-  /// **'Mood'**
-  String get lblMood;
-
-  /// No description provided for @tapToClose.
-  ///
-  /// In en, this message translates to:
-  /// **'Tap to close'**
-  String get tapToClose;
-
-  /// No description provided for @btnPeriodStart.
-  ///
-  /// In en, this message translates to:
-  /// **'STARTED'**
-  String get btnPeriodStart;
-
-  /// No description provided for @btnPeriodEnd.
-  ///
-  /// In en, this message translates to:
-  /// **'ENDED'**
-  String get btnPeriodEnd;
-
-  /// No description provided for @dialogStartTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Start New Cycle?'**
-  String get dialogStartTitle;
-
-  /// No description provided for @dialogStartBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Today will be marked as Day 1 of your period.'**
-  String get dialogStartBody;
-
-  /// No description provided for @dialogEndTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'End Period?'**
-  String get dialogEndTitle;
-
-  /// No description provided for @dialogEndBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Your cycle phase will switch to follicular.'**
-  String get dialogEndBody;
-
-  /// No description provided for @btnConfirm.
-  ///
-  /// In en, this message translates to:
-  /// **'Confirm'**
-  String get btnConfirm;
-
-  /// No description provided for @btnCancel.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
-  String get btnCancel;
-
-  /// No description provided for @logFlow.
-  ///
-  /// In en, this message translates to:
-  /// **'Flow Intensity'**
-  String get logFlow;
-
-  /// No description provided for @logPain.
-  ///
-  /// In en, this message translates to:
-  /// **'Pain'**
-  String get logPain;
-
-  /// No description provided for @logMood.
-  ///
-  /// In en, this message translates to:
-  /// **'Mood'**
-  String get logMood;
-
-  /// No description provided for @logSleep.
-  ///
-  /// In en, this message translates to:
-  /// **'Sleep'**
-  String get logSleep;
-
-  /// No description provided for @logNotes.
-  ///
-  /// In en, this message translates to:
-  /// **'Notes'**
-  String get logNotes;
-
-  /// No description provided for @insightPhasesTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Cycle Phases'**
-  String get insightPhasesTitle;
-
-  /// No description provided for @insightPhasesSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Typical duration breakdown'**
-  String get insightPhasesSubtitle;
-
-  /// No description provided for @insightMoodTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Mood by Phase'**
-  String get insightMoodTitle;
-
-  /// No description provided for @insightMoodSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Average mood intensity'**
-  String get insightMoodSubtitle;
-
-  /// No description provided for @insightAvgCycle.
-  ///
-  /// In en, this message translates to:
-  /// **'Average Cycle Length'**
-  String get insightAvgCycle;
-
-  /// No description provided for @insightAvgPeriod.
-  ///
-  /// In en, this message translates to:
-  /// **'Average Period Length'**
-  String get insightAvgPeriod;
-
-  /// No description provided for @phaseShortMens.
-  ///
-  /// In en, this message translates to:
-  /// **'MENS'**
-  String get phaseShortMens;
-
-  /// No description provided for @phaseShortFoll.
-  ///
-  /// In en, this message translates to:
-  /// **'FOLL'**
-  String get phaseShortFoll;
-
-  /// No description provided for @phaseShortOvul.
-  ///
-  /// In en, this message translates to:
-  /// **'OVUL'**
-  String get phaseShortOvul;
-
-  /// No description provided for @phaseShortLut.
-  ///
-  /// In en, this message translates to:
-  /// **'LUT'**
-  String get phaseShortLut;
-
-  /// No description provided for @unitDaysShort.
-  ///
-  /// In en, this message translates to:
-  /// **'d'**
-  String get unitDaysShort;
-
-  /// No description provided for @insightBodyBalance.
-  ///
-  /// In en, this message translates to:
-  /// **'Body Balance'**
-  String get insightBodyBalance;
-
-  /// No description provided for @insightBodyBalanceSub.
-  ///
-  /// In en, this message translates to:
-  /// **'Follicular (Purple) vs Luteal (Orange)'**
-  String get insightBodyBalanceSub;
-
-  /// No description provided for @insightMoodFlow.
-  ///
-  /// In en, this message translates to:
-  /// **'Mood Flow'**
-  String get insightMoodFlow;
-
-  /// No description provided for @insightMoodFlowSub.
-  ///
-  /// In en, this message translates to:
-  /// **'Recent 30 days trend'**
-  String get insightMoodFlowSub;
-
-  /// No description provided for @paramEnergy.
-  ///
-  /// In en, this message translates to:
-  /// **'Energy'**
-  String get paramEnergy;
-
-  /// No description provided for @paramLibido.
-  ///
-  /// In en, this message translates to:
-  /// **'Libido'**
-  String get paramLibido;
-
-  /// No description provided for @paramSkin.
-  ///
-  /// In en, this message translates to:
-  /// **'Skin'**
-  String get paramSkin;
-
-  /// No description provided for @predTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Daily Forecast'**
-  String get predTitle;
-
-  /// No description provided for @predSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Based on your cycle & sleep patterns'**
-  String get predSubtitle;
-
-  /// No description provided for @recHighEnergy.
-  ///
-  /// In en, this message translates to:
-  /// **'Great day for heavy tasks or workouts!'**
-  String get recHighEnergy;
-
-  /// No description provided for @recLowEnergy.
-  ///
-  /// In en, this message translates to:
-  /// **'Take it easy. Prioritize rest today.'**
-  String get recLowEnergy;
-
-  /// No description provided for @recNormalEnergy.
-  ///
-  /// In en, this message translates to:
-  /// **'Maintain a steady pace.'**
-  String get recNormalEnergy;
-
-  /// No description provided for @btnWrong.
-  ///
-  /// In en, this message translates to:
-  /// **'Wrong'**
-  String get btnWrong;
-
-  /// No description provided for @msgFeedback.
-  ///
-  /// In en, this message translates to:
-  /// **'Is {metric} really {status} today?'**
-  String msgFeedback(Object metric, Object status);
-
-  /// No description provided for @paramFocus.
-  ///
-  /// In en, this message translates to:
-  /// **'Focus'**
-  String get paramFocus;
-
-  /// No description provided for @statusLow.
-  ///
-  /// In en, this message translates to:
-  /// **'Low'**
-  String get statusLow;
-
-  /// No description provided for @statusHigh.
-  ///
-  /// In en, this message translates to:
-  /// **'High'**
-  String get statusHigh;
-
-  /// No description provided for @statusNormal.
-  ///
-  /// In en, this message translates to:
-  /// **'Normal'**
-  String get statusNormal;
-
-  /// No description provided for @feedbackTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Feedback'**
-  String get feedbackTitle;
-
-  /// No description provided for @feedbackQuestion.
-  ///
-  /// In en, this message translates to:
-  /// **'Is your {metric} really {status} today?'**
-  String feedbackQuestion(Object metric, Object status);
-
-  /// No description provided for @btnYesCorrect.
-  ///
-  /// In en, this message translates to:
-  /// **'Yes, correct'**
-  String get btnYesCorrect;
-
-  /// No description provided for @btnNoWrong.
-  ///
-  /// In en, this message translates to:
-  /// **'No, it\'s wrong'**
-  String get btnNoWrong;
-
-  /// No description provided for @cocActivePhase.
-  ///
-  /// In en, this message translates to:
-  /// **'Active Pill Phase'**
-  String get cocActivePhase;
-
-  /// No description provided for @cocBreakPhase.
-  ///
-  /// In en, this message translates to:
-  /// **'Break Week'**
-  String get cocBreakPhase;
-
-  /// No description provided for @cocPredictionActive.
-  ///
-  /// In en, this message translates to:
-  /// **'{days} active pills remaining'**
-  String cocPredictionActive(Object days);
-
-  /// No description provided for @cocPredictionBreak.
-  ///
-  /// In en, this message translates to:
-  /// **'Start new pack in {days} days'**
-  String cocPredictionBreak(Object days);
-
-  /// No description provided for @btnStartNewPack.
-  ///
-  /// In en, this message translates to:
-  /// **'Start New Pack'**
-  String get btnStartNewPack;
-
-  /// No description provided for @btnRestartPack.
-  ///
-  /// In en, this message translates to:
-  /// **'Restart Pack'**
-  String get btnRestartPack;
-
-  /// No description provided for @dialogStartPackTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Start New Pack?'**
-  String get dialogStartPackTitle;
-
-  /// No description provided for @dialogStartPackBody.
-  ///
-  /// In en, this message translates to:
-  /// **'This will reset your cycle to Day 1. Use this when you open a fresh pack.'**
-  String get dialogStartPackBody;
-
-  /// No description provided for @pillTaken.
-  ///
-  /// In en, this message translates to:
-  /// **'Pill Taken'**
-  String get pillTaken;
-
-  /// No description provided for @pillTake.
-  ///
-  /// In en, this message translates to:
-  /// **'Take Your Pill'**
-  String get pillTake;
-
-  /// No description provided for @pillScheduled.
-  ///
-  /// In en, this message translates to:
-  /// **'Scheduled for {time}'**
-  String pillScheduled(String time);
-
-  /// No description provided for @blisterMyPack.
-  ///
-  /// In en, this message translates to:
-  /// **'My Pack'**
-  String get blisterMyPack;
-
-  /// No description provided for @blisterDay.
-  ///
-  /// In en, this message translates to:
-  /// **'Day {day} / {total}'**
-  String blisterDay(Object day, Object total);
-
-  /// No description provided for @blisterOverdue.
-  ///
-  /// In en, this message translates to:
-  /// **'Day {day} (Overdue)'**
-  String blisterOverdue(Object day);
-
-  /// No description provided for @blister21.
-  ///
-  /// In en, this message translates to:
-  /// **'21-Day Pack'**
-  String get blister21;
-
-  /// No description provided for @blister28.
-  ///
-  /// In en, this message translates to:
-  /// **'28-Day Pack'**
-  String get blister28;
-
-  /// No description provided for @legendTaken.
-  ///
-  /// In en, this message translates to:
-  /// **'Taken'**
-  String get legendTaken;
-
-  /// No description provided for @legendActive.
-  ///
-  /// In en, this message translates to:
-  /// **'Active'**
-  String get legendActive;
-
-  /// No description provided for @legendPlacebo.
-  ///
-  /// In en, this message translates to:
-  /// **'Placebo'**
-  String get legendPlacebo;
-
-  /// No description provided for @legendBreak.
-  ///
-  /// In en, this message translates to:
-  /// **'Break'**
-  String get legendBreak;
-
-  /// No description provided for @insightCOCActiveTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Protected'**
-  String get insightCOCActiveTitle;
-
-  /// No description provided for @insightCOCActiveBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Active pill phase. Make sure to take your pill at the same time daily.'**
-  String get insightCOCActiveBody;
-
-  /// No description provided for @insightCOCBreakTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Withdrawal Bleed'**
-  String get insightCOCBreakTitle;
-
-  /// No description provided for @insightCOCBreakBody.
-  ///
-  /// In en, this message translates to:
-  /// **'This is the break week. Bleeding is expected due to hormone drop.'**
-  String get insightCOCBreakBody;
-
-  /// No description provided for @settingsContraception.
-  ///
-  /// In en, this message translates to:
-  /// **'Contraception'**
-  String get settingsContraception;
-
-  /// No description provided for @settingsTrackPill.
-  ///
-  /// In en, this message translates to:
-  /// **'Track Contraceptive Pill'**
-  String get settingsTrackPill;
-
-  /// No description provided for @settingsPackType.
-  ///
-  /// In en, this message translates to:
-  /// **'Pack Type'**
-  String get settingsPackType;
-
-  /// No description provided for @settingsPills.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} Pills'**
-  String settingsPills(Object count);
-
-  /// No description provided for @settingsReminder.
-  ///
-  /// In en, this message translates to:
-  /// **'Reminder'**
-  String get settingsReminder;
-
-  /// No description provided for @settingsPackSettings.
-  ///
-  /// In en, this message translates to:
-  /// **'Pack Settings'**
-  String get settingsPackSettings;
-
-  /// No description provided for @settingsPlaceboCount.
-  ///
-  /// In en, this message translates to:
-  /// **'Placebo Days'**
-  String get settingsPlaceboCount;
-
-  /// No description provided for @settingsBreakDuration.
-  ///
-  /// In en, this message translates to:
-  /// **'Break Duration'**
-  String get settingsBreakDuration;
-
-  /// No description provided for @settingsGeneral.
-  ///
-  /// In en, this message translates to:
-  /// **'General'**
-  String get settingsGeneral;
-
-  /// No description provided for @settingsLanguage.
-  ///
-  /// In en, this message translates to:
-  /// **'Language'**
-  String get settingsLanguage;
-
-  /// No description provided for @settingsNotifs.
-  ///
-  /// In en, this message translates to:
-  /// **'Notifications'**
-  String get settingsNotifs;
-
-  /// No description provided for @settingsData.
-  ///
-  /// In en, this message translates to:
-  /// **'Data & Security'**
-  String get settingsData;
-
-  /// No description provided for @settingsBiometrics.
-  ///
-  /// In en, this message translates to:
-  /// **'Biometric Login'**
-  String get settingsBiometrics;
-
-  /// No description provided for @settingsExport.
-  ///
-  /// In en, this message translates to:
-  /// **'Download PDF Report'**
-  String get settingsExport;
-
-  /// No description provided for @settingsReset.
-  ///
-  /// In en, this message translates to:
-  /// **'Reset All Data'**
-  String get settingsReset;
-
-  /// No description provided for @dialogResetTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Reset Everything?'**
-  String get dialogResetTitle;
-
-  /// No description provided for @dialogResetBody.
-  ///
-  /// In en, this message translates to:
-  /// **'This will delete all your data permanently. This action cannot be undone.'**
-  String get dialogResetBody;
-
-  /// No description provided for @btnDelete.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete'**
-  String get btnDelete;
-
-  /// No description provided for @logSymptomsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Log Symptoms'**
-  String get logSymptomsTitle;
-
-  /// No description provided for @msgSaved.
-  ///
-  /// In en, this message translates to:
-  /// **'Saved!'**
-  String get msgSaved;
-
-  /// No description provided for @logSkin.
-  ///
-  /// In en, this message translates to:
-  /// **'Skin Condition'**
-  String get logSkin;
-
-  /// No description provided for @logLibido.
-  ///
-  /// In en, this message translates to:
-  /// **'Libido'**
-  String get logLibido;
-
-  /// No description provided for @symptomNausea.
-  ///
-  /// In en, this message translates to:
-  /// **'Nausea'**
-  String get symptomNausea;
-
-  /// No description provided for @symptomBloating.
-  ///
-  /// In en, this message translates to:
-  /// **'Bloating'**
-  String get symptomBloating;
-
-  /// No description provided for @lblNoData.
-  ///
-  /// In en, this message translates to:
-  /// **'--'**
-  String get lblNoData;
-
-  /// No description provided for @lblNoSymptoms.
-  ///
-  /// In en, this message translates to:
-  /// **'No symptoms logged.'**
-  String get lblNoSymptoms;
-
-  /// No description provided for @notifPillTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Time to take your pill!'**
-  String get notifPillTitle;
-
-  /// No description provided for @notifPillBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Stay protected and track your cycle.'**
-  String get notifPillBody;
-
-  /// No description provided for @logVitals.
-  ///
-  /// In en, this message translates to:
-  /// **'Vitals'**
-  String get logVitals;
-
-  /// No description provided for @lblTemp.
-  ///
-  /// In en, this message translates to:
-  /// **'Temperature'**
-  String get lblTemp;
-
-  /// No description provided for @lblWeight.
-  ///
-  /// In en, this message translates to:
-  /// **'Weight'**
-  String get lblWeight;
-
-  /// No description provided for @lblLifestyle.
-  ///
-  /// In en, this message translates to:
-  /// **'Lifestyle Factors'**
-  String get lblLifestyle;
-
-  /// No description provided for @factorStress.
-  ///
-  /// In en, this message translates to:
-  /// **'High Stress'**
-  String get factorStress;
-
-  /// No description provided for @factorAlcohol.
-  ///
-  /// In en, this message translates to:
-  /// **'Alcohol'**
-  String get factorAlcohol;
-
-  /// No description provided for @factorTravel.
-  ///
-  /// In en, this message translates to:
-  /// **'Travel'**
-  String get factorTravel;
-
-  /// No description provided for @factorSport.
-  ///
-  /// In en, this message translates to:
-  /// **'Exercise'**
-  String get factorSport;
-
-  /// No description provided for @hintNotes.
-  ///
-  /// In en, this message translates to:
-  /// **'Add a note...'**
-  String get hintNotes;
-
-  /// No description provided for @symptomAcne.
-  ///
-  /// In en, this message translates to:
-  /// **'Acne'**
-  String get symptomAcne;
-
-  /// No description provided for @lblLifestyleHeader.
-  ///
-  /// In en, this message translates to:
-  /// **'Lifestyle'**
-  String get lblLifestyleHeader;
-
-  /// No description provided for @predInsightHormones.
-  ///
-  /// In en, this message translates to:
-  /// **'Hormones: {hormone} is rising.'**
-  String predInsightHormones(Object hormone);
-
-  /// No description provided for @predMismatchTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Feeling different?'**
-  String get predMismatchTitle;
-
-  /// No description provided for @predMismatchBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Tap an icon to adjust the advice.'**
-  String get predMismatchBody;
-
-  /// No description provided for @btnAdjust.
-  ///
-  /// In en, this message translates to:
-  /// **'Adjust'**
-  String get btnAdjust;
-
-  /// No description provided for @stateLow.
-  ///
-  /// In en, this message translates to:
-  /// **'Low'**
-  String get stateLow;
-
-  /// No description provided for @stateMedium.
-  ///
-  /// In en, this message translates to:
-  /// **'Medium'**
-  String get stateMedium;
-
-  /// No description provided for @stateHigh.
-  ///
-  /// In en, this message translates to:
-  /// **'High'**
-  String get stateHigh;
-
-  /// No description provided for @tipLowEnergy.
-  ///
-  /// In en, this message translates to:
-  /// **'Rest day valid. Try gentle yoga or a nap.'**
-  String get tipLowEnergy;
-
-  /// No description provided for @tipHighEnergy.
-  ///
-  /// In en, this message translates to:
-  /// **'Great time for cardio or tackling complex tasks!'**
-  String get tipHighEnergy;
-
-  /// No description provided for @tipLowMood.
-  ///
-  /// In en, this message translates to:
-  /// **'Be gentle with yourself. Chocolate helps.'**
-  String get tipLowMood;
-
-  /// No description provided for @tipHighMood.
-  ///
-  /// In en, this message translates to:
-  /// **'Share your vibes! Socialize or create something.'**
-  String get tipHighMood;
-
-  /// No description provided for @tipLowFocus.
-  ///
-  /// In en, this message translates to:
-  /// **'Avoid multitasking. Pick one small goal.'**
-  String get tipLowFocus;
-
-  /// No description provided for @tipHighFocus.
-  ///
-  /// In en, this message translates to:
-  /// **'Deep work mode. Tackle the hardest project.'**
-  String get tipHighFocus;
-
-  /// No description provided for @hormoneEstrogen.
-  ///
-  /// In en, this message translates to:
-  /// **'Estrogen'**
-  String get hormoneEstrogen;
-
-  /// No description provided for @hormoneProgesterone.
-  ///
-  /// In en, this message translates to:
-  /// **'Progesterone'**
-  String get hormoneProgesterone;
-
-  /// No description provided for @hormoneReset.
-  ///
-  /// In en, this message translates to:
-  /// **'Hormonal Reset'**
-  String get hormoneReset;
-
-  /// No description provided for @onboardTitle1.
-  ///
-  /// In en, this message translates to:
-  /// **'Welcome to EviMoon'**
-  String get onboardTitle1;
-
-  /// No description provided for @onboardBody1.
-  ///
-  /// In en, this message translates to:
-  /// **'Track your cycle, understand your body, and live in harmony with your natural rhythm.'**
-  String get onboardBody1;
-
-  /// No description provided for @onboardTitle2.
-  ///
-  /// In en, this message translates to:
-  /// **'Last Period Start'**
-  String get onboardTitle2;
-
-  /// No description provided for @onboardBody2.
-  ///
-  /// In en, this message translates to:
-  /// **'Please select the first day of your last menstruation to help us calibrate.'**
-  String get onboardBody2;
-
-  /// No description provided for @onboardTitle3.
-  ///
-  /// In en, this message translates to:
-  /// **'Cycle Length'**
-  String get onboardTitle3;
-
-  /// No description provided for @onboardBody3.
-  ///
-  /// In en, this message translates to:
-  /// **'How many days usually pass between periods? The average is 28 days.'**
-  String get onboardBody3;
-
-  /// No description provided for @daysUnit.
-  ///
-  /// In en, this message translates to:
-  /// **'days'**
-  String get daysUnit;
-
-  /// No description provided for @insightVitals.
-  ///
-  /// In en, this message translates to:
-  /// **'Body Vitals'**
-  String get insightVitals;
-
-  /// No description provided for @hadSex.
-  ///
-  /// In en, this message translates to:
-  /// **'Had Sex'**
-  String get hadSex;
-
-  /// No description provided for @protectedSex.
-  ///
-  /// In en, this message translates to:
-  /// **'Protected'**
-  String get protectedSex;
-
-  /// No description provided for @lblIntimacy.
-  ///
-  /// In en, this message translates to:
-  /// **'Intimacy'**
-  String get lblIntimacy;
-
-  /// No description provided for @lblWellness.
-  ///
-  /// In en, this message translates to:
-  /// **'Wellness'**
-  String get lblWellness;
-
-  /// No description provided for @insightVitalsSub.
-  ///
-  /// In en, this message translates to:
-  /// **'Temperature & Weight tracking'**
-  String get insightVitalsSub;
-
-  /// No description provided for @cocDayInfo.
-  ///
-  /// In en, this message translates to:
-  /// **'Day {day} of 28'**
-  String cocDayInfo(int day);
-
-  /// No description provided for @dialogPackTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose Pack Type'**
-  String get dialogPackTitle;
-
-  /// No description provided for @dialogPackSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Select the pill pack format you use.'**
-  String get dialogPackSubtitle;
-
-  /// No description provided for @pack21Title.
-  ///
-  /// In en, this message translates to:
-  /// **'21 Pills'**
-  String get pack21Title;
-
-  /// No description provided for @pack21Subtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'21 Active + 7 Days Break'**
-  String get pack21Subtitle;
-
-  /// No description provided for @pack28Title.
-  ///
-  /// In en, this message translates to:
-  /// **'28 Pills'**
-  String get pack28Title;
-
-  /// No description provided for @pack28Subtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'21 Active + 7 Placebo'**
-  String get pack28Subtitle;
-
-  /// No description provided for @btnSaveSettings.
-  ///
-  /// In en, this message translates to:
-  /// **'Save Settings'**
-  String get btnSaveSettings;
-
-  /// No description provided for @dialogCOCStartTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Track Contraception?'**
-  String get dialogCOCStartTitle;
-
-  /// No description provided for @dialogCOCStartSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose how you want to start tracking your pill pack.'**
-  String get dialogCOCStartSubtitle;
-
-  /// No description provided for @optionFreshPack.
-  ///
-  /// In en, this message translates to:
-  /// **'Start Fresh Pack'**
-  String get optionFreshPack;
-
-  /// No description provided for @optionFreshPackSub.
-  ///
-  /// In en, this message translates to:
-  /// **'I\'m starting a new pack today'**
-  String get optionFreshPackSub;
-
-  /// No description provided for @optionContinuePack.
-  ///
-  /// In en, this message translates to:
-  /// **'Continue Current'**
-  String get optionContinuePack;
-
-  /// No description provided for @optionContinuePackSub.
-  ///
-  /// In en, this message translates to:
-  /// **'I\'m in the middle of a pack'**
-  String get optionContinuePackSub;
-
-  /// No description provided for @labelOr.
-  ///
-  /// In en, this message translates to:
-  /// **'OR'**
-  String get labelOr;
-
-  /// No description provided for @dialogCancel.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
-  String get dialogCancel;
-
-  /// No description provided for @dialogResetConfirm.
-  ///
-  /// In en, this message translates to:
-  /// **'Reset'**
-  String get dialogResetConfirm;
-
-  /// No description provided for @insightsOverview.
-  ///
-  /// In en, this message translates to:
-  /// **'Overview'**
-  String get insightsOverview;
-
-  /// No description provided for @insightsHealth.
-  ///
-  /// In en, this message translates to:
-  /// **'Health'**
-  String get insightsHealth;
-
-  /// No description provided for @insightsPatterns.
-  ///
-  /// In en, this message translates to:
-  /// **'Patterns'**
-  String get insightsPatterns;
-
-  /// No description provided for @insightsVitals.
-  ///
-  /// In en, this message translates to:
-  /// **'Body Vitals'**
-  String get insightsVitals;
-
-  /// No description provided for @insightsVitalsSub.
-  ///
-  /// In en, this message translates to:
-  /// **'Temperature & Weight tracking'**
-  String get insightsVitalsSub;
-
-  /// No description provided for @currentCycle.
-  ///
-  /// In en, this message translates to:
-  /// **'Current cycle'**
-  String get currentCycle;
-
-  /// No description provided for @regularity.
-  ///
-  /// In en, this message translates to:
-  /// **'Regularity'**
-  String get regularity;
-
-  /// No description provided for @ovulation.
-  ///
-  /// In en, this message translates to:
-  /// **'Ovulation'**
-  String get ovulation;
-
-  /// No description provided for @averageMood.
-  ///
-  /// In en, this message translates to:
-  /// **'Average mood'**
-  String get averageMood;
-
-  /// No description provided for @sleepQuality.
-  ///
-  /// In en, this message translates to:
-  /// **'Sleep quality'**
-  String get sleepQuality;
-
-  /// No description provided for @nextPhases.
-  ///
-  /// In en, this message translates to:
-  /// **'Next phases'**
-  String get nextPhases;
-
-  /// No description provided for @prediction.
-  ///
-  /// In en, this message translates to:
-  /// **'Prediction'**
-  String get prediction;
-
-  /// No description provided for @sleepAndEnergy.
-  ///
-  /// In en, this message translates to:
-  /// **'Sleep and energy by phase'**
-  String get sleepAndEnergy;
-
-  /// No description provided for @bodyTemperature.
-  ///
-  /// In en, this message translates to:
-  /// **'Body temperature'**
-  String get bodyTemperature;
-
-  /// No description provided for @basalTemperature.
-  ///
-  /// In en, this message translates to:
-  /// **'Basal temperature for 14 days'**
-  String get basalTemperature;
-
-  /// No description provided for @positiveTrend.
-  ///
-  /// In en, this message translates to:
-  /// **'Positive trend'**
-  String get positiveTrend;
-
-  /// No description provided for @recommendation.
-  ///
-  /// In en, this message translates to:
-  /// **'Recommendation'**
-  String get recommendation;
-
-  /// No description provided for @cycleRegularity.
-  ///
-  /// In en, this message translates to:
-  /// **'Cycle regularity'**
-  String get cycleRegularity;
-
-  /// No description provided for @fertilityWindow.
-  ///
-  /// In en, this message translates to:
-  /// **'Fertility window'**
-  String get fertilityWindow;
-
-  /// No description provided for @symptomPatterns.
-  ///
-  /// In en, this message translates to:
-  /// **'Symptom patterns'**
-  String get symptomPatterns;
-
-  /// No description provided for @correlationAnalysis.
-  ///
-  /// In en, this message translates to:
-  /// **'Correlation analysis'**
-  String get correlationAnalysis;
-
-  /// No description provided for @historicalComparison.
-  ///
-  /// In en, this message translates to:
-  /// **'Historical comparison'**
-  String get historicalComparison;
-
-  /// No description provided for @dailyMetrics.
-  ///
-  /// In en, this message translates to:
-  /// **'Daily metrics'**
-  String get dailyMetrics;
-
-  /// No description provided for @trends.
-  ///
-  /// In en, this message translates to:
-  /// **'Trends'**
-  String get trends;
-
-  /// No description provided for @phaseComparison.
-  ///
-  /// In en, this message translates to:
-  /// **'Phase comparison'**
-  String get phaseComparison;
-
-  /// No description provided for @energyEfficiency.
-  ///
-  /// In en, this message translates to:
-  /// **'Energy efficiency'**
-  String get energyEfficiency;
-
-  /// No description provided for @sleepEfficiency.
-  ///
-  /// In en, this message translates to:
-  /// **'Sleep efficiency'**
-  String get sleepEfficiency;
-
-  /// No description provided for @start.
-  ///
-  /// In en, this message translates to:
-  /// **'Start'**
-  String get start;
-
-  /// No description provided for @end.
-  ///
-  /// In en, this message translates to:
-  /// **'End'**
-  String get end;
-
-  /// No description provided for @today.
-  ///
-  /// In en, this message translates to:
-  /// **'Today'**
-  String get today;
-
-  /// No description provided for @improvement.
-  ///
-  /// In en, this message translates to:
-  /// **'Improvement'**
-  String get improvement;
-
-  /// No description provided for @insightsNoData.
-  ///
-  /// In en, this message translates to:
-  /// **'No data yet'**
-  String get insightsNoData;
-
-  /// No description provided for @insightsNoDataSub.
-  ///
-  /// In en, this message translates to:
-  /// **'Add daily measurements to see insights'**
-  String get insightsNoDataSub;
-
-  /// No description provided for @insightsPredictedOvulation.
-  ///
-  /// In en, this message translates to:
-  /// **'Predicted ovulation in {days} days'**
-  String insightsPredictedOvulation(Object days);
-
-  /// No description provided for @insightsPredictedPeriod.
-  ///
-  /// In en, this message translates to:
-  /// **'Predicted period in {days} days'**
-  String insightsPredictedPeriod(Object days);
-
-  /// No description provided for @insightsPredictedFertile.
-  ///
-  /// In en, this message translates to:
-  /// **'Fertile window in {days} days'**
-  String insightsPredictedFertile(Object days);
-
-  /// No description provided for @insightsCycleDay.
-  ///
-  /// In en, this message translates to:
-  /// **'Cycle day {day}'**
-  String insightsCycleDay(Object day);
-
-  /// No description provided for @insightsAvgValues.
-  ///
-  /// In en, this message translates to:
-  /// **'Average values over last 3 cycles'**
-  String get insightsAvgValues;
-
-  /// No description provided for @insightsPersonalizedTips.
-  ///
-  /// In en, this message translates to:
-  /// **'Personalized tips for you'**
-  String get insightsPersonalizedTips;
-
-  /// No description provided for @insightsBasedOnPatterns.
-  ///
-  /// In en, this message translates to:
-  /// **'Based on your patterns'**
-  String get insightsBasedOnPatterns;
-
-  /// No description provided for @insightsSeeMore.
-  ///
-  /// In en, this message translates to:
-  /// **'See more insights'**
-  String get insightsSeeMore;
-
-  /// No description provided for @insightsExportData.
-  ///
-  /// In en, this message translates to:
-  /// **'Export data'**
-  String get insightsExportData;
-
-  /// No description provided for @insightsShareInsights.
-  ///
-  /// In en, this message translates to:
-  /// **'Share insights'**
-  String get insightsShareInsights;
-
-  /// No description provided for @insightsSetReminder.
-  ///
-  /// In en, this message translates to:
-  /// **'Set reminder'**
-  String get insightsSetReminder;
-
-  /// No description provided for @insightsCompareCycles.
-  ///
-  /// In en, this message translates to:
-  /// **'Compare cycles'**
-  String get insightsCompareCycles;
-
-  /// No description provided for @insightsGenerateReport.
-  ///
-  /// In en, this message translates to:
-  /// **'Generate report'**
-  String get insightsGenerateReport;
-
-  /// No description provided for @insightTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Analytics'**
-  String get insightTitle;
-
-  /// No description provided for @insightRadarTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Cycle Balance'**
-  String get insightRadarTitle;
-
-  /// No description provided for @insightRadarSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Follicular (Blue) vs Luteal (Orange)'**
-  String get insightRadarSubtitle;
-
-  /// No description provided for @insightSymptomsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Top Symptoms'**
-  String get insightSymptomsTitle;
-
-  /// No description provided for @insightSymptomsSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Most frequent occurrences'**
-  String get insightSymptomsSubtitle;
-
-  /// No description provided for @radarEnergy.
-  ///
-  /// In en, this message translates to:
-  /// **'Energy'**
-  String get radarEnergy;
-
-  /// No description provided for @radarMood.
-  ///
-  /// In en, this message translates to:
-  /// **'Mood'**
-  String get radarMood;
-
-  /// No description provided for @radarSleep.
-  ///
-  /// In en, this message translates to:
-  /// **'Sleep'**
-  String get radarSleep;
-
-  /// No description provided for @radarSkin.
-  ///
-  /// In en, this message translates to:
-  /// **'Skin'**
-  String get radarSkin;
-
-  /// No description provided for @radarLibido.
-  ///
-  /// In en, this message translates to:
-  /// **'Libido'**
-  String get radarLibido;
-
-  /// No description provided for @phaseFollicularLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Follicular'**
-  String get phaseFollicularLabel;
-
-  /// No description provided for @phaseLutealLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Luteal'**
-  String get phaseLutealLabel;
-
-  /// No description provided for @lblOccurrences.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} times'**
-  String lblOccurrences(int count);
-
-  /// No description provided for @lblNoDataChart.
-  ///
-  /// In en, this message translates to:
-  /// **'Not enough data yet. Keep logging!'**
-  String get lblNoDataChart;
-
-  /// No description provided for @insightCorrelationTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Smart Patterns'**
-  String get insightCorrelationTitle;
-
-  /// No description provided for @insightCorrelationSub.
-  ///
-  /// In en, this message translates to:
-  /// **'How your lifestyle affects your body'**
-  String get insightCorrelationSub;
-
-  /// No description provided for @insightPatternText.
-  ///
-  /// In en, this message translates to:
-  /// **'When you log {factor}, you experience {symptom} in {percent}% of cases.'**
-  String insightPatternText(String factor, String symptom, int percent);
-
-  /// No description provided for @insightCycleDNA.
-  ///
-  /// In en, this message translates to:
-  /// **'Your Cycle DNA'**
-  String get insightCycleDNA;
-
-  /// No description provided for @insightDNASub.
-  ///
-  /// In en, this message translates to:
-  /// **'Follicular vs Luteal Persona'**
-  String get insightDNASub;
-
-  /// No description provided for @lblFollicular.
-  ///
-  /// In en, this message translates to:
-  /// **'Follicular'**
-  String get lblFollicular;
-
-  /// No description provided for @lblLuteal.
-  ///
-  /// In en, this message translates to:
-  /// **'Luteal'**
-  String get lblLuteal;
-
-  /// No description provided for @dialogPeriodStartTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'When did your period start?'**
-  String get dialogPeriodStartTitle;
-
-  /// No description provided for @dialogPeriodStartBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Did your period start today or did you forget to log it?'**
-  String get dialogPeriodStartBody;
-
-  /// No description provided for @btnToday.
-  ///
-  /// In en, this message translates to:
-  /// **'Today'**
-  String get btnToday;
-
-  /// No description provided for @btnAnotherDay.
-  ///
-  /// In en, this message translates to:
-  /// **'Select Date'**
-  String get btnAnotherDay;
-
-  /// No description provided for @splashSlogan.
-  ///
-  /// In en, this message translates to:
-  /// **'Listen to your rhythm'**
-  String get splashSlogan;
-
-  /// No description provided for @settingsSupport.
-  ///
-  /// In en, this message translates to:
-  /// **'Support & Feedback'**
-  String get settingsSupport;
-
-  /// No description provided for @emailSubject.
-  ///
-  /// In en, this message translates to:
-  /// **'EviMoon Feedback'**
-  String get emailSubject;
-
-  /// No description provided for @emailBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Hello EviMoon Team,\n\nI have a question/suggestion regarding the app on'**
-  String get emailBody;
-
   /// No description provided for @insightProstaglandinsTitle.
   ///
   /// In en, this message translates to:
@@ -2150,7 +1680,7 @@ abstract class AppLocalizations {
   /// No description provided for @insightFertilityTitle.
   ///
   /// In en, this message translates to:
-  /// **'Fertility Signals'**
+  /// **'Peak Fertility'**
   String get insightFertilityTitle;
 
   /// No description provided for @insightFertilityBody.
@@ -2218,6 +1748,588 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Light bleeding can happen during ovulation or due to stress.'**
   String get insightSpottingBody;
+
+  /// No description provided for @tipPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest up and eat iron-rich foods.'**
+  String get tipPeriod;
+
+  /// No description provided for @tipOvulation.
+  ///
+  /// In en, this message translates to:
+  /// **'Peak fertility! Ideal time to conceive.'**
+  String get tipOvulation;
+
+  /// No description provided for @tipLutealEarly.
+  ///
+  /// In en, this message translates to:
+  /// **'Progesterone is rising. Stay hydrated.'**
+  String get tipLutealEarly;
+
+  /// No description provided for @tipLutealLate.
+  ///
+  /// In en, this message translates to:
+  /// **'Implantation window. Avoid high stress.'**
+  String get tipLutealLate;
+
+  /// No description provided for @tipFollicular.
+  ///
+  /// In en, this message translates to:
+  /// **'Energy is rising. Good for exercise.'**
+  String get tipFollicular;
+
+  /// No description provided for @tipLowEnergy.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest day valid. Try gentle yoga or a nap.'**
+  String get tipLowEnergy;
+
+  /// No description provided for @tipHighEnergy.
+  ///
+  /// In en, this message translates to:
+  /// **'Great time for cardio or tackling complex tasks!'**
+  String get tipHighEnergy;
+
+  /// No description provided for @tipLowMood.
+  ///
+  /// In en, this message translates to:
+  /// **'Be gentle with yourself. Chocolate helps.'**
+  String get tipLowMood;
+
+  /// No description provided for @tipHighMood.
+  ///
+  /// In en, this message translates to:
+  /// **'Share your vibes! Socialize or create something.'**
+  String get tipHighMood;
+
+  /// No description provided for @tipLowFocus.
+  ///
+  /// In en, this message translates to:
+  /// **'Avoid multitasking. Pick one small goal.'**
+  String get tipLowFocus;
+
+  /// No description provided for @tipHighFocus.
+  ///
+  /// In en, this message translates to:
+  /// **'Deep work mode. Tackle the hardest project.'**
+  String get tipHighFocus;
+
+  /// No description provided for @dialogStartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start New Cycle?'**
+  String get dialogStartTitle;
+
+  /// No description provided for @dialogStartBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Today will be marked as Day 1 of your period.'**
+  String get dialogStartBody;
+
+  /// No description provided for @dialogEndTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'End Period?'**
+  String get dialogEndTitle;
+
+  /// No description provided for @dialogEndBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your cycle phase will switch to follicular.'**
+  String get dialogEndBody;
+
+  /// No description provided for @btnPeriodStart.
+  ///
+  /// In en, this message translates to:
+  /// **'STARTED'**
+  String get btnPeriodStart;
+
+  /// No description provided for @btnPeriodEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'ENDED'**
+  String get btnPeriodEnd;
+
+  /// No description provided for @dialogPeriodStartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Period Started?'**
+  String get dialogPeriodStartTitle;
+
+  /// No description provided for @dialogPeriodStartBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Did your period start today or did you forget to log it?'**
+  String get dialogPeriodStartBody;
+
+  /// No description provided for @btnToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get btnToday;
+
+  /// No description provided for @btnYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get btnYesterday;
+
+  /// No description provided for @btnPickDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Date'**
+  String get btnPickDate;
+
+  /// No description provided for @btnAnotherDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Date'**
+  String get btnAnotherDay;
+
+  /// No description provided for @cocActivePhase.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Pill Phase'**
+  String get cocActivePhase;
+
+  /// No description provided for @cocBreakPhase.
+  ///
+  /// In en, this message translates to:
+  /// **'Break Week'**
+  String get cocBreakPhase;
+
+  /// No description provided for @cocPredictionActive.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} active pills remaining'**
+  String cocPredictionActive(int days);
+
+  /// No description provided for @cocPredictionBreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Start new pack in {days} days'**
+  String cocPredictionBreak(int days);
+
+  /// No description provided for @btnStartNewPack.
+  ///
+  /// In en, this message translates to:
+  /// **'Start New Pack'**
+  String get btnStartNewPack;
+
+  /// No description provided for @btnRestartPack.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart Pack'**
+  String get btnRestartPack;
+
+  /// No description provided for @dialogStartPackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start New Pack?'**
+  String get dialogStartPackTitle;
+
+  /// No description provided for @dialogStartPackBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This will reset your cycle to Day 1. Use this when you open a fresh pack.'**
+  String get dialogStartPackBody;
+
+  /// No description provided for @dialogCOCStartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track Contraception?'**
+  String get dialogCOCStartTitle;
+
+  /// No description provided for @dialogCOCStartSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how you want to start tracking your pill pack.'**
+  String get dialogCOCStartSubtitle;
+
+  /// No description provided for @optionFreshPack.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Fresh Pack'**
+  String get optionFreshPack;
+
+  /// No description provided for @optionFreshPackSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Today is Day 1'**
+  String get optionFreshPackSub;
+
+  /// No description provided for @optionContinuePack.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue Current'**
+  String get optionContinuePack;
+
+  /// No description provided for @optionContinuePackSub.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m in the middle of a pack'**
+  String get optionContinuePackSub;
+
+  /// No description provided for @labelOr.
+  ///
+  /// In en, this message translates to:
+  /// **'OR'**
+  String get labelOr;
+
+  /// No description provided for @cocDayInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day} of 28'**
+  String cocDayInfo(int day);
+
+  /// No description provided for @settingsContraception.
+  ///
+  /// In en, this message translates to:
+  /// **'Contraception'**
+  String get settingsContraception;
+
+  /// No description provided for @settingsTrackPill.
+  ///
+  /// In en, this message translates to:
+  /// **'Track Contraceptive Pill'**
+  String get settingsTrackPill;
+
+  /// No description provided for @settingsPackType.
+  ///
+  /// In en, this message translates to:
+  /// **'Pack Type'**
+  String get settingsPackType;
+
+  /// No description provided for @settingsPills.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Pills'**
+  String settingsPills(int count);
+
+  /// No description provided for @settingsReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder'**
+  String get settingsReminder;
+
+  /// No description provided for @settingsPackSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Pack Settings'**
+  String get settingsPackSettings;
+
+  /// No description provided for @settingsPlaceboCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Placebo Days'**
+  String get settingsPlaceboCount;
+
+  /// No description provided for @settingsBreakDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Break Duration'**
+  String get settingsBreakDuration;
+
+  /// No description provided for @dialogPackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Pack Type'**
+  String get dialogPackTitle;
+
+  /// No description provided for @dialogPackSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the pill pack format you use.'**
+  String get dialogPackSubtitle;
+
+  /// No description provided for @pack21Title.
+  ///
+  /// In en, this message translates to:
+  /// **'21 Pills'**
+  String get pack21Title;
+
+  /// No description provided for @pack21Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'21 Active + 7 Days Break'**
+  String get pack21Subtitle;
+
+  /// No description provided for @pack28Title.
+  ///
+  /// In en, this message translates to:
+  /// **'28 Pills'**
+  String get pack28Title;
+
+  /// No description provided for @pack28Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'21 Active + 7 Placebo'**
+  String get pack28Subtitle;
+
+  /// No description provided for @pack21.
+  ///
+  /// In en, this message translates to:
+  /// **'21 Active + 7 Break'**
+  String get pack21;
+
+  /// No description provided for @pack28.
+  ///
+  /// In en, this message translates to:
+  /// **'28 Active (No Break)'**
+  String get pack28;
+
+  /// No description provided for @pack24.
+  ///
+  /// In en, this message translates to:
+  /// **'24 Active + 4 Dummy'**
+  String get pack24;
+
+  /// No description provided for @pillTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'Pill Taken'**
+  String get pillTaken;
+
+  /// No description provided for @pillTake.
+  ///
+  /// In en, this message translates to:
+  /// **'Take Your Pill'**
+  String get pillTake;
+
+  /// No description provided for @pillScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled for {time}'**
+  String pillScheduled(String time);
+
+  /// No description provided for @blisterMyPack.
+  ///
+  /// In en, this message translates to:
+  /// **'My Pack'**
+  String get blisterMyPack;
+
+  /// No description provided for @blisterDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day} / {total}'**
+  String blisterDay(int day, int total);
+
+  /// No description provided for @blisterOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day} (Overdue)'**
+  String blisterOverdue(int day);
+
+  /// No description provided for @blister21.
+  ///
+  /// In en, this message translates to:
+  /// **'21-Day Pack'**
+  String get blister21;
+
+  /// No description provided for @blister28.
+  ///
+  /// In en, this message translates to:
+  /// **'28-Day Pack'**
+  String get blister28;
+
+  /// No description provided for @legendTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken'**
+  String get legendTaken;
+
+  /// No description provided for @legendActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get legendActive;
+
+  /// No description provided for @legendPlacebo.
+  ///
+  /// In en, this message translates to:
+  /// **'Placebo'**
+  String get legendPlacebo;
+
+  /// No description provided for @legendBreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Break'**
+  String get legendBreak;
+
+  /// No description provided for @insightCOCActiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Protected'**
+  String get insightCOCActiveTitle;
+
+  /// No description provided for @insightCOCActiveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Active pill phase. Make sure to take your pill at the same time daily.'**
+  String get insightCOCActiveBody;
+
+  /// No description provided for @insightCOCBreakTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal Bleed'**
+  String get insightCOCBreakTitle;
+
+  /// No description provided for @insightCOCBreakBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This is the break week. Bleeding is expected due to hormone drop.'**
+  String get insightCOCBreakBody;
+
+  /// No description provided for @sectionCycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cycle Settings'**
+  String get sectionCycle;
+
+  /// No description provided for @lblCycleLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Cycle Length'**
+  String get lblCycleLength;
+
+  /// No description provided for @lblPeriodLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Period Length'**
+  String get lblPeriodLength;
+
+  /// No description provided for @lblAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Average'**
+  String get lblAverage;
+
+  /// No description provided for @lblNormalRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal: 21-35 days'**
+  String get lblNormalRange;
+
+  /// No description provided for @emailSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'EviMoon Feedback'**
+  String get emailSubject;
+
+  /// No description provided for @emailBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello EviMoon Team,\n\nI have a question/suggestion regarding the app:'**
+  String get emailBody;
+
+  /// No description provided for @msgEmailError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open email client. Write to: {email}'**
+  String msgEmailError(String email);
+
+  /// No description provided for @onboardTitle1.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to EviMoon'**
+  String get onboardTitle1;
+
+  /// No description provided for @onboardBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'Track your cycle, understand your body, and live in harmony with your natural rhythm.'**
+  String get onboardBody1;
+
+  /// No description provided for @onboardTitle2.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Period Start'**
+  String get onboardTitle2;
+
+  /// No description provided for @onboardBody2.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select the first day of your last menstruation to help us calibrate.'**
+  String get onboardBody2;
+
+  /// No description provided for @onboardTitle3.
+  ///
+  /// In en, this message translates to:
+  /// **'Cycle Length'**
+  String get onboardTitle3;
+
+  /// No description provided for @onboardBody3.
+  ///
+  /// In en, this message translates to:
+  /// **'How many days usually pass between periods? The average is 28 days.'**
+  String get onboardBody3;
+
+  /// No description provided for @onboardModeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What is your goal?'**
+  String get onboardModeTitle;
+
+  /// No description provided for @onboardModeCycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track Cycle'**
+  String get onboardModeCycle;
+
+  /// No description provided for @onboardModeCycleDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Predict periods & fertility window'**
+  String get onboardModeCycleDesc;
+
+  /// No description provided for @onboardModePill.
+  ///
+  /// In en, this message translates to:
+  /// **'Track Pill (COC)'**
+  String get onboardModePill;
+
+  /// No description provided for @onboardModePillDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders & pack management'**
+  String get onboardModePillDesc;
+
+  /// No description provided for @onboardDateTitleCycle.
+  ///
+  /// In en, this message translates to:
+  /// **'When did your last period start?'**
+  String get onboardDateTitleCycle;
+
+  /// No description provided for @onboardDateTitlePill.
+  ///
+  /// In en, this message translates to:
+  /// **'When did you start the current pack?'**
+  String get onboardDateTitlePill;
+
+  /// No description provided for @onboardLengthTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cycle Length'**
+  String get onboardLengthTitle;
+
+  /// No description provided for @onboardPackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pack Type'**
+  String get onboardPackTitle;
+
+  /// No description provided for @splashTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'EVIMOON'**
+  String get splashTitle;
+
+  /// No description provided for @splashSlogan.
+  ///
+  /// In en, this message translates to:
+  /// **'Listen to your rhythm'**
+  String get splashSlogan;
 
   /// No description provided for @premiumInsightLabel.
   ///
@@ -2369,124 +2481,76 @@ abstract class AppLocalizations {
   /// **'Got it'**
   String get btnGotIt;
 
-  /// No description provided for @navHome.
+  /// No description provided for @aiStatusHigh.
   ///
   /// In en, this message translates to:
-  /// **'Today'**
-  String get navHome;
+  /// **'High Accuracy'**
+  String get aiStatusHigh;
 
-  /// No description provided for @navSymptoms.
+  /// No description provided for @aiStatusMedium.
   ///
   /// In en, this message translates to:
-  /// **'Symptoms'**
-  String get navSymptoms;
+  /// **'Moderate Accuracy'**
+  String get aiStatusMedium;
 
-  /// No description provided for @navCalendar.
+  /// No description provided for @aiStatusLow.
   ///
   /// In en, this message translates to:
-  /// **'Calendar'**
-  String get navCalendar;
+  /// **'Low Accuracy'**
+  String get aiStatusLow;
 
-  /// No description provided for @navProfile.
+  /// No description provided for @aiDescHigh.
   ///
   /// In en, this message translates to:
-  /// **'Profile'**
-  String get navProfile;
+  /// **'Your cycles are very regular. The AI prediction is likely accurate within ±1 day.'**
+  String get aiDescHigh;
 
-  /// No description provided for @msgSavedNoPop.
+  /// No description provided for @aiDescMedium.
   ///
   /// In en, this message translates to:
-  /// **'Symptoms updated successfully'**
-  String get msgSavedNoPop;
+  /// **'There is some variation in your recent cycles. The prediction might vary by ±2-3 days.'**
+  String get aiDescMedium;
 
-  /// No description provided for @lblFlowAndLove.
+  /// No description provided for @aiDescLow.
   ///
   /// In en, this message translates to:
-  /// **'Flow & Intimacy'**
-  String get lblFlowAndLove;
+  /// **'Your cycle history is irregular or too short. AI needs more data to be precise.'**
+  String get aiDescLow;
 
-  /// No description provided for @sectionBackup.
+  /// No description provided for @aiConfidenceScore.
   ///
   /// In en, this message translates to:
-  /// **'Backup & Restore'**
-  String get sectionBackup;
+  /// **'Confidence Score'**
+  String get aiConfidenceScore;
 
-  /// No description provided for @btnSaveBackup.
+  /// No description provided for @aiLabelHistory.
   ///
   /// In en, this message translates to:
-  /// **'Save Backup'**
-  String get btnSaveBackup;
+  /// **'History Length'**
+  String get aiLabelHistory;
 
-  /// No description provided for @btnRestoreBackup.
+  /// No description provided for @aiLabelVariation.
   ///
   /// In en, this message translates to:
-  /// **'Restore from File'**
-  String get btnRestoreBackup;
+  /// **'Cycle Variation'**
+  String get aiLabelVariation;
 
-  /// No description provided for @dialogRestoreTitle.
+  /// No description provided for @aiSuffixCycles.
   ///
   /// In en, this message translates to:
-  /// **'Restore Data?'**
-  String get dialogRestoreTitle;
+  /// **'cycles'**
+  String get aiSuffixCycles;
 
-  /// No description provided for @dialogRestoreBody.
+  /// No description provided for @aiSuffixDays.
   ///
   /// In en, this message translates to:
-  /// **'This will overwrite your current data with the backup file. Are you sure?'**
-  String get dialogRestoreBody;
-
-  /// No description provided for @btnRestore.
-  ///
-  /// In en, this message translates to:
-  /// **'Restore'**
-  String get btnRestore;
-
-  /// No description provided for @msgRestoreSuccess.
-  ///
-  /// In en, this message translates to:
-  /// **'Data restored successfully!'**
-  String get msgRestoreSuccess;
-
-  /// No description provided for @msgEmailError.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not open email client. Write to: {email}'**
-  String msgEmailError(Object email);
-
-  /// No description provided for @msgExportEmpty.
-  ///
-  /// In en, this message translates to:
-  /// **'No data to export yet.'**
-  String get msgExportEmpty;
-
-  /// No description provided for @msgExportError.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not generate PDF'**
-  String get msgExportError;
-
-  /// No description provided for @msgBiometricsError.
-  ///
-  /// In en, this message translates to:
-  /// **'Biometrics not available on this device'**
-  String get msgBiometricsError;
-
-  /// No description provided for @authBiometricsReason.
-  ///
-  /// In en, this message translates to:
-  /// **'Confirm to enable biometrics'**
-  String get authBiometricsReason;
-
-  /// No description provided for @lblUser.
-  ///
-  /// In en, this message translates to:
-  /// **'EviMoon User'**
-  String get lblUser;
+  /// **'days'**
+  String get aiSuffixDays;
 
   /// No description provided for @modeTTC.
   ///
   /// In en, this message translates to:
-  /// **'Get Pregnant'**
+  /// **'Pregnancy Planning'**
   String get modeTTC;
 
   /// No description provided for @modeTTCDesc.
@@ -2500,6 +2564,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Fertility Mode Activated'**
   String get modeTTCActive;
+
+  /// No description provided for @modeCycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track Cycle'**
+  String get modeCycle;
+
+  /// No description provided for @modeTrackCycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track Cycle'**
+  String get modeTrackCycle;
+
+  /// No description provided for @modeGetPregnant.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Pregnant'**
+  String get modeGetPregnant;
 
   /// No description provided for @dialogTTCConflict.
   ///
@@ -2547,13 +2629,31 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'{days} DPO'**
-  String ttcDPO(Object days);
+  String ttcDPO(int days);
 
   /// No description provided for @ttcChance.
   ///
   /// In en, this message translates to:
   /// **'Conception Chance'**
   String get ttcChance;
+
+  /// No description provided for @ttcChanceHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High Chance'**
+  String get ttcChanceHigh;
+
+  /// No description provided for @ttcChancePeak.
+  ///
+  /// In en, this message translates to:
+  /// **'Peak Fertility'**
+  String get ttcChancePeak;
+
+  /// No description provided for @ttcChanceLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low Chance'**
+  String get ttcChanceLow;
 
   /// No description provided for @ttcTestWait.
   ///
@@ -2571,7 +2671,13 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Cycle Day {day}'**
-  String lblCycleDay(Object day);
+  String lblCycleDay(int day);
+
+  /// No description provided for @ttcCycleDay.
+  ///
+  /// In en, this message translates to:
+  /// **'CYCLE DAY {day}'**
+  String ttcCycleDay(int day);
 
   /// No description provided for @ttcBtnBBT.
   ///
@@ -2590,6 +2696,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Intimacy'**
   String get ttcBtnSex;
+
+  /// No description provided for @ttcBtnReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get ttcBtnReset;
 
   /// No description provided for @ttcLogTitle.
   ///
@@ -2633,6 +2745,42 @@ abstract class AppLocalizations {
   /// **'Peak'**
   String get lblPeak;
 
+  /// No description provided for @chipNegative.
+  ///
+  /// In en, this message translates to:
+  /// **'Negative'**
+  String get chipNegative;
+
+  /// No description provided for @chipPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Positive'**
+  String get chipPositive;
+
+  /// No description provided for @chipPeak.
+  ///
+  /// In en, this message translates to:
+  /// **'Peak'**
+  String get chipPeak;
+
+  /// No description provided for @valNegative.
+  ///
+  /// In en, this message translates to:
+  /// **'Negative'**
+  String get valNegative;
+
+  /// No description provided for @valPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Positive'**
+  String get valPositive;
+
+  /// No description provided for @valPeak.
+  ///
+  /// In en, this message translates to:
+  /// **'Peak'**
+  String get valPeak;
+
   /// No description provided for @lblSexYes.
   ///
   /// In en, this message translates to:
@@ -2645,6 +2793,24 @@ abstract class AppLocalizations {
   /// **'Not today'**
   String get lblSexNo;
 
+  /// No description provided for @labelSexNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get labelSexNo;
+
+  /// No description provided for @labelSexYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get labelSexYes;
+
+  /// No description provided for @valSexYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged'**
+  String get valSexYes;
+
   /// No description provided for @ttcTipTitle.
   ///
   /// In en, this message translates to:
@@ -2656,12 +2822,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stress affects ovulation. Try 5 min meditation today.'**
   String get ttcTipDefault;
-
-  /// No description provided for @ttcBtnReset.
-  ///
-  /// In en, this message translates to:
-  /// **'Reset'**
-  String get ttcBtnReset;
 
   /// No description provided for @ttcStrategyTitle.
   ///
@@ -2801,6 +2961,12 @@ abstract class AppLocalizations {
   /// **'Detected'**
   String get lblDetected;
 
+  /// No description provided for @msgLhPeakRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'LH Peak recorded! High fertility window active.'**
+  String get msgLhPeakRecorded;
+
   /// No description provided for @transitionTTC.
   ///
   /// In en, this message translates to:
@@ -2819,138 +2985,6 @@ abstract class AppLocalizations {
   /// **'Listening to your body 🌿'**
   String get transitionTrack;
 
-  /// No description provided for @legendFollicular.
-  ///
-  /// In en, this message translates to:
-  /// **'Follicular'**
-  String get legendFollicular;
-
-  /// No description provided for @legendLuteal.
-  ///
-  /// In en, this message translates to:
-  /// **'Luteal'**
-  String get legendLuteal;
-
-  /// No description provided for @lblBodyMind.
-  ///
-  /// In en, this message translates to:
-  /// **'Body & Mind'**
-  String get lblBodyMind;
-
-  /// No description provided for @pdfReportSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Gynecological & Cycle History'**
-  String get pdfReportSubtitle;
-
-  /// No description provided for @pdfPatient.
-  ///
-  /// In en, this message translates to:
-  /// **'Patient'**
-  String get pdfPatient;
-
-  /// No description provided for @pdfClinicalSummary.
-  ///
-  /// In en, this message translates to:
-  /// **'Clinical Summary'**
-  String get pdfClinicalSummary;
-
-  /// No description provided for @pdfDetailedLogs.
-  ///
-  /// In en, this message translates to:
-  /// **'Detailed Logs'**
-  String get pdfDetailedLogs;
-
-  /// No description provided for @pdfAvgCycle.
-  ///
-  /// In en, this message translates to:
-  /// **'Avg Cycle Length'**
-  String get pdfAvgCycle;
-
-  /// No description provided for @pdfAvgPeriod.
-  ///
-  /// In en, this message translates to:
-  /// **'Avg Period'**
-  String get pdfAvgPeriod;
-
-  /// No description provided for @pdfPainReported.
-  ///
-  /// In en, this message translates to:
-  /// **'Pain Reported'**
-  String get pdfPainReported;
-
-  /// No description provided for @pdfTableDate.
-  ///
-  /// In en, this message translates to:
-  /// **'Date'**
-  String get pdfTableDate;
-
-  /// No description provided for @pdfTableCD.
-  ///
-  /// In en, this message translates to:
-  /// **'CD'**
-  String get pdfTableCD;
-
-  /// No description provided for @pdfTableSymptoms.
-  ///
-  /// In en, this message translates to:
-  /// **'Symptoms'**
-  String get pdfTableSymptoms;
-
-  /// No description provided for @pdfTableBBT.
-  ///
-  /// In en, this message translates to:
-  /// **'BBT'**
-  String get pdfTableBBT;
-
-  /// No description provided for @pdfTableNotes.
-  ///
-  /// In en, this message translates to:
-  /// **'Notes'**
-  String get pdfTableNotes;
-
-  /// No description provided for @pdfFlowShort.
-  ///
-  /// In en, this message translates to:
-  /// **'Flow'**
-  String get pdfFlowShort;
-
-  /// No description provided for @unitDays.
-  ///
-  /// In en, this message translates to:
-  /// **'days'**
-  String get unitDays;
-
-  /// No description provided for @pdfDisclaimer.
-  ///
-  /// In en, this message translates to:
-  /// **'DISCLAIMER: This report is generated by EviMoon based on user-inputted data. It does not constitute a medical diagnosis. Please consult a healthcare professional for interpretation.'**
-  String get pdfDisclaimer;
-
-  /// No description provided for @dialogDataInsufficientTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Insufficient Data'**
-  String get dialogDataInsufficientTitle;
-
-  /// No description provided for @dialogDataInsufficientBody.
-  ///
-  /// In en, this message translates to:
-  /// **'To generate a clinical report, we need at least 7 days of logs or one complete cycle. This ensures clinical accuracy for your doctor.'**
-  String get dialogDataInsufficientBody;
-
-  /// No description provided for @btnOk.
-  ///
-  /// In en, this message translates to:
-  /// **'Understood'**
-  String get btnOk;
-
-  /// No description provided for @splashTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'EVIMOON'**
-  String get splashTitle;
-
   /// No description provided for @notifPhaseFollicularTitle.
   ///
   /// In en, this message translates to:
@@ -2960,8 +2994,20 @@ abstract class AppLocalizations {
   /// No description provided for @notifPhaseFollicularBody.
   ///
   /// In en, this message translates to:
-  /// **'Estrogen is up! Your brain is sharp and your body is ready for action.'**
+  /// **'Great time for workouts! Your energy is going up.'**
   String get notifPhaseFollicularBody;
+
+  /// No description provided for @notifFollTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Energy Rising ⚡'**
+  String get notifFollTitle;
+
+  /// No description provided for @notifFollBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Great time for workouts! Your energy is going up.'**
+  String get notifFollBody;
 
   /// No description provided for @notifPhaseOvulationTitle.
   ///
@@ -2972,8 +3018,20 @@ abstract class AppLocalizations {
   /// No description provided for @notifPhaseOvulationBody.
   ///
   /// In en, this message translates to:
-  /// **'Peak fertility and confidence. Perfect for big meetings (or dates).'**
+  /// **'Peak confidence and fertility today.'**
   String get notifPhaseOvulationBody;
+
+  /// No description provided for @notifOvulationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You are glowing 🌸'**
+  String get notifOvulationTitle;
+
+  /// No description provided for @notifOvulationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Peak confidence and fertility today.'**
+  String get notifOvulationBody;
 
   /// No description provided for @notifPhaseLutealTitle.
   ///
@@ -2984,8 +3042,20 @@ abstract class AppLocalizations {
   /// No description provided for @notifPhaseLutealBody.
   ///
   /// In en, this message translates to:
-  /// **'Progesterone is rising. Feeling tired is okay. Take it slow.'**
+  /// **'Take it slow today, listen to your body.'**
   String get notifPhaseLutealBody;
+
+  /// No description provided for @notifLutealTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Be Gentle 🌙'**
+  String get notifLutealTitle;
+
+  /// No description provided for @notifLutealBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Take it slow today, listen to your body.'**
+  String get notifLutealBody;
 
   /// No description provided for @notifPhasePeriodTitle.
   ///
@@ -2999,6 +3069,30 @@ abstract class AppLocalizations {
   /// **'Don\'t forget to log the start of your period.'**
   String get notifPhasePeriodBody;
 
+  /// No description provided for @notifPeriodSoonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Period Soon 🩸'**
+  String get notifPeriodSoonTitle;
+
+  /// No description provided for @notifPeriodSoonBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Expect your period tomorrow. Have products ready?'**
+  String get notifPeriodSoonBody;
+
+  /// No description provided for @notifPeriodTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cycle Update'**
+  String get notifPeriodTitle;
+
+  /// No description provided for @notifPeriodBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your period is likely to start in 2 days. Get ready!'**
+  String get notifPeriodBody;
+
   /// No description provided for @notifLatePeriodTitle.
   ///
   /// In en, this message translates to:
@@ -3010,6 +3104,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cycle is longer than usual. Log symptoms or take a test.'**
   String get notifLatePeriodBody;
+
+  /// No description provided for @notifLateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Late Period?'**
+  String get notifLateTitle;
+
+  /// No description provided for @notifLateBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Cycle is longer than usual. Don\'t worry, it happens.'**
+  String get notifLateBody;
 
   /// No description provided for @notifLogCheckinTitle.
   ///
@@ -3023,11 +3129,53 @@ abstract class AppLocalizations {
   /// **'Take a second to log your symptoms for better predictions.'**
   String get notifLogCheckinBody;
 
-  /// No description provided for @settingsDailyLog.
+  /// No description provided for @notifCheckinTitle.
   ///
   /// In en, this message translates to:
-  /// **'Daily Check-in (20:00)'**
-  String get settingsDailyLog;
+  /// **'Daily Log 📝'**
+  String get notifCheckinTitle;
+
+  /// No description provided for @notifCheckinBody.
+  ///
+  /// In en, this message translates to:
+  /// **'How do you feel today? Log your symptoms.'**
+  String get notifCheckinBody;
+
+  /// No description provided for @notifPillTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pill Reminder 💊'**
+  String get notifPillTitle;
+
+  /// No description provided for @notifPillBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to take your contraception.'**
+  String get notifPillBody;
+
+  /// No description provided for @notifNewPackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New Pack 💊'**
+  String get notifNewPackTitle;
+
+  /// No description provided for @notifNewPackBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to start a new blister pack!'**
+  String get notifNewPackBody;
+
+  /// No description provided for @notifBreakTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Break Week 🩸'**
+  String get notifBreakTitle;
+
+  /// No description provided for @notifBreakBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Active pills finished. Enjoy your break week.'**
+  String get notifBreakBody;
 
   /// No description provided for @paywallTitle.
   ///
@@ -3167,41 +3315,35 @@ abstract class AppLocalizations {
   /// **'Could not open settings'**
   String get msgLinkError;
 
-  /// No description provided for @tipPeriod.
+  /// No description provided for @badgePro.
   ///
   /// In en, this message translates to:
-  /// **'Rest up and eat iron-rich foods.'**
-  String get tipPeriod;
+  /// **'PRO'**
+  String get badgePro;
 
-  /// No description provided for @tipOvulation.
+  /// No description provided for @badgeGoPro.
   ///
   /// In en, this message translates to:
-  /// **'Peak fertility! Ideal time to conceive.'**
-  String get tipOvulation;
+  /// **'GO PRO'**
+  String get badgeGoPro;
 
-  /// No description provided for @tipLutealEarly.
+  /// No description provided for @badgePremium.
   ///
   /// In en, this message translates to:
-  /// **'Progesterone is rising. Stay hydrated.'**
-  String get tipLutealEarly;
+  /// **'PREMIUM'**
+  String get badgePremium;
 
-  /// No description provided for @tipLutealLate.
+  /// No description provided for @debugPremiumOn.
   ///
   /// In en, this message translates to:
-  /// **'Implantation window. Avoid high stress.'**
-  String get tipLutealLate;
+  /// **'DEBUG: Premium ON'**
+  String get debugPremiumOn;
 
-  /// No description provided for @tipFollicular.
+  /// No description provided for @debugPremiumOff.
   ///
   /// In en, this message translates to:
-  /// **'Energy is rising. Good for exercise.'**
-  String get tipFollicular;
-
-  /// No description provided for @msgLhPeakRecorded.
-  ///
-  /// In en, this message translates to:
-  /// **'LH Peak recorded! High fertility window active.'**
-  String get msgLhPeakRecorded;
+  /// **'DEBUG: Premium OFF'**
+  String get debugPremiumOff;
 
   /// No description provided for @phaseNewMoon.
   ///
@@ -3239,30 +3381,6 @@ abstract class AppLocalizations {
   /// **'Waning Crescent'**
   String get phaseWaningCrescent;
 
-  /// No description provided for @ttcChanceHigh.
-  ///
-  /// In en, this message translates to:
-  /// **'High Chance'**
-  String get ttcChanceHigh;
-
-  /// No description provided for @ttcChancePeak.
-  ///
-  /// In en, this message translates to:
-  /// **'Peak Fertility'**
-  String get ttcChancePeak;
-
-  /// No description provided for @ttcChanceLow.
-  ///
-  /// In en, this message translates to:
-  /// **'Low Chance'**
-  String get ttcChanceLow;
-
-  /// No description provided for @ttcCycleDay.
-  ///
-  /// In en, this message translates to:
-  /// **'CYCLE DAY {day}'**
-  String ttcCycleDay(int day);
-
   /// No description provided for @lblTest.
   ///
   /// In en, this message translates to:
@@ -3286,30 +3404,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{temp}°'**
   String valMeasured(double temp);
-
-  /// No description provided for @valPositive.
-  ///
-  /// In en, this message translates to:
-  /// **'Positive'**
-  String get valPositive;
-
-  /// No description provided for @valPeak.
-  ///
-  /// In en, this message translates to:
-  /// **'Peak'**
-  String get valPeak;
-
-  /// No description provided for @valNegative.
-  ///
-  /// In en, this message translates to:
-  /// **'Negative'**
-  String get valNegative;
-
-  /// No description provided for @valSexYes.
-  ///
-  /// In en, this message translates to:
-  /// **'Logged'**
-  String get valSexYes;
 
   /// No description provided for @valMucusLogged.
   ///
@@ -3340,36 +3434,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cervical Mucus'**
   String get titleInputMucus;
-
-  /// No description provided for @chipNegative.
-  ///
-  /// In en, this message translates to:
-  /// **'Negative'**
-  String get chipNegative;
-
-  /// No description provided for @chipPositive.
-  ///
-  /// In en, this message translates to:
-  /// **'Positive'**
-  String get chipPositive;
-
-  /// No description provided for @chipPeak.
-  ///
-  /// In en, this message translates to:
-  /// **'Peak'**
-  String get chipPeak;
-
-  /// No description provided for @labelSexNo.
-  ///
-  /// In en, this message translates to:
-  /// **'No'**
-  String get labelSexNo;
-
-  /// No description provided for @labelSexYes.
-  ///
-  /// In en, this message translates to:
-  /// **'Yes'**
-  String get labelSexYes;
 
   /// No description provided for @mucusDry.
   ///
@@ -3419,275 +3483,11 @@ abstract class AppLocalizations {
   /// **'36.6'**
   String get hintTemp;
 
-  /// No description provided for @prefNotifications.
-  ///
-  /// In en, this message translates to:
-  /// **'Notifications'**
-  String get prefNotifications;
-
-  /// No description provided for @prefBiometrics.
-  ///
-  /// In en, this message translates to:
-  /// **'FaceID / TouchID'**
-  String get prefBiometrics;
-
-  /// No description provided for @prefCOC.
-  ///
-  /// In en, this message translates to:
-  /// **'Contraceptive Pill Mode'**
-  String get prefCOC;
-
-  /// No description provided for @sectionData.
-  ///
-  /// In en, this message translates to:
-  /// **'Data Management'**
-  String get sectionData;
-
-  /// No description provided for @btnExportPdf.
-  ///
-  /// In en, this message translates to:
-  /// **'Export PDF Report'**
-  String get btnExportPdf;
-
-  /// No description provided for @btnBackup.
-  ///
-  /// In en, this message translates to:
-  /// **'Backup Data'**
-  String get btnBackup;
-
-  /// No description provided for @sectionAbout.
-  ///
-  /// In en, this message translates to:
-  /// **'About'**
-  String get sectionAbout;
-
-  /// No description provided for @btnContactSupport.
-  ///
-  /// In en, this message translates to:
-  /// **'Contact Support'**
-  String get btnContactSupport;
-
-  /// No description provided for @btnRateApp.
-  ///
-  /// In en, this message translates to:
-  /// **'Rate EviMoon'**
-  String get btnRateApp;
-
-  /// No description provided for @btnYesterday.
-  ///
-  /// In en, this message translates to:
-  /// **'Yesterday'**
-  String get btnYesterday;
-
-  /// No description provided for @btnPickDate.
-  ///
-  /// In en, this message translates to:
-  /// **'Pick another date'**
-  String get btnPickDate;
-
-  /// No description provided for @modeCycle.
-  ///
-  /// In en, this message translates to:
-  /// **'Track Cycle'**
-  String get modeCycle;
-
-  /// No description provided for @backupSubject.
-  ///
-  /// In en, this message translates to:
-  /// **'EviMoon Backup'**
-  String get backupSubject;
-
-  /// No description provided for @backupBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Backup data for EviMoon app created on {date}'**
-  String backupBody(String date);
-
-  /// No description provided for @settingsTheme.
-  ///
-  /// In en, this message translates to:
-  /// **'App Theme'**
-  String get settingsTheme;
-
-  /// No description provided for @themeOceanic.
-  ///
-  /// In en, this message translates to:
-  /// **'Oceanic'**
-  String get themeOceanic;
-
-  /// No description provided for @themeNature.
-  ///
-  /// In en, this message translates to:
-  /// **'Nature'**
-  String get themeNature;
-
-  /// No description provided for @themeVelvet.
-  ///
-  /// In en, this message translates to:
-  /// **'Velvet'**
-  String get themeVelvet;
-
-  /// No description provided for @themeDigital.
-  ///
-  /// In en, this message translates to:
-  /// **'Digital'**
-  String get themeDigital;
-
-  /// No description provided for @themeActive.
-  ///
-  /// In en, this message translates to:
-  /// **'Active'**
-  String get themeActive;
-
-  /// No description provided for @selectThemeTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Select Theme'**
-  String get selectThemeTitle;
-
-  /// No description provided for @onboardModeTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'What is your goal?'**
-  String get onboardModeTitle;
-
-  /// No description provided for @onboardModeCycle.
-  ///
-  /// In en, this message translates to:
-  /// **'Track Cycle'**
-  String get onboardModeCycle;
-
-  /// No description provided for @onboardModeCycleDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Predict periods & fertility window'**
-  String get onboardModeCycleDesc;
-
-  /// No description provided for @onboardModePill.
-  ///
-  /// In en, this message translates to:
-  /// **'Track Pill (COC)'**
-  String get onboardModePill;
-
-  /// No description provided for @onboardModePillDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Reminders & pack management'**
-  String get onboardModePillDesc;
-
-  /// No description provided for @onboardDateTitleCycle.
-  ///
-  /// In en, this message translates to:
-  /// **'When did your last period start?'**
-  String get onboardDateTitleCycle;
-
-  /// No description provided for @onboardDateTitlePill.
-  ///
-  /// In en, this message translates to:
-  /// **'When did you start the current pack?'**
-  String get onboardDateTitlePill;
-
-  /// No description provided for @onboardLengthTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Cycle Length'**
-  String get onboardLengthTitle;
-
-  /// No description provided for @onboardPackTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Pack Type'**
-  String get onboardPackTitle;
-
-  /// No description provided for @lblAverage.
-  ///
-  /// In en, this message translates to:
-  /// **'Average'**
-  String get lblAverage;
-
-  /// No description provided for @lblNormalRange.
-  ///
-  /// In en, this message translates to:
-  /// **'Normal: 21-35 days'**
-  String get lblNormalRange;
-
-  /// No description provided for @pack21.
-  ///
-  /// In en, this message translates to:
-  /// **'21 Active + 7 Break'**
-  String get pack21;
-
-  /// No description provided for @pack28.
-  ///
-  /// In en, this message translates to:
-  /// **'28 Active (No Break)'**
-  String get pack28;
-
-  /// No description provided for @pack24.
-  ///
-  /// In en, this message translates to:
-  /// **'24 Active + 4 Dummy'**
-  String get pack24;
-
-  /// No description provided for @badgePro.
-  ///
-  /// In en, this message translates to:
-  /// **'PRO'**
-  String get badgePro;
-
-  /// No description provided for @badgeGoPro.
-  ///
-  /// In en, this message translates to:
-  /// **'GO PRO'**
-  String get badgeGoPro;
-
-  /// No description provided for @modeTrackCycle.
-  ///
-  /// In en, this message translates to:
-  /// **'Track Cycle'**
-  String get modeTrackCycle;
-
-  /// No description provided for @modeGetPregnant.
-  ///
-  /// In en, this message translates to:
-  /// **'Get Pregnant'**
-  String get modeGetPregnant;
-
-  /// No description provided for @debugPremiumOn.
-  ///
-  /// In en, this message translates to:
-  /// **'DEBUG: Premium ON'**
-  String get debugPremiumOn;
-
-  /// No description provided for @debugPremiumOff.
-  ///
-  /// In en, this message translates to:
-  /// **'DEBUG: Premium OFF'**
-  String get debugPremiumOff;
-
-  /// No description provided for @lblPreviousCycle.
-  ///
-  /// In en, this message translates to:
-  /// **'Previous Cycle'**
-  String get lblPreviousCycle;
-
-  /// No description provided for @legendPredictedPeriod.
-  ///
-  /// In en, this message translates to:
-  /// **'Predicted'**
-  String get legendPredictedPeriod;
-
   /// No description provided for @designSelectorTitle.
   ///
   /// In en, this message translates to:
   /// **'Timer Style'**
   String get designSelectorTitle;
-
-  /// No description provided for @badgePremium.
-  ///
-  /// In en, this message translates to:
-  /// **'PREMIUM'**
-  String get badgePremium;
 
   /// No description provided for @designClassic.
   ///
@@ -3791,6 +3591,12 @@ abstract class AppLocalizations {
   /// **'Sex'**
   String get ttcShortSex;
 
+  /// No description provided for @ttcShortMucus.
+  ///
+  /// In en, this message translates to:
+  /// **'Mucus'**
+  String get ttcShortMucus;
+
   /// No description provided for @ttcMarkDone.
   ///
   /// In en, this message translates to:
@@ -3857,12 +3663,6 @@ abstract class AppLocalizations {
   /// **'Prep day • {status}'**
   String ttcCtaLowBody(String status);
 
-  /// No description provided for @ttcShortMucus.
-  ///
-  /// In en, this message translates to:
-  /// **'Mucus'**
-  String get ttcShortMucus;
-
   /// No description provided for @ttcDash.
   ///
   /// In en, this message translates to:
@@ -3916,72 +3716,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'As ovulation approaches, estrogen makes your fluid stretchy and clear (like egg whites). This creates the perfect environment for sperm to swim and survive.'**
   String get eduBodyMucus;
-
-  /// No description provided for @aiStatusHigh.
-  ///
-  /// In en, this message translates to:
-  /// **'High Accuracy'**
-  String get aiStatusHigh;
-
-  /// No description provided for @aiStatusMedium.
-  ///
-  /// In en, this message translates to:
-  /// **'Moderate Accuracy'**
-  String get aiStatusMedium;
-
-  /// No description provided for @aiStatusLow.
-  ///
-  /// In en, this message translates to:
-  /// **'Low Accuracy'**
-  String get aiStatusLow;
-
-  /// No description provided for @aiDescHigh.
-  ///
-  /// In en, this message translates to:
-  /// **'Your cycles are very regular. The AI prediction is likely accurate within ±1 day.'**
-  String get aiDescHigh;
-
-  /// No description provided for @aiDescMedium.
-  ///
-  /// In en, this message translates to:
-  /// **'There is some variation in your recent cycles. The prediction might vary by ±2-3 days.'**
-  String get aiDescMedium;
-
-  /// No description provided for @aiDescLow.
-  ///
-  /// In en, this message translates to:
-  /// **'Your cycle history is irregular or too short. AI needs more data to be precise.'**
-  String get aiDescLow;
-
-  /// No description provided for @aiConfidenceScore.
-  ///
-  /// In en, this message translates to:
-  /// **'Confidence Score'**
-  String get aiConfidenceScore;
-
-  /// No description provided for @aiLabelHistory.
-  ///
-  /// In en, this message translates to:
-  /// **'History Length'**
-  String get aiLabelHistory;
-
-  /// No description provided for @aiLabelVariation.
-  ///
-  /// In en, this message translates to:
-  /// **'Cycle Variation'**
-  String get aiLabelVariation;
-
-  /// No description provided for @aiSuffixCycles.
-  ///
-  /// In en, this message translates to:
-  /// **'cycles'**
-  String get aiSuffixCycles;
-
-  /// No description provided for @aiSuffixDays.
-  ///
-  /// In en, this message translates to:
-  /// **'days'**
-  String get aiSuffixDays;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
@@ -3993,7 +3727,7 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en', 'ru'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['de', 'en', 'es', 'pl', 'pt', 'ru', 'tr'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -4004,8 +3738,13 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
 
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
+    case 'de': return AppLocalizationsDe();
     case 'en': return AppLocalizationsEn();
+    case 'es': return AppLocalizationsEs();
+    case 'pl': return AppLocalizationsPl();
+    case 'pt': return AppLocalizationsPt();
     case 'ru': return AppLocalizationsRu();
+    case 'tr': return AppLocalizationsTr();
   }
 
   throw FlutterError(

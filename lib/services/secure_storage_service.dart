@@ -1,5 +1,9 @@
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:convert';
+import 'dart:math';
+import 'dart:typed_data';
+
 import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureStorageService {
   // Singleton pattern
@@ -12,7 +16,7 @@ class SecureStorageService {
     _storage = const FlutterSecureStorage(
       aOptions: AndroidOptions(
         encryptedSharedPreferences: true,
-        // 🔥 ВАЖНО: Сброс при ошибке ключей (Android)
+        // ✅ Сброс при ошибке ключей (Android)
         resetOnError: true,
       ),
       iOptions: IOSOptions(
@@ -26,6 +30,9 @@ class SecureStorageService {
   static const String _keyBiometrics = 'biometrics_enabled';
   static const String _keyLanguage = 'language_code';
   static const String _keyTTC = 'ttc_mode_enabled';
+
+  // 🔐 Hive encryption key (base64 of 32 bytes)
+  static const String _keyHiveCipher = 'hive_cipher_key_v1';
 
   // --- GENERIC HELPERS (С защитой от ошибок) ---
 
@@ -61,7 +68,7 @@ class SecureStorageService {
     }
   }
 
-  // --- PUBLIC API ---
+  // --- PUBLIC API (existing) ---
 
   Future<void> saveNotificationsEnabled(bool enabled) async {
     await _write(_keyNotifications, enabled.toString());
@@ -104,5 +111,42 @@ class SecureStorageService {
     } catch (e) {
       debugPrint("❌ Error clearing storage: $e");
     }
+  }
+
+  // --- NEW: Hive encryption key management ---
+
+  /// Returns a stable 32-byte key for HiveAesCipher.
+  /// Stored in secure storage as base64.
+  ///
+  /// ⚠️ If this key changes, previously stored Hive data becomes unreadable.
+  /// So: generate once, persist forever (unless you intentionally reset user data).
+  Future<Uint8List> getOrCreateHiveCipherKey() async {
+    try {
+      final existing = await _read(_keyHiveCipher);
+      if (existing != null && existing.isNotEmpty) {
+        final bytes = base64Decode(existing);
+        if (bytes.length == 32) {
+          return Uint8List.fromList(bytes);
+        } else {
+          debugPrint("⚠️ Hive cipher key has invalid length: ${bytes.length}. Regenerating.");
+        }
+      }
+    } catch (e) {
+      debugPrint("❌ Failed to read Hive cipher key: $e");
+    }
+
+    // Generate new 32-byte key
+    final rnd = Random.secure();
+    final keyBytes = Uint8List.fromList(List<int>.generate(32, (_) => rnd.nextInt(256)));
+
+    try {
+      await _write(_keyHiveCipher, base64Encode(keyBytes));
+    } catch (e) {
+      debugPrint("❌ Failed to store Hive cipher key: $e");
+      // If we cannot store it reliably, better to crash early than corrupt data.
+      rethrow;
+    }
+
+    return keyBytes;
   }
 }

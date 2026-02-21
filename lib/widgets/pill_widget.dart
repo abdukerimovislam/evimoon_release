@@ -26,7 +26,10 @@ class _PillWidgetState extends State<PillWidget> {
     if (!coc.isLoaded || !coc.isEnabled) return const SizedBox.shrink();
 
     final currentDay = cycle.currentData.currentDay;
-    final bool isBreakWeek = (coc.pillCount == 21 && currentDay > 21);
+
+    // ✅ FIX: Use provider logic instead of hardcoded 21 days
+    // This supports both 21/7 and 24/4 pack types automatically
+    final bool isBreakWeek = coc.isOnBreak;
 
     // Обертка для эффекта частиц
     return FireflyOverlay(
@@ -194,7 +197,7 @@ class _BreakWeekCard extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// 🔥 СИСТЕМА ЧАСТИЦ (MOON DUST) - ВСТРОЕНА ПРЯМО СЮДА
+// 🔥 СИСТЕМА ЧАСТИЦ (MOON DUST)
 // ---------------------------------------------------------------------------
 
 class FireflyController extends ChangeNotifier {
@@ -220,7 +223,6 @@ class _FireflyOverlayState extends State<FireflyOverlay> with TickerProviderStat
   }
 
   void _spawnFireflies() {
-    // Создаем 20 частиц
     for (int i = 0; i < 20; i++) {
       final controller = AnimationController(
         vsync: this,
@@ -235,7 +237,7 @@ class _FireflyOverlayState extends State<FireflyOverlay> with TickerProviderStat
         angle: angle,
         speed: speed,
         size: 3.0 + _rnd.nextDouble() * 5.0,
-        color: i % 2 == 0 ? Colors.amberAccent : Colors.white, // Золото и серебро
+        color: i % 2 == 0 ? Colors.amberAccent : Colors.white,
       );
 
       setState(() => _fireflies.add(firefly));
@@ -258,18 +260,15 @@ class _FireflyOverlayState extends State<FireflyOverlay> with TickerProviderStat
           animation: f.controller,
           builder: (context, child) {
             final t = f.controller.value;
-            // Физика: разлет + гравитация (немного вниз) + замедление
             final dx = cos(f.angle) * f.speed * t;
-            final dy = sin(f.angle) * f.speed * t - (20 * t * t); // Немного вверх сначала
+            final dy = sin(f.angle) * f.speed * t - (20 * t * t);
 
             return Positioned(
               left: (MediaQuery.of(context).size.width / 2) + dx - (MediaQuery.of(context).size.width / 2),
-              // Трюк с позиционированием относительно центра виджета
-              // Но проще использовать Transform.translate
               child: Transform.translate(
                 offset: Offset(dx, dy),
                 child: Opacity(
-                  opacity: 1.0 - t, // Исчезают
+                  opacity: 1.0 - t,
                   child: Container(
                     width: f.size,
                     height: f.size,

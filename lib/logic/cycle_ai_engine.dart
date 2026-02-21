@@ -4,8 +4,8 @@ import '../models/cycle_model.dart';
 enum ConfidenceLevel { high, medium, low, calculating }
 
 class CycleConfidenceResult {
-  final double score; // 🔥 Исправлено: теперь double (0.0 - 1.0)
-  final double stdDevDays; // 🔥 Добавлено: отклонение в днях
+  final double score; // 0.0 - 1.0
+  final double stdDevDays; // Отклонение в днях
   final ConfidenceLevel level;
 
   /// Localization key for the main explanation text
@@ -16,7 +16,7 @@ class CycleConfidenceResult {
 
   const CycleConfidenceResult({
     required this.score,
-    required this.stdDevDays, // 🔥
+    required this.stdDevDays,
     required this.level,
     required this.explanationKey,
     this.factors = const [],
@@ -24,9 +24,11 @@ class CycleConfidenceResult {
 }
 
 class CycleAIEngine {
-  // Guardrails for plausible cycle length (in days).
-  static const int _minCycleLen = 15;
-  static const int _maxCycleLen = 90;
+  // 🔥 FIX: Расширяем границы для поддержки PCOS и длинных циклов
+  // 10 дней - минимум (меньше - это скорее кровотечение прорыва)
+  // 150 дней - максимум (чтобы охватить пропуски циклов)
+  static const int _minCycleLen = 10;
+  static const int _maxCycleLen = 150;
 
   static CycleConfidenceResult calculateConfidence(List<CycleModel> history) {
     if (history.isEmpty) {
@@ -39,16 +41,15 @@ class CycleAIEngine {
       );
     }
 
-    // Sort by startDate ascending (old -> new)
+    // Сортируем от старых к новым
     final sorted = [...history]..sort((a, b) => a.startDate.compareTo(b.startDate));
 
-    // Use last 12 cycles max.
+    // Берем последние 12 циклов для анализа (год)
     final int from = max(0, sorted.length - 12);
     final recent = sorted.sublist(from);
 
-    // Need at least 3 cycles to build meaningful stability.
+    // Нужно минимум 3 цикла (2 интервала) для анализа стабильности
     if (recent.length < 3) {
-      // Score based on data count (max 0.99 for calc state)
       final double score = (recent.length * 0.33).clamp(0.0, 0.99);
       return CycleConfidenceResult(
         score: score,
@@ -59,9 +60,9 @@ class CycleAIEngine {
       );
     }
 
-    // Compute cycle lengths
     final lengths = <int>[];
     int invalidIntervals = 0;
+    int longCycles = 0; // Счетчик длинных циклов (PCOS маркер)
 
     for (int i = 0; i < recent.length - 1; i++) {
       final a = _normalize(recent[i].startDate);
@@ -69,13 +70,20 @@ class CycleAIEngine {
 
       final int days = b.difference(a).inDays;
 
+      // Фильтр откровенного мусора (ошибки ввода)
       if (days < _minCycleLen || days > _maxCycleLen) {
         invalidIntervals++;
         continue;
       }
+
+      if (days > 45) {
+        longCycles++;
+      }
+
       lengths.add(days);
     }
 
+    // Если после фильтрации мало данных
     if (lengths.length < 2) {
       final factors = <String>['factorDataNeeded'];
       if (invalidIntervals > 0) factors.add('factorAnomaly');
@@ -91,38 +99,46 @@ class CycleAIEngine {
     final double mean = lengths.reduce((a, b) => a + b) / lengths.length;
     final double variance =
         lengths.map((len) => pow(len - mean, 2)).reduce((a, b) => a + b) / lengths.length;
-    final double stdDev = sqrt(variance); // 🔥 Рассчитываем отклонение
+    final double stdDev = sqrt(variance);
 
-    // --- Score model ---
+    // --- Score Model ---
     double rawScore = 100.0;
     final factors = <String>[];
 
-    // 1) Stability penalty based on std deviation.
-    if (stdDev > 6.0) {
-      rawScore -= 45;
+    // 1) Штраф за вариативность (Standard Deviation)
+    if (stdDev > 7.0) {
+      rawScore -= 50; // Очень нестабильно
       factors.add('factorHighVar');
-    } else if (stdDev > 3.5) {
-      rawScore -= 25;
+    } else if (stdDev > 4.0) {
+      rawScore -= 30; // Умеренно нестабильно
       factors.add('factorSlightVar');
     } else {
       factors.add('factorStable');
     }
 
-    // 2) Anomaly penalty (big deviations from mean).
-    final bool hasAnomaly = lengths.any((l) => (l - mean).abs() > 8);
+    // 2) Штраф за аномалии (выбросы > 10 дней от среднего)
+    final bool hasAnomaly = lengths.any((l) => (l - mean).abs() > 10);
     if (hasAnomaly) {
       rawScore -= 15;
-      factors.add('factorAnomaly');
+      if (!factors.contains('factorAnomaly')) factors.add('factorAnomaly');
     }
 
-    // 3) Data volume adjustment.
-    if (lengths.length >= 6) rawScore += 6;
+    // 3) Бонус за объем данных
+    if (lengths.length >= 6) rawScore += 10;
     if (lengths.length <= 2) rawScore -= 10;
 
-    // 4) Data quality penalty.
-    if (invalidIntervals >= 2) {
+    // 4) Штраф за "битые" интервалы
+    if (invalidIntervals >= 1) {
       rawScore -= 10;
       if (!factors.contains('factorAnomaly')) factors.add('factorAnomaly');
+    }
+
+    // 5) 🔥 PCOS логика: если циклы длинные, но стабильные (stdDev низкий),
+    // мы не должны сильно штрафовать, но стоит предупредить.
+    if (longCycles > 1 && stdDev < 5.0) {
+      // Если циклы длинные, но регулярные — восстанавливаем очки, которые могли потерять
+      // (Движок мог подумать, что это аномалия относительно "нормы" в 28 дней)
+      if (rawScore < 80) rawScore += 10;
     }
 
     // Переводим 0-100 в 0.0-1.0
@@ -133,7 +149,7 @@ class CycleAIEngine {
 
     return CycleConfidenceResult(
       score: finalScore,
-      stdDevDays: stdDev, // 🔥 Передаем рассчитанное значение
+      stdDevDays: stdDev,
       level: level,
       explanationKey: _explanationKey(level),
       factors: factors,

@@ -1,0 +1,806 @@
+{
+  "@@locale": "pt",
+
+  "appTitle": "EviMoon",
+
+  "tabCycle": "Ciclo",
+  "tabCalendar": "Calendário",
+  "tabInsights": "Análises",
+  "tabLearn": "Aprender",
+  "tabProfile": "Perfil",
+
+  "navHome": "Hoje",
+  "navSymptoms": "Sintomas",
+  "navCalendar": "Calendário",
+  "navProfile": "Perfil",
+
+  "phaseMenstruation": "Menstruação",
+  "phaseFollicular": "Fase Folicular",
+  "phaseOvulation": "Ovulação",
+  "phaseLuteal": "Fase Lútea",
+  "phaseLate": "Atraso",
+
+  "phaseShortMens": "MENST",
+  "phaseShortFoll": "FOLI",
+  "phaseShortOvul": "OVUL",
+  "phaseShortLut": "LÚTEA",
+
+  "phaseStatusMenstruation": "Tempo de descansar e recarregar",
+  "phaseStatusFollicular": "A energia está subindo",
+  "phaseStatusOvulation": "Você está radiante hoje",
+  "phaseStatusLuteal": "Seja gentil com você mesma",
+
+  "dayOfCycle": "Dia {day}",
+  "@dayOfCycle": {
+    "placeholders": {
+      "day": { "type": "int" }
+    }
+  },
+
+  "editPeriod": "Editar menstruação",
+  "logSymptoms": "Sintomas",
+  "logSymptomsTitle": "Registrar sintomas",
+  "predictionText": "Menstruação em {days} dias",
+  "@predictionText": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+
+  "chanceOfPregnancy": "Alta chance",
+  "lowChance": "Baixa chance",
+
+  "wellnessHeader": "Bem-estar e Humor",
+  "lblFlowAndLove": "Fluxo e Intimidade",
+  "lblBodyMind": "Corpo e Mente",
+  "btnCheckIn": "Check-in Diário",
+
+  "symptomHeader": "Como você se sente?",
+  "symptomSubHeader": "Registre sintomas para melhores previsões.",
+  "msgSaved": "Salvo!",
+  "msgSavedNoPop": "Sintomas atualizados",
+
+  "catFlow": "Fluxo",
+  "logFlow": "Intensidade do Fluxo",
+  "flowLight": "Leve",
+  "flowMedium": "Médio",
+  "flowHeavy": "Intenso",
+
+  "catPain": "Dor",
+  "logPain": "Dor",
+  "painNone": "Sem dor",
+  "painCramps": "Cólicas",
+  "painHeadache": "Cabeça",
+  "painBack": "Costas",
+
+  "catMood": "Humor",
+  "logMood": "Humor",
+  "moodHappy": "Feliz",
+  "moodSad": "Triste",
+  "moodAnxious": "Ansiosa",
+  "moodEnergetic": "Energética",
+  "moodIrritated": "Irritada",
+
+  "catSleep": "Sono",
+  "logSleep": "Qualidade do Sono",
+  "logNotes": "Notas",
+  "hintNotes": "Adicionar nota...",
+
+  "logVitals": "Sinais Vitais",
+  "lblTemp": "Temperatura",
+  "lblWeight": "Peso",
+
+  "logSkin": "Pele",
+  "symptomAcne": "Acne",
+  "symptomNausea": "Náusea",
+  "symptomBloating": "Inchaço",
+
+  "logLibido": "Libido",
+  "lblIntimacy": "Intimidade",
+  "hadSex": "Teve sexo",
+  "protectedSex": "Protegido",
+
+  "lblLifestyle": "Estilo de Vida",
+  "lblLifestyleHeader": "Fatores de Estilo de Vida",
+  "factorStress": "Estresse",
+  "factorAlcohol": "Álcool",
+  "factorTravel": "Viagem",
+  "factorSport": "Exercício",
+
+  "lblEnergy": "Energia",
+  "lblMood": "Humor",
+
+  "btnSave": "Salvar",
+  "btnCancel": "Cancelar",
+  "btnConfirm": "Confirmar",
+  "btnNext": "Próximo",
+  "btnStart": "Começar",
+  "btnDelete": "Excluir",
+  "btnOk": "Entendido",
+  "tapToClose": "Toque para fechar",
+  "btnSaveSettings": "Salvar Configurações",
+  "dialogCancel": "Cancelar",
+
+  "legendPeriod": "Menstruação",
+  "legendFertile": "Fértil",
+  "legendOvulation": "Ovulação",
+  "legendFollicular": "Folicular",
+  "legendLuteal": "Lútea",
+  "legendPredictedPeriod": "Previsão",
+
+  "calendarHeader": "Seu Histórico",
+  "lblPreviousCycle": "Ciclo Anterior",
+  "lblNoData": "Sem dados",
+  "lblNoSymptoms": "Nenhum sintoma registrado.",
+
+  "insightsTitle": "Tendências e Insights",
+  "insightsOverview": "Visão Geral",
+  "insightsHealth": "Saúde",
+  "insightsPatterns": "Padrões",
+  "chartCycleLength": "Duração do Ciclo",
+  "chartSubtitle": "Últimos 6 meses",
+  "topSymptoms": "Principais Sintomas",
+  "patternDetected": "Padrão Detectado",
+  "patternBody": "Você registra dor de cabeça frequentemente antes da menstruação. Tente se hidratar mais 2 dias antes.",
+
+  "insightPhasesTitle": "Fases do Ciclo",
+  "insightPhasesSubtitle": "Divisão de duração típica",
+  "insightMoodTitle": "Humor por Fase",
+  "insightMoodSubtitle": "Intensidade média do humor",
+  "insightVitals": "Sinais Vitais",
+  "insightVitalsSub": "Acompanhamento de Temp. e Peso",
+  "insightBodyBalance": "Equilíbrio Corporal",
+  "insightBodyBalanceSub": "Folicular (Roxo) vs Lútea (Laranja)",
+  "insightMoodFlow": "Fluxo de Humor",
+  "insightMoodFlowSub": "Tendência dos últimos 30 dias",
+  "insightCorrelationTitle": "Padrões Inteligentes",
+  "insightCorrelationSub": "Como seu estilo de vida afeta seu corpo",
+  "insightPatternText": "Quando você registra {factor}, você sente {symptom} em {percent}% dos casos.",
+  "@insightPatternText": {
+    "placeholders": {
+      "factor": { "type": "String" },
+      "symptom": { "type": "String" },
+      "percent": { "type": "int" }
+    }
+  },
+  "insightCycleDNA": "DNA do seu Ciclo",
+  "insightDNASub": "Personalidade Folicular vs Lútea",
+
+  "insightAvgCycle": "Ciclo Médio",
+  "insightAvgPeriod": "Período Médio",
+  "unitDaysShort": "d",
+  "daysUnit": "dias",
+
+  "paramEnergy": "Energia",
+  "paramLibido": "Libido",
+  "paramSkin": "Pele",
+  "paramFocus": "Foco",
+
+  "predTitle": "Previsão Diária",
+  "predSubtitle": "Baseado no seu ciclo e sono",
+  "recHighEnergy": "Ótimo dia para tarefas difíceis ou treino!",
+  "recLowEnergy": "Vá com calma. Priorize o descanso hoje.",
+  "recNormalEnergy": "Mantenha um ritmo constante.",
+  "msgFeedback": "{metric} está realmente {status} hoje?",
+  "@msgFeedback": {
+    "placeholders": {
+      "metric": { "type": "String" },
+      "status": { "type": "String" }
+    }
+  },
+  "statusLow": "Baixo",
+  "statusHigh": "Alto",
+  "statusNormal": "Normal",
+  "stateLow": "Baixo",
+  "stateMedium": "Médio",
+  "stateHigh": "Alto",
+
+  "feedbackTitle": "Feedback",
+  "feedbackQuestion": "Seu nível de {metric} está realmente {status} hoje?",
+  "@feedbackQuestion": {
+    "placeholders": {
+      "metric": { "type": "String" },
+      "status": { "type": "String" }
+    }
+  },
+  "btnYesCorrect": "Sim, correto",
+  "btnNoWrong": "Não, errado",
+  "btnWrong": "Errado",
+  "btnAdjust": "Ajustar",
+
+  "predMismatchTitle": "Sentindo-se diferente?",
+  "predMismatchBody": "Toque num ícone para ajustar o conselho.",
+  "predInsightHormones": "Hormônios: {hormone} subindo.",
+  "@predInsightHormones": {
+    "placeholders": {
+      "hormone": { "type": "String" }
+    }
+  },
+  "hormoneEstrogen": "Estrogênio",
+  "hormoneProgesterone": "Progesterona",
+  "hormoneReset": "Reset Hormonal",
+
+  "profileTitle": "Perfil",
+  "lblUser": "Usuária",
+  "sectionGeneral": "GERAL",
+  "settingsGeneral": "Geral",
+  "sectionSecurity": "SEGURANÇA",
+  "sectionData": "DADOS",
+  "settingsData": "Gerenciamento de Dados",
+  "sectionBackup": "BACKUP",
+  "sectionAbout": "SOBRE",
+
+  "lblLanguage": "Idioma",
+  "settingsLanguage": "Idioma",
+  "lblNotifications": "Notificações",
+  "settingsNotifs": "Notificações",
+  "lblBiometrics": "Biometria",
+  "settingsBiometrics": "FaceID / TouchID",
+  "lblExport": "Exportar PDF",
+  "settingsExport": "Baixar Relatório PDF",
+  "lblDeleteAccount": "Excluir Conta",
+  "settingsReset": "Redefinir Dados",
+  "settingsTheme": "Tema do App",
+  "settingsDailyLog": "Check-in Diário (20:00)",
+  "settingsSupport": "Suporte e Feedback",
+
+  "btnExportPdf": "Baixar Relatório PDF",
+  "btnBackup": "Fazer Backup",
+  "btnSaveBackup": "Salvar Backup",
+  "btnRestoreBackup": "Restaurar de Arquivo",
+  "btnContactSupport": "Contatar Suporte",
+  "btnRateApp": "Avaliar EviMoon",
+
+  "themeOceanic": "Oceano",
+  "themeNature": "Natureza",
+  "themeVelvet": "Veludo",
+  "themeDigital": "Digital",
+  "themeActive": "Ativo",
+  "selectThemeTitle": "Selecione o Tema",
+
+  "prefNotifications": "Notificações",
+  "prefBiometrics": "FaceID / TouchID",
+  "prefCOC": "Modo Pílula Anticoncepcional",
+
+  "descDelete": "Isso apagará permanentemente todos os seus registros deste dispositivo.",
+  "alertDeleteTitle": "Tem certeza?",
+  "actionCancel": "Cancelar",
+  "actionDelete": "Excluir",
+
+  "dialogResetTitle": "Redefinir tudo?",
+  "dialogResetBody": "Isso excluirá todos os seus dados permanentemente. Não pode ser desfeito.",
+  "dialogResetConfirm": "Redefinir",
+
+  "dialogRestoreTitle": "Restaurar Dados?",
+  "dialogRestoreBody": "Isso substituirá seus dados atuais pelo arquivo de backup. Tem certeza?",
+  "btnRestore": "Restaurar",
+  "msgRestoreSuccess": "Dados restaurados com sucesso!",
+  "backupSubject": "Backup EviMoon",
+  "backupBody": "Dados de backup do app EviMoon criados em {date}",
+  "@backupBody": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+
+  "greetMorning": "Bom dia",
+  "greetAfternoon": "Boa tarde",
+  "greetEvening": "Boa noite",
+
+  "authLockedTitle": "EviMoon Bloqueado",
+  "authUnlockBtn": "Desbloquear",
+  "authReason": "Por favor, autentique-se para acessar",
+  "authNotAvailable": "Biometria não disponível",
+  "authBiometricsReason": "Confirme para ativar biometria",
+  "msgBiometricsError": "Biometria não disponível neste dispositivo",
+
+  "pdfReportTitle": "Relatório de Saúde EviMoon",
+  "pdfReportSubtitle": "Histórico Ginecológico e do Ciclo",
+  "pdfCycleHistory": "Histórico do Ciclo",
+  "pdfHeaderStart": "Início",
+  "pdfHeaderEnd": "Fim",
+  "pdfHeaderLength": "Duração",
+  "pdfCurrent": "Atual",
+  "pdfGenerated": "Data",
+  "pdfPage": "Página",
+  "pdfPatient": "Paciente",
+  "pdfClinicalSummary": "Resumo Clínico",
+  "pdfDetailedLogs": "Registros Detalhados",
+  "pdfAvgCycle": "Ciclo Médio",
+  "pdfAvgPeriod": "Período Médio",
+  "pdfPainReported": "Dias com Dor",
+  "pdfTableDate": "Data",
+  "pdfTableCD": "Dia Ciclo",
+  "pdfTableSymptoms": "Sintomas",
+  "pdfTableBBT": "TBC",
+  "pdfTableNotes": "Notas",
+  "pdfFlowShort": "Fluxo",
+  "unitDays": "dias",
+  "pdfDisclaimer": "AVISO: Este relatório é gerado pelo EviMoon com base nos dados da usuária. Não constitui um diagnóstico médico. Consulte um profissional de saúde.",
+  "msgExportError": "Não foi possível gerar o PDF",
+  "msgExportEmpty": "Sem dados para exportar.",
+
+  "dialogDataInsufficientTitle": "Dados Insuficientes",
+  "dialogDataInsufficientBody": "Para gerar um relatório clínico, precisamos de pelo menos 2 dias de registros.",
+
+  "dayTitle": "Dia",
+
+  "insightTipTitle": "Dica do Dia",
+  "insightTipBody": "Os níveis de energia caem na fase lútea. É um ótimo momento para yoga.",
+  "insightMenstruationTitle": "Descanso e Reinício",
+  "insightMenstruationSubtitle": "Mantenha-se aquecida, beba chá, evite treinos pesados.",
+  "insightFollicularTitle": "Faísca Criativa",
+  "insightFollicularSubtitle": "A energia está subindo! Seu cérebro está no auge.",
+  "insightOvulationTitle": "Super Poder",
+  "insightOvulationSubtitle": "Energia magnética. Alta libido e confiança.",
+  "insightLutealTitle": "Foco Interior",
+  "insightLutealSubtitle": "Calma ou irritabilidade. Foque em si mesma.",
+  "insightLateTitle": "Mantenha a Calma",
+  "insightLateSubtitle": "Reduza o estresse e mantenha uma dieta saudável.",
+
+  "insightProstaglandinsTitle": "Prostaglandinas agindo",
+  "insightProstaglandinsBody": "Contrações uterinas ajudam a expelir o revestimento. Calor e magnésio ajudam.",
+  "insightWinterPhaseTitle": "Descansar e Restaurar",
+  "insightWinterPhaseBody": "Hormônios estão no nível mais baixo. Tudo bem desacelerar.",
+  "insightEstrogenTitle": "Estrogênio Subindo",
+  "insightEstrogenBody": "O estrogênio impulsiona a serotonina. Ótimo momento para criar e planejar!",
+  "insightMittelschmerzTitle": "Dor da Ovulação",
+  "insightMittelschmerzBody": "Você pode sentir o momento exato da ovulação. Geralmente é breve.",
+  "insightFertilityTitle": "Pico de Fertilidade",
+  "insightFertilityBody": "A natureza incentiva a conexão social. Você está magnética!",
+  "insightWaterTitle": "Retenção de Líquido",
+  "insightWaterBody": "O corpo retém água preparando-se para uma possível gravidez. Vai passar logo.",
+  "insightProgesteroneTitle": "Queda de Progesterona",
+  "insightProgesteroneBody": "A química cerebral muda antes da menstruação. Seja gentil com você hoje.",
+  "insightSkinTitle": "Pele Hormonal",
+  "insightSkinBody": "A progesterona ativa as glândulas sebáceas. Mantenha o cuidado com a pele simples.",
+  "insightMetabolismTitle": "Demanda de Energia",
+  "insightMetabolismBody": "O metabolismo acelera. Escolha carboidratos complexos em vez de açúcar.",
+  "insightSpottingTitle": "Sangramento de Escape",
+  "insightSpottingBody": "Um leve sangramento pode ocorrer durante a ovulação ou devido ao estresse.",
+
+  "tipPeriod": "Descanse e coma alimentos ricos em ferro.",
+  "tipOvulation": "Pico de fertilidade! Momento ideal para conceber.",
+  "tipLutealEarly": "Progesterona subindo. Mantenha-se hidratada.",
+  "tipLutealLate": "Janela de implantação. Evite alto estresse.",
+  "tipFollicular": "Energia subindo. Bom para exercícios.",
+  "tipLowEnergy": "Dia de descanso válido. Tente yoga leve ou um cochilo.",
+  "tipHighEnergy": "Ótimo momento para cardio ou tarefas complexas!",
+  "tipLowMood": "Seja gentil com você. Chocolate ajuda.",
+  "tipHighMood": "Compartilhe sua vibe! Socialize ou crie algo.",
+  "tipLowFocus": "Evite multitarefas. Escolha uma meta pequena.",
+  "tipHighFocus": "Modo de trabalho profundo. Ataque o projeto mais difícil.",
+
+  "dialogStartTitle": "Começar Novo Ciclo?",
+  "dialogStartBody": "Hoje será marcado como o Dia 1 da sua menstruação.",
+  "dialogEndTitle": "Terminar Menstruação?",
+  "dialogEndBody": "Sua fase do ciclo mudará para folicular.",
+  "btnPeriodStart": "INICIOU",
+  "btnPeriodEnd": "TERMINOU",
+  "dialogPeriodStartTitle": "A menstruação começou?",
+  "dialogPeriodStartBody": "Começou hoje ou você esqueceu de registrar?",
+  "btnToday": "Hoje",
+  "btnYesterday": "Ontem",
+  "btnPickDate": "Escolher Data",
+  "btnAnotherDay": "Escolher Data",
+
+  "cocActivePhase": "Fase Píldula Ativa",
+  "cocBreakPhase": "Semana de Pausa",
+  "cocPredictionActive": "Restam {days} ativas",
+  "@cocPredictionActive": {
+    "placeholders": { "days": { "type": "int" } }
+  },
+  "cocPredictionBreak": "Nova cartela em {days} dias",
+  "@cocPredictionBreak": {
+    "placeholders": { "days": { "type": "int" } }
+  },
+  "btnStartNewPack": "Iniciar Nova Cartela",
+  "btnRestartPack": "Reiniciar Cartela",
+  "dialogStartPackTitle": "Nova Cartela?",
+  "dialogStartPackBody": "Isso reinicia seu ciclo para o Dia 1. Use ao abrir um blister novo.",
+  "dialogCOCStartTitle": "Rastrear Pílula?",
+  "dialogCOCStartSubtitle": "Escolha como você quer começar a rastrear sua cartela.",
+  "optionFreshPack": "Começar Cartela Nova",
+  "optionFreshPackSub": "Hoje é o Dia 1",
+  "optionContinuePack": "Continuar Atual",
+  "optionContinuePackSub": "Estou no meio de uma cartela",
+  "labelOr": "OU",
+
+  "cocDayInfo": "Dia {day} de 28",
+  "@cocDayInfo": {
+    "placeholders": { "day": { "type": "int" } }
+  },
+
+  "settingsContraception": "Contracepção",
+  "settingsTrackPill": "Rastrear Pílula",
+  "settingsPackType": "Tipo de Cartela",
+  "settingsPills": "{count} Pílulas",
+  "@settingsPills": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "settingsReminder": "Lembrete",
+  "settingsPackSettings": "Configurações da Cartela",
+  "settingsPlaceboCount": "Dias de Placebo",
+  "settingsBreakDuration": "Duração da Pausa",
+
+  "dialogPackTitle": "Escolher Tipo de Cartela",
+  "dialogPackSubtitle": "Selecione o formato de pílulas que você usa.",
+  "pack21Title": "21 Pílulas",
+  "pack21Subtitle": "21 Ativas + 7 Dias Pausa",
+  "pack28Title": "28 Pílulas",
+  "pack28Subtitle": "21 Ativas + 7 Placebo",
+  "pack21": "21 Ativas + 7 Pausa",
+  "pack28": "28 Ativas (Sem Pausa)",
+  "pack24": "24 Ativas + 4 Placebo",
+
+  "pillTaken": "Tomada",
+  "pillTake": "Tomar Pílula",
+  "pillScheduled": "Agendada às {time}",
+  "@pillScheduled": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "blisterMyPack": "Minha Cartela",
+  "blisterDay": "Dia {day} / {total}",
+  "@blisterDay": {
+    "placeholders": { "day": { "type": "int" }, "total": { "type": "int" } }
+  },
+  "blisterOverdue": "Dia {day} (Atrasada)",
+  "@blisterOverdue": {
+    "placeholders": { "day": { "type": "int" } }
+  },
+  "blister21": "Cartela de 21",
+  "blister28": "Cartela de 28",
+  "legendTaken": "Tomada",
+  "legendActive": "Ativa",
+  "legendPlacebo": "Placebo",
+  "legendBreak": "Pausa",
+
+  "insightCOCActiveTitle": "Protegida",
+  "insightCOCActiveBody": "Fase ativa. Certifique-se de tomar a pílula no mesmo horário diariamente.",
+  "insightCOCBreakTitle": "Sangramento de Privação",
+  "insightCOCBreakBody": "Semana de pausa. Sangramento esperado devido à queda hormonal.",
+
+  "sectionCycle": "Configurações do Ciclo",
+  "lblCycleLength": "Duração do Ciclo",
+  "lblPeriodLength": "Duração da Menstruação",
+  "lblAverage": "Média",
+  "lblNormalRange": "Normal: 21-35 days",
+
+  "emailSubject": "Feedback EviMoon",
+  "emailBody": "Olá equipe EviMoon,\n\nTenho uma dúvida/sugestão sobre o app:",
+  "msgEmailError": "Não foi possível abrir o e-mail. Escreva para: {email}",
+  "@msgEmailError": {
+    "placeholders": { "email": { "type": "String" } }
+  },
+
+  "onboardTitle1": "Bem-vinda ao EviMoon",
+  "onboardBody1": "Acompanhe seu ciclo, entenda seu corpo e viva em harmonia com seu ritmo natural.",
+  "onboardTitle2": "Última Menstruação",
+  "onboardBody2": "Por favor, selecione o primeiro dia da sua última menstruação.",
+  "onboardTitle3": "Duração do Ciclo",
+  "onboardBody3": "Quantos dias geralmente passam entre as menstruações? A média é 28.",
+  "onboardModeTitle": "Qual é o seu objetivo?",
+  "onboardModeCycle": "Acompanhar Ciclo",
+  "onboardModeCycleDesc": "Prever menstruação e fertilidade",
+  "onboardModePill": "Acompanhar Pílula (KOK)",
+  "onboardModePillDesc": "Lembretes e gestão de cartela",
+  "onboardDateTitleCycle": "Quando começou a última menstruação?",
+  "onboardDateTitlePill": "Quando você começou esta cartela?",
+  "onboardLengthTitle": "Duração do Ciclo",
+  "onboardPackTitle": "Tipo de Cartela",
+
+  "splashTitle": "EVIMOON",
+  "splashSlogan": "Escute seu ritmo.",
+
+  "premiumInsightLabel": "INFO PREMIUM",
+  "calendarForecastTitle": "CALENDÁRIO E PREVISÃO",
+
+  "aiForecastHigh": "Previsão Precisa",
+  "aiForecastHighSub": "Baseado em histórico estável",
+  "aiForecastMedium": "Confiança Média",
+  "aiForecastMediumSub": "Variações detectadas",
+  "aiForecastLow": "Baixa Precisão",
+  "aiForecastLowSub": "A duração varia muito",
+  "aiLearning": "IA Aprendendo...",
+  "aiLearningSub": "Registre 3 ciclos para desbloquear",
+
+  "confidenceHighDesc": "O ciclo é previsível e regular.",
+  "confidenceMedDesc": "Previsão baseada em médias.",
+  "confidenceLowDesc": "Previsões podem variar devido à irregularidade.",
+  "confidenceCalcDesc": "Coletando mais dados para melhor precisão.",
+  "confidenceNoData": "Histórico insuficiente ainda.",
+
+  "factorDataNeeded": "Necessário pelo menos 3 ciclos",
+  "factorHighVar": "Alta irregularidad detectada",
+  "factorSlightVar": "Leve irregularidade",
+  "factorStable": "O ciclo é estável",
+  "factorAnomaly": "Anomalia recente detectada",
+
+  "aiDialogTitle": "Análise de Previsão IA",
+  "aiDialogScore": "Confiança da previsão: {score}%.",
+  "@aiDialogScore": {
+    "placeholders": { "score": { "type": "int" } }
+  },
+  "aiDialogExplanation": "Esta pontuação é calculada localmente com base na variação do seu histórico.",
+  "aiDialogFactors": "Fatores:",
+  "btnGotIt": "Entendi",
+
+  "aiStatusHigh": "Alta Precisão",
+  "aiStatusMedium": "Precisão Média",
+  "aiStatusLow": "Baixa Precisão",
+  "aiDescHigh": "Seu ciclo é muito regular. A previsão da IA provavelmente está correta com margem de ±1 dia.",
+  "aiDescMedium": "Há variação nos ciclos recentes. A previsão pode variar ±2-3 dias.",
+  "aiDescLow": "Seu histórico é irregular ou muito curto. A IA precisa de mais dados.",
+  "aiConfidenceScore": "Pontuação de Confiança",
+  "aiLabelHistory": "Tamanho do Histórico",
+  "aiLabelVariation": "Variação do Ciclo",
+  "aiSuffixCycles": "ciclos",
+  "aiSuffixDays": "dias",
+
+  "modeTTC": "Planejamento de Gravidez",
+  "modeTTCDesc": "Ativar foco em fertilidade e ovulação",
+  "modeTTCActive": "Modo Fertilidade Ativo",
+  "modeCycle": "Acompanhar Ciclo",
+  "modeTrackCycle": "Acompanhar Ciclo",
+  "modeGetPregnant": "Quero Engravidar",
+
+  "dialogTTCConflict": "Desativar Contracepção?",
+  "dialogTTCConflictBody": "Para ativar o modo Planejamento de Gravidez, o rastreamento de pílulas deve ser desativado.",
+  "btnDisableAndSwitch": "Desativar e Mudar",
+
+  "ttcStatusLow": "Baixa Chance",
+  "ttcStatusHigh": "Alta Fertilidade",
+  "ttcStatusPeak": "Pico de Fertilidade",
+  "ttcStatusOvulation": "Dia da Ovulação",
+  "ttcDPO": "{days} DPO",
+  "@ttcDPO": {
+    "placeholders": { "days": { "type": "int" } }
+  },
+  "ttcChance": "Chance de Concepção",
+  "ttcChanceHigh": "Alta Chance",
+  "ttcChancePeak": "Máxima Chance",
+  "ttcChanceLow": "Baixa Chance",
+  "ttcTestWait": "Muito cedo para testar",
+  "ttcTestReady": "Você pode testar hoje",
+  "lblCycleDay": "Dia do Ciclo {day}",
+  "@lblCycleDay": {
+    "placeholders": { "day": { "type": "int" } }
+  },
+  "ttcCycleDay": "DIA DO CICLO {day}",
+  "@ttcCycleDay": {
+    "placeholders": { "day": { "type": "int" } }
+  },
+
+  "ttcBtnBBT": "TBC",
+  "ttcBtnTest": "Teste LH",
+  "ttcBtnSex": "Intimidade",
+  "ttcBtnReset": "Reset",
+  "ttcLogTitle": "Registro de Hoje",
+  "ttcSectionBBT": "Temperatura Basal",
+  "ttcSectionTest": "Teste de Ovulação (LH)",
+  "ttcSectionSex": "Intimidade",
+
+  "lblNegative": "Negativo (-)",
+  "lblPositive": "Positivo (+)",
+  "lblPeak": "Pico",
+  "chipNegative": "Negativo",
+  "chipPositive": "Positivo",
+  "chipPeak": "Pico",
+  "valNegative": "Negativo",
+  "valPositive": "Positivo",
+  "valPeak": "Pico",
+
+  "lblSexYes": "Sim, teve!",
+  "lblSexNo": "Hoje não",
+  "labelSexNo": "Não",
+  "labelSexYes": "Sim",
+  "valSexYes": "Registrado",
+
+  "ttcTipTitle": "Dica Diária",
+  "ttcTipDefault": "Estresse afeta a ovulação. Tente meditar 5 min hoje.",
+  "ttcStrategyTitle": "Estratégia",
+  "ttcStrategyMinimal": "Esforço mínimo",
+  "ttcStrategyMaximal": "Chances máximas",
+  "ttcPlanTitle": "Seu plano",
+  "ttcPlanMinimalBody": "Na janela fértil: intimidade dia sim, dia não; testes LH 2-3 dias; TBC opcional.",
+  "ttcPlanMaximalBody": "Na janela fértil: intimidade diária; teste LH diário; TBC toda manhã.",
+
+  "ttcOvulationBadgeTitle": "Ovulação",
+  "ttcOvulationEstimatedCalendar": "Estimada (calendário)",
+  "ttcOvulationConfirmedLH": "Confirmada por LH",
+  "ttcOvulationConfirmedBBT": "Confirmada por TBC",
+  "ttcOvulationConfirmedManual": "Confirmada",
+
+  "dialogHighTempTitle": "Temperatura Alta",
+  "dialogHighTempBody": "Temperatura acima de 37.5°C geralmente indica febre, não ovulação.",
+  "dialogLowTempTitle": "Temperatura Baixa",
+  "dialogLowTempBody": "Temperatura abaixo de 35.5°C é incomum. Erro de digitação?",
+  "dialogPeriodLHTitle": "Leitura Incomum",
+  "dialogPeriodLHBody": "Teste LH positivo durante a menstruação é raro. Pode ser um erro.",
+  "btnLogAnyway": "Registrar mesmo assim",
+
+  "insightFertilitySub": "Como seu corpo sinaliza a ovulação",
+  "insightLibidoHigh": "Libido alta na janela fértil",
+  "insightPainOvulation": "Dor de ovulação detectada",
+  "insightTempShift": "Mudança de temperatura detectada",
+  "lblDetected": "Detectado",
+  "msgLhPeakRecorded": "Pico de LH registrado! Janela fértil ativa.",
+
+  "transitionTTC": "A jornada começa... ✨",
+  "transitionCOC": "Proteção ativada 🛡️",
+  "transitionTrack": "Ouvindo seu corpo 🌿",
+
+  "notifPhaseFollicularTitle": "Energia Subindo ⚡",
+  "notifPhaseFollicularBody": "Ótimo momento para treinar! Sua energia está voltando.",
+  "notifFollTitle": "Energia Subindo ⚡",
+  "notifFollBody": "Ótimo momento para treinar! Sua energia está voltando.",
+
+  "notifPhaseOvulationTitle": "Você está radiante 🌸",
+  "notifPhaseOvulationBody": "Pico de confiança e fertilidade hoje.",
+  "notifOvulationTitle": "Você está radiante 🌸",
+  "notifOvulationBody": "Pico de confiança e fertilidade hoje.",
+
+  "notifPhaseLutealTitle": "Seja gentil com você 🌙",
+  "notifPhaseLutealBody": "Vá com calma hoje, escute seu corpo.",
+  "notifLutealTitle": "Seja gentil com você 🌙",
+  "notifLutealBody": "Vá com calma hoje, escute seu corpo.",
+
+  "notifPhasePeriodTitle": "Novo Ciclo 🩸",
+  "notifPhasePeriodBody": "Não esqueça de registrar o início da sua menstruação.",
+  "notifPeriodSoonTitle": "Menstruação em breve 🩸",
+  "notifPeriodSoonBody": "Esperada para amanhã. Tudo pronto?",
+  "notifPeriodTitle": "Atualização de Ciclo",
+  "notifPeriodBody": "Sua menstruação deve começar em 2 dias. Prepare-se!",
+
+  "notifLatePeriodTitle": "Atraso?",
+  "notifLatePeriodBody": "Ciclo mais longo que o normal. Registre sintomas ou faça um teste.",
+  "notifLateTitle": "Atraso?",
+  "notifLateBody": "Ciclo mais longo que o normal. Não se preocupe.",
+
+  "notifLogCheckinTitle": "Como você se sente?",
+  "notifLogCheckinBody": "Tire um segundo para registrar sintomas e melhorar as previsões.",
+  "notifCheckinTitle": "Diário 📝",
+  "notifCheckinBody": "Como você se sente hoje? Registre seus sintomas.",
+
+  "notifPillTitle": "Lembrete da Pílula 💊",
+  "notifPillBody": "Hora de tomar seu contraceptivo.",
+  "notifNewPackTitle": "Nova Cartela 💊",
+  "notifNewPackBody": "Hora de começar uma nova cartela!",
+  "notifBreakTitle": "Semana de Pausa 🩸",
+  "notifBreakBody": "Pílulas ativas terminaram. Aproveite a pausa.",
+
+  "paywallTitle": "EviMoon Premium",
+  "paywallSubtitle": "Desbloqueie todo o potencial do seu ciclo.",
+  "featureTimersTitle": "Designs Premium",
+  "featureTimersDesc": "Estilos únicos para sua tela inicial",
+  "featurePdfTitle": "Relatório Médico PDF",
+  "featurePdfDesc": "Compartilhe histórico com seu médico",
+  "featureAiTitle": "Confiança da IA",
+  "featureAiDesc": "Saiba quão precisa é sua previsão",
+  "featureTtcTitle": "Modo Planejamento de Gravidez",
+  "featureTtcDesc": "Ferramentas especializadas para concepção",
+  "paywallNoOffers": "Nenhuma oferta disponível",
+  "paywallSelectPlan": "Escolha um Plano",
+  "paywallSubscribeFor": "Assinar por {price}",
+  "@paywallSubscribeFor": {
+    "placeholders": {
+      "price": { "type": "String" }
+    }
+  },
+  "paywallRestore": "Restaurar Compras",
+  "paywallTerms": "Termos e Privacidade",
+  "paywallBestValue": "MELHOR VALOR",
+  "msgNoSubscriptions": "Nenhuma assinatura ativa encontrada",
+  "proStatusTitle": "Status da Assinatura",
+  "proStatusActive": "Premium Ativo",
+  "proStatusDesc": "Você tem acesso total a todos os recursos.",
+  "btnManageSub": "Gerenciar Assinatura",
+  "btnManageSubDesc": "Mudar plano ou cancelar nos Ajustes do iOS",
+  "msgLinkError": "Não foi possível abrir os ajustes",
+  "badgePro": "PRO",
+  "badgeGoPro": "VIRAR PRO",
+  "badgePremium": "PREMIUM",
+  "debugPremiumOn": "DEBUG: Premium ON",
+  "debugPremiumOff": "DEBUG: Premium OFF",
+
+  "phaseNewMoon": "Lua Nova",
+  "phaseWaxingCrescent": "Lua Crescente",
+  "phaseFirstQuarter": "Quarto Crescente",
+  "phaseFullMoon": "Lua Cheia",
+  "phaseWaningGibbous": "Gibosa Minguante",
+  "phaseWaningCrescent": "Lua Minguante",
+
+  "lblTemp": "Temperatura",
+  "lblTest": "Teste LH",
+  "lblSex": "Intimidade",
+  "lblMucus": "Muco",
+  "valMeasured": "{temp}°",
+  "@valMeasured": {
+    "placeholders": {
+      "temp": { "type": "double" }
+    }
+  },
+  "valMucusLogged": "Registrado",
+  "titleInputBBT": "Registrar Temperatura",
+  "titleInputTest": "Resultado Teste LH",
+  "titleInputSex": "Detalhes de Intimidade",
+  "titleInputMucus": "Muco Cervical",
+  "mucusDry": "Seco",
+  "mucusSticky": "Pegajoso",
+  "mucusCreamy": "Cremoso",
+  "mucusWatery": "Aquoso",
+  "mucusEggWhite": "Clara de ovo",
+  "ttcChartTitle": "GRÁFICO TBC (14 DIAS)",
+  "ttcChartPlaceholder": "Registre temp para ver gráfico",
+  "hintTemp": "36.6",
+
+  "designSelectorTitle": "Estilo do Temporizador",
+  "designClassic": "Clássico",
+  "designMinimal": "Minimalista",
+  "designLunar": "Lunar",
+  "designBloom": "Bloom",
+  "designLiquid": "Líquido",
+  "designOrbit": "Órbita",
+  "designZen": "Zen",
+
+  "ttcHintToday": "Hoje",
+  "ttcTimelineTitle": "Linha do Tempo",
+  "ttcTimelineOvulationEquals": "Ovulação = {day}",
+  "@ttcTimelineOvulationEquals": {
+    "placeholders": { "day": { "type": "int" } }
+  },
+  "ttcDockBBT": "TBC",
+  "ttcDockLH": "LH",
+  "ttcDockSex": "Sexo",
+  "ttcDockMucus": "Muco",
+  "ttcShortBBT": "TBC",
+  "ttcShortLH": "LH",
+  "ttcShortSex": "Sexo",
+  "ttcShortMucus": "Muco",
+  "ttcMarkDone": "✓",
+  "ttcMarkMissing": "?",
+  "ttcAllDone": "Tudo pronto ✓",
+  "ttcMissingList": "Falta: {items}",
+  "@ttcMissingList": {
+    "placeholders": { "items": { "type": "String" } }
+  },
+  "ttcRemainingLeft": "Falta: {items}",
+  "@ttcRemainingLeft": {
+    "placeholders": { "items": { "type": "String" } }
+  },
+  "ttcCtaTestReadyBody": "DPO {dpo} • TBC {bbt} • LH {lh}",
+  "@ttcCtaTestReadyBody": {
+    "placeholders": {
+      "dpo": { "type": "int" },
+      "bbt": { "type": "String" },
+      "lh": { "type": "String" }
+    }
+  },
+  "ttcCtaTestWaitBody": "DPO {dpo} • ~{days} dia(s) para teste confiável",
+  "@ttcCtaTestWaitBody": {
+    "placeholders": {
+      "dpo": { "type": "int" },
+      "days": { "type": "int" }
+    }
+  },
+  "ttcCtaPeakBody": "Hoje/amanhã é o pico. Registre sexo e teste para precisão.",
+  "ttcCtaHighBody": "Janela fértil aberta • pico em ~{days} dia(s).",
+  "@ttcCtaHighBody": {
+    "placeholders": { "days": { "type": "int" } }
+  },
+  "ttcCtaMenstruationBody": "Modo suave: sono, água, calor. Registro opcional — mas TBC ajuda.",
+  "ttcCtaLowBody": "Dia de preparação • {status}",
+  "@ttcCtaLowBody": {
+    "placeholders": { "status": { "type": "String" } }
+  },
+  "ttcDash": "—",
+
+  "eduTitleBBT": "Por que medir a TBC?",
+  "eduBodyBBT": "A Temperatura Basal Corporal (TBC) sobe levemente após a ovulação devido à progesterona. Registrá-la confirma que a ovulação ocorreu.",
+  "eduTitleLH": "Por que usar Testes de Ovulação?",
+  "eduBodyLH": "O Hormônio Luteinizante (LH) sobe bruscamente 24-48 horas antes de ovular. Um teste positivo prevê seus dias mais férteis.",
+  "eduTitleSex": "Registrar Intimidade",
+  "eduBodySex": "Espermatozoides vivem até 5 dias no corpo. Registrar ajuda a garantir que você teve intimidade na janela fértil.",
+  "eduTitleMucus": "Muco Cervical",
+  "eduBodyMucus": "Ao se aproximar da ovulação, o estrogênio torna o muco elástico e transparente (como clara de ovo). Isso cria o ambiente perfeito para os espermatozoides."
+}

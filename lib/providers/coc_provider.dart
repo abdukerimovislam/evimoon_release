@@ -2,27 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import '../services/notification_service.dart';
 
+enum PillStatus { taken, missed, pending, future }
+
 class COCProvider with ChangeNotifier {
   final Box _box;
   final NotificationService _notifications;
 
   bool _isEnabled = false;
   TimeOfDay _reminderTime = const TimeOfDay(hour: 20, minute: 0);
-  List<DateTime> _history = [];
 
-  // 🔥 Новые поля для логики пачек
-  DateTime _startDate = DateTime.now(); // Дата начала ТЕКУЩЕЙ пачки
-  int _activePillCount = 21; // Количество активных таблеток
-  int _breakDays = 7; // Количество дней перерыва
+  // History of actions
+  List<DateTime> _history = []; // Taken pills
+  List<DateTime> _missed = [];  // Missed pills (forgot to take)
 
-  // Ключи
+  // 🔥 Pack Data
+  DateTime _startDate = DateTime.now();
+  int _activePillCount = 21;
+  int _breakDays = 7;
+
+  // 🔑 Keys (Synced with CycleProvider)
   static const String _keyEnabled = 'coc_enabled';
-  static const String _keyPillCount = 'coc_pill_count';
-  static const String _keyBreakDays = 'coc_break_days'; // Новый ключ
-  static const String _keyStartDate = 'coc_start_date'; // Новый ключ
+  static const String _keyPillCount = 'coc_active_count';
+  static const String _keyBreakDays = 'coc_break_days';
+
+  static const String _keyStartDate = 'coc_start_date';
   static const String _keyTimeHour = 'coc_time_hour';
   static const String _keyTimeMinute = 'coc_time_minute';
   static const String _keyHistory = 'coc_history';
+  static const String _keyMissed = 'coc_missed_history';
+
+  static const int _notificationId = 1001;
 
   COCProvider(this._box, this._notifications) {
     _init();
@@ -33,7 +42,6 @@ class COCProvider with ChangeNotifier {
     _activePillCount = _box.get(_keyPillCount, defaultValue: 21);
     _breakDays = _box.get(_keyBreakDays, defaultValue: 7);
 
-    // Загрузка даты старта
     final startMs = _box.get(_keyStartDate);
     if (startMs != null) {
       _startDate = DateTime.fromMillisecondsSinceEpoch(startMs);
@@ -45,18 +53,25 @@ class COCProvider with ChangeNotifier {
     final m = _box.get(_keyTimeMinute, defaultValue: 0);
     _reminderTime = TimeOfDay(hour: h, minute: m);
 
-    // Загрузка истории
+    // Load Taken History
     final rawHistory = _box.get(_keyHistory, defaultValue: []);
     if (rawHistory is List) {
       _history = rawHistory.map((e) {
         if (e is int) return DateTime.fromMillisecondsSinceEpoch(e);
-        if (e is String) return DateTime.tryParse(e) ?? DateTime.now();
         return DateTime.now();
       }).toList();
-    } else {
-      _history = [];
     }
     _history.sort();
+
+    // Load Missed History
+    final rawMissed = _box.get(_keyMissed, defaultValue: []);
+    if (rawMissed is List) {
+      _missed = rawMissed.map((e) {
+        if (e is int) return DateTime.fromMillisecondsSinceEpoch(e);
+        return DateTime.now();
+      }).toList();
+    }
+    _missed.sort();
   }
 
   // --- Getters ---
@@ -65,56 +80,81 @@ class COCProvider with ChangeNotifier {
   int get pillCount => _activePillCount;
   int get breakDays => _breakDays;
   DateTime get startDate => _startDate;
+
   bool get isLoaded => true;
 
+  int get totalCycleLength => _activePillCount + _breakDays;
+
   bool get isTakenToday {
-    if (_history.isEmpty) return false;
-    final today = DateTime.now();
-    return isTakenOnDate(today);
+    final today = _normalizeDate(DateTime.now());
+    return _isSameDayInList(_history, today);
   }
 
-  bool isTakenOnDate(DateTime date) {
-    return _history.any((d) =>
-    d.year == date.year && d.month == date.month && d.day == date.day
-    );
-  }
-
-  // 🔥 Расчет текущего дня в пачке (1-based)
+  // Calculate current pill number (1-based)
   int get currentPillNumber {
-    final now = DateTime.now();
-    final diff = now.difference(_startDate).inDays;
-    final totalCycle = _activePillCount + _breakDays;
+    final now = _normalizeDate(DateTime.now());
+    final start = _normalizeDate(_startDate);
+    final diff = now.difference(start).inDays;
 
-    // Остаток от деления на длину цикла пачки
-    final dayInCycle = (diff % totalCycle) + 1;
+    if (diff < 0) return 1;
+    final dayInCycle = (diff % totalCycleLength) + 1;
     return dayInCycle;
   }
 
-  // Находимся ли мы сейчас на перерыве (месячные)?
   bool get isOnBreak {
     return currentPillNumber > _activePillCount;
   }
 
+  // --- Smart Logic (New) ---
+
+  /// Returns the status of a specific date for UI rendering
+  PillStatus getPillStatus(DateTime date) {
+    final normDate = _normalizeDate(date);
+    final today = _normalizeDate(DateTime.now());
+
+    if (normDate.isAfter(today)) return PillStatus.future;
+
+    if (_isSameDayInList(_history, normDate)) return PillStatus.taken;
+    if (_isSameDayInList(_missed, normDate)) return PillStatus.missed;
+
+    return PillStatus.pending;
+  }
+
+  /// Returns list of dates that have no status (neither taken nor missed)
+  /// Useful for "Did you forget?" dialogs.
+  List<DateTime> getUntrackedDates({int limit = 5}) {
+    List<DateTime> untracked = [];
+    final today = _normalizeDate(DateTime.now());
+
+    // Check last 5 days
+    for (int i = 1; i <= limit; i++) {
+      final d = today.subtract(Duration(days: i));
+      // Stop if date is before start of COC tracking
+      if (d.isBefore(_normalizeDate(_startDate))) break;
+
+      if (getPillStatus(d) == PillStatus.pending) {
+        untracked.add(d);
+      }
+    }
+    return untracked;
+  }
+
   // --- Actions ---
 
-  // 🔥 Метод для Онбординга
   Future<void> initSettings({
     required DateTime startDate,
     required int activePills,
     required int breakDays,
   }) async {
-    _startDate = startDate;
+    _startDate = _normalizeDate(startDate);
     _activePillCount = activePills;
     _breakDays = breakDays;
 
-    await _box.put(_keyStartDate, startDate.millisecondsSinceEpoch);
+    await _box.put(_keyStartDate, _startDate.millisecondsSinceEpoch);
     await _box.put(_keyPillCount, activePills);
     await _box.put(_keyBreakDays, breakDays);
 
-    // Включаем уведомления по умолчанию на 20:00
-    await setTime(const TimeOfDay(hour: 20, minute: 0), notifTitle: "Pill Time 💊", notifBody: "Time to take your pill!");
-
-    notifyListeners();
+    await toggleCOC(true);
   }
 
   Future<void> toggleCOC(bool value, {String? notifTitle, String? notifBody}) async {
@@ -122,13 +162,11 @@ class COCProvider with ChangeNotifier {
     await _box.put(_keyEnabled, value);
 
     if (value) {
-      // При включении шедулим уведомление
-      await _scheduleNotification(
-          notifTitle ?? "Pill Time 💊",
-          notifBody ?? "Don't forget your pill!"
-      );
+      if (notifTitle != null && notifBody != null) {
+        await _scheduleNotification(notifTitle, notifBody);
+      }
     } else {
-      await _notifications.cancelNotification(1001); // Используем ID 1001 для таблеток
+      await _notifications.cancelNotification(_notificationId);
     }
     notifyListeners();
   }
@@ -136,6 +174,14 @@ class COCProvider with ChangeNotifier {
   Future<void> setPillCount(int count) async {
     _activePillCount = count;
     await _box.put(_keyPillCount, count);
+    notifyListeners();
+  }
+
+  Future<void> setPackData(int active, int brk) async {
+    _activePillCount = active;
+    _breakDays = brk;
+    await _box.put(_keyPillCount, active);
+    await _box.put(_keyBreakDays, brk);
     notifyListeners();
   }
 
@@ -150,53 +196,106 @@ class COCProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // --- Pill Management ---
+
   Future<void> takePill() async {
-    if (isTakenToday) return;
-    await takePillOnDate(DateTime.now());
+    final now = _normalizeDate(DateTime.now());
+    await takePillOnDate(now);
   }
 
   Future<void> takePillOnDate(DateTime date) async {
-    if (isTakenOnDate(date)) return;
+    final normDate = _normalizeDate(date);
 
-    _history.add(date);
-    _history.sort();
-
-    if (_history.length > 90) {
-      _history.removeAt(0);
+    // If it was marked missed, remove from missed
+    if (_isSameDayInList(_missed, normDate)) {
+      _missed.removeWhere((d) => _isSameDay(d, normDate));
     }
+
+    if (_isSameDayInList(_history, normDate)) return;
+
+    _history.add(normDate);
+    _history.sort();
+    if (_history.length > 90) _history.removeAt(0);
+
+    await _saveHistory();
+    notifyListeners();
+  }
+
+  // New: Mark as Missed (Forgot to take)
+  Future<void> markAsMissed(DateTime date) async {
+    final normDate = _normalizeDate(date);
+
+    // If it was marked taken, remove from taken
+    if (_isSameDayInList(_history, normDate)) {
+      _history.removeWhere((d) => _isSameDay(d, normDate));
+    }
+
+    if (_isSameDayInList(_missed, normDate)) return;
+
+    _missed.add(normDate);
+    _missed.sort();
+    if (_missed.length > 90) _missed.removeAt(0);
 
     await _saveHistory();
     notifyListeners();
   }
 
   Future<void> undoTakePill() async {
-    await undoTakePillOnDate(DateTime.now());
+    final now = _normalizeDate(DateTime.now());
+    await undoTakePillOnDate(now);
   }
 
   Future<void> undoTakePillOnDate(DateTime date) async {
-    _history.removeWhere((d) =>
-    d.year == date.year && d.month == date.month && d.day == date.day
-    );
+    final normDate = _normalizeDate(date);
+    _history.removeWhere((d) => _isSameDay(d, normDate));
+    // Also remove from missed if present (reset to pending)
+    _missed.removeWhere((d) => _isSameDay(d, normDate));
+
     await _saveHistory();
     notifyListeners();
   }
 
-  // Вспомогательный метод сохранения
+  bool isTakenOnDate(DateTime date) {
+    final target = _normalizeDate(date);
+    return _isSameDayInList(_history, target);
+  }
+
+  // --- Helpers ---
+
+  DateTime _normalizeDate(DateTime d) {
+    return DateTime(d.year, d.month, d.day);
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  bool _isSameDayInList(List<DateTime> list, DateTime target) {
+    return list.any((d) => _isSameDay(d, target));
+  }
+
   Future<void> _saveHistory() async {
-    final timestamps = _history.map((e) => e.millisecondsSinceEpoch).toList();
-    await _box.put(_keyHistory, timestamps);
+    final historyMs = _history.map((e) => e.millisecondsSinceEpoch).toList();
+    final missedMs = _missed.map((e) => e.millisecondsSinceEpoch).toList();
+
+    await _box.put(_keyHistory, historyMs);
+    await _box.put(_keyMissed, missedMs);
   }
 
   // --- Notifications ---
 
   Future<void> _scheduleNotification(String title, String body) async {
-    // Используем метод для ЕЖЕДНЕВНЫХ уведомлений
-    // ID 1001 зарезервирован под таблетки
     await _notifications.scheduleDailyNotification(
-      id: 1001,
+      id: _notificationId,
       title: title,
       body: body,
       time: _reminderTime,
     );
+  }
+
+  Future<void> reschedule(String title, String body) async {
+    if (_isEnabled) {
+      await _scheduleNotification(title, body);
+    }
   }
 }
